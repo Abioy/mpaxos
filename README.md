@@ -22,7 +22,7 @@ MPaxos is used for build for highly reliable distributed services.
 What interfaces does MPaxos provide?
 -------------------------------
 
-MPaxos provides an simple Write-Ahead-Log (WAL) and callback interface. To build a reliable application, you only need to abstract the operations of application into logs, commit it using MPaxos. After successful a commit, MPaxos will invoke a callback function (on every node), with the committed log as a parameter.
+MPaxos provides a simple Write-Ahead-Log (WAL) and callback interface. To build a reliable application, you only need to abstract the operations of application into logs, commit it using MPaxos. After successful a commit, MPaxos will invoke a callback function (on every node), with the committed log as a parameter.
 
 
 
