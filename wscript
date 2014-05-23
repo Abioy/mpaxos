@@ -69,7 +69,7 @@ def _enable_debug(conf):
 
     if os.getenv("CLANG") == "1":
         Logs.pprint("PINK", "Use clang as compiler")
-        conf.env.append_value("C", "clang")
+        conf.env.append_value("C", "clang++")
 
 def _enable_static(conf):
     if os.getenv("STATIC") == "1":

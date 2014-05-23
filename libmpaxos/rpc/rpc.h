@@ -50,7 +50,7 @@ typedef struct {
     } buf_recv;
     
     apr_pollfd_t pfd;
-} context_t;
+} context_t; // This looks like a pollable to me.
 
 typedef struct {
     rpc_common_t com;

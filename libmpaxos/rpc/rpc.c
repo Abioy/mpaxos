@@ -473,7 +473,7 @@ void* APR_THREAD_FUNC start_poll(apr_thread_t *t, void *arg) {
                 LOG_ERROR("poll error. poll num le 0.");
                 SAFE_ASSERT(num > 0);
             }
-            for(int i = 0; i < num; i++) {
+            for (int i = 0; i < num; i++) {
                 if (ret_pfd[i].rtnevents & APR_POLLIN) {
                     if (server_ != NULL && ret_pfd[i].desc.s == server_->com.s) {
                         // new connection arrives.
