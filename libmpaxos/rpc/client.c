@@ -117,6 +117,7 @@ void handle_client_read(void *arg) {
 	    //            ctx->n_rpc++;
 	    //            ctx->sz_recv += n;
             rpc_state *ret_s = (**fun)(state);
+	    SAFE_ASSERT(state->raw_output == NULL);
             free(state->raw_input);
             free(state);
 	} else {
