@@ -1,4 +1,5 @@
 #include "buf.h"
+#include "utils/safe_assert.h"
 
 void buf_create(buf_t **buf) {
     *buf = (buf_t*) malloc(sizeof(buf_t));
@@ -9,7 +10,7 @@ void buf_create(buf_t **buf) {
     b->idx_write = 0;
 }
 
-void buf_destory(buf_t *buf) {
+void buf_destroy(buf_t *buf) {
     free(buf->raw);
     free(buf);
 }

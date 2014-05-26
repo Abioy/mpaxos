@@ -33,7 +33,7 @@ typedef struct {
     apr_socket_t *s;    // socket    
 } rpc_comm_t;
 
-void rpc_common_create(rpc_comm_t **comm) {
+static void rpc_common_create(rpc_comm_t **comm) {
     *comm = (rpc_comm_t*) malloc(sizeof(rpc_comm_t));
     rpc_comm_t *c = *comm;
     apr_pool_create(&c->mp, NULL);
@@ -42,7 +42,7 @@ void rpc_common_create(rpc_comm_t **comm) {
     memset(c->ip, 0, 100);
 }
 
-void rpc_common_destroy(rpc_comm_t *comm) {
+static void rpc_common_destroy(rpc_comm_t *comm) {
     apr_thread_mutex_destroy(comm->mx);
     apr_pool_destroy(comm->mp);
 }

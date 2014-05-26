@@ -9,7 +9,7 @@ void server_create(server_t **svr, poll_mgr_t *mgr) {
     server_t *s = *svr;
     rpc_common_create(&s->comm);
     s->pjob = (poll_job_t*) malloc(sizeof(poll_job_t));
-    s->pjob->do_read = handle_server_read;
+    s->pjob->do_read = handle_server_accept;
     s->pjob->do_write = NULL;
     s->pjob->do_error = NULL;
 
@@ -270,7 +270,7 @@ void write_trigger_poll(rpc_comm_t *comm,
 
 
 void reply_to(rpc_state_t *state) {
-    write_triger_poll(state->sconn->comm,
+    write_trigger_poll(state->sconn->comm,
 		      state->sconn->pjob,
 		      state->sconn->buf_send,
 		      state->msgid,

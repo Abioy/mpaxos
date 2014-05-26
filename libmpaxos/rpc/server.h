@@ -39,11 +39,13 @@ void server_stop(server_t *svr);
 
 void server_reg(server_t *svr, msgid_t msgid, void* fun);
 
+#define server_regfun server_reg;
+
 void sconn_create(sconn_t **sconn, server_t *svr);
 
 void sconn_destroy(sconn_t *sconn);
 
-void handle_server_read(void* arg);
+void handle_server_accept(void* arg);
 
 void handle_sconn_read(void* arg);
 
