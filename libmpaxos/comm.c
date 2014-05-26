@@ -122,9 +122,9 @@ void send_to_groups(groupid_t* gids, size_t sz_gids,
 
 rpc_state* on_prepare(rpc_state* state) {
     msg_prepare_t *msg_prep;
-    msg_prep = mpaxos__msg_prepare__unpack(NULL, state->sz, state->buf);
-    log_message_rid("receive", "PREPARE", msg_prep->h, msg_prep->rids, 
-            msg_prep->n_rids, state->sz);
+    msg_prep = mpaxos__msg_prepare__unpack(NULL, state->sz_input, state->raw_input);
+    //    log_message_rid("receive", "PREPARE", msg_prep->h, msg_prep->rids, 
+    //        msg_prep->n_rids, state->sz);
     rpc_state* ret_state = handle_msg_prepare(msg_prep);
     mpaxos__msg_prepare__free_unpacked(msg_prep, NULL);
     return ret_state;
@@ -132,9 +132,9 @@ rpc_state* on_prepare(rpc_state* state) {
 
 rpc_state* on_accept(rpc_state* state) {
     msg_accept_t *msg_accp;
-    msg_accp = mpaxos__msg_accept__unpack(NULL, state->sz, state->buf);
-    log_message_rid("receive", "ACCEPT", msg_accp->h, msg_accp->prop->rids,
-            msg_accp->prop->n_rids, state->sz);
+    msg_accp = mpaxos__msg_accept__unpack(NULL, state->sz_input, state->raw_input);
+    //log_message_rid("receive", "ACCEPT", msg_accp->h, msg_accp->prop->rids,
+    //        msg_accp->prop->n_rids, state->sz);
     rpc_state* ret_state = handle_msg_accept(msg_accp);
     mpaxos__msg_accept__free_unpacked(msg_accp, NULL);
     return ret_state;
@@ -142,9 +142,9 @@ rpc_state* on_accept(rpc_state* state) {
 
 rpc_state* on_promise(rpc_state* state) {
     msg_promise_t *msg_prom;
-    msg_prom = mpaxos__msg_promise__unpack(NULL, state->sz, state->buf);
-    log_message_res("receive", "PROMISE", msg_prom->h, msg_prom->ress, 
-            msg_prom->n_ress, state->sz);
+    msg_prom = mpaxos__msg_promise__unpack(NULL, state->sz_input, state->raw_input);
+    //log_message_res("receive", "PROMISE", msg_prom->h, msg_prom->ress, 
+    //        msg_prom->n_ress, state->sz);
     handle_msg_promise(msg_prom);
     mpaxos__msg_promise__free_unpacked(msg_prom, NULL);
     return NULL;
@@ -152,9 +152,9 @@ rpc_state* on_promise(rpc_state* state) {
 
 rpc_state* on_accepted(rpc_state* state) {
     msg_accepted_t *msg_accd;
-    msg_accd = mpaxos__msg_accepted__unpack(NULL, state->sz, state->buf);
-    log_message_res("receive", "ACCEPTED", msg_accd->h, msg_accd->ress, 
-            msg_accd->n_ress, state->sz);
+    msg_accd = mpaxos__msg_accepted__unpack(NULL, state->sz_input, state->raw_input);
+    //log_message_res("receive", "ACCEPTED", msg_accd->h, msg_accd->ress, 
+    //        msg_accd->n_ress, state->sz);
     handle_msg_accepted(msg_accd);
     mpaxos__msg_accepted__free_unpacked(msg_accd, NULL);
     return NULL;
@@ -162,15 +162,15 @@ rpc_state* on_accepted(rpc_state* state) {
 
 rpc_state* on_decide(rpc_state* state) {
     msg_decide_t *msg_dcd = NULL;
-    msg_dcd = mpaxos__msg_decide__unpack(NULL, state->sz, state->buf);
+    msg_dcd = mpaxos__msg_decide__unpack(NULL, state->sz_input, state->raw_input);
     handle_msg_decide(msg_dcd);
     mpaxos__msg_decide__free_unpacked(msg_dcd, NULL);
     return NULL;
 }
 
 void start_server(int port) {
-    server_create(&server_);
-    server_->com.port = port;
+    server_create(&server_, NULL);
+    server_->comm->port = port;
 
     // register function
     server_regfun(server_, RPC_PREPARE, on_prepare);
@@ -188,9 +188,9 @@ void set_nid_sender(nodeid_t nid, const char* addr, int port) {
     nodeid_t *nid_ptr = apr_pcalloc(mp_global_, sizeof(nid));
     *nid_ptr = nid;
     client_t *c;
-    client_create(&c);
-    strcpy(c->com.ip, addr);
-    c->com.port = port;
+    client_create(&c, NULL);
+    strcpy(c->comm->ip, addr);
+    c->comm->port = port;
     // FIXME register function callbacks. 
     client_regfun(c, RPC_PREPARE, on_promise);
     client_regfun(c, RPC_ACCEPT, on_accepted);

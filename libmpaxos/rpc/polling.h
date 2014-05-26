@@ -1,3 +1,6 @@
+#ifndef POLLING_H
+#define POLLING_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,26 +20,28 @@
 //#include "utils/mpr_hash.h"
 
 
+typedef struct __poll_job poll_job_t;
+typedef struct __poll_worker poll_worker_t;
 typedef struct __poll_mgr poll_mgr_t;
 
 /*
  * each job is a pollable. 
  */
-typedef struct __poll_job {
+struct __poll_job {
     void* holder;       // which server, client, or server_connection this job belongs to.
-    void* worker;       // which worker is doing this poll job.
-    void *mgr;          // which pollmgr is managin this poll job.
+    //    poll_worker_t* worker;       // which worker is doing this poll job.
+    poll_mgr_t *mgr;          // which pollmgr is managin this poll job.
     apr_pollfd_t pfd;   // this is where to poll 
     apr_pollset_t *ps;  // this is the pollset, actually it also available via poll worker.
     void (*do_read)(void*); 
     void (*do_write)(void*);
     void (*do_error)(void*);
-} poll_job_t;
+};
 
 /*
  * each worker is a thread.
  */
-typedef struct __poll_worker {
+struct __poll_worker {
     poll_mgr_t *mgr;
     apr_pool_t *mp_poll;
     apr_thread_t *th_poll; 
@@ -44,17 +49,17 @@ typedef struct __poll_worker {
     apr_hash_t *ht_jobs;
     apr_pollset_t *ps;
     bool fg_exit;
-} poll_worker_t;
+};
 
 /*
  * each poll manager is in charge of many
  * workers. it dispatch new jobs randomly
  * to each worker.
  */
-typedef struct __poll_mgr {
+struct __poll_mgr {
     poll_worker_t **workers; 
     int n_worker;
-} poll_mgr_t;
+};
 
 int poll_worker_create(
         poll_worker_t **worker,
@@ -106,3 +111,5 @@ int poll_mgr_update_job(
         poll_job_t *job,
         int mode);
 
+
+#endif // POLLING_H

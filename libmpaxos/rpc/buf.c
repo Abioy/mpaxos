@@ -1,7 +1,7 @@
 #include "buf.h"
 
 void buf_create(buf_t **buf) {
-    *buf = (buf_t) malloc(sizeof(buf_t));
+    *buf = (buf_t*) malloc(sizeof(buf_t));
     buf_t *b = *buf;
     b->raw = (uint8_t*) malloc(SZ_BUF);
     b->sz = SZ_BUF;
@@ -10,14 +10,14 @@ void buf_create(buf_t **buf) {
 }
 
 void buf_destory(buf_t *buf) {
-    free(b->raw);
+    free(buf->raw);
     free(buf);
 }
 
 /*
  * make sure tail is larger than sz
  */
-void buf_readjust(buf_t *buf, size_t sz) {
+size_t buf_readjust(buf_t *buf, size_t sz) {
     while (buf->sz - buf->idx_write < sz) {
 	if (buf->idx_read < buf->sz / 2) {
 	    buf_realloc(buf, buf->sz * 2);
@@ -25,49 +25,51 @@ void buf_readjust(buf_t *buf, size_t sz) {
 	    buf_realloc(buf, buf->sz);
 	}
     }
+    return buf->sz;
 }
 
 /*
  * realloc the buf total size to sz
  */
-void buf_realloc(buf_t *buf, size_t sz) {
+size_t buf_realloc(buf_t *buf, size_t sz) {
     SAFE_ASSERT(sz > (buf->idx_write - buf->idx_read));
     // XXX make sure malloc safe
     uint8_t *nraw = (uint8_t*) malloc(sz);
-    memcpy(buf->raw + buf->idx_read, nraw, buf->idx_write - buf->idx_read);
+    memcpy(nraw, buf->raw + buf->idx_read, buf->idx_write - buf->idx_read);
     free(buf->raw);
     buf->raw = nraw;
     buf->idx_write = buf->idx_write - buf->idx_read;
     buf->idx_read = 0;
     buf->sz = sz;
+    return buf->sz;
 }
 
-size_t write_buf(buf_t *buf, uint8_t *data, size_t n) {
+size_t buf_write(buf_t *buf, uint8_t *data, size_t n) {
     buf_readjust(buf, n);
     memcpy(buf->raw + buf->idx_write, data, n);
     return n;
 }
 
-size_t read_buf(buf_t *buf, uint8_t *data, size_t n) {
+size_t buf_read(buf_t *buf, uint8_t *data, size_t n) {
     size_t sz_content = buf->idx_write - buf->idx_read;
     if (sz_content >= n) {
-	memcpy(buf->raw + buf->idx_read, data, n);
+	memcpy(data, buf->raw + buf->idx_read, n);
 	buf->idx_read += n;
 	return n;
     } else {
-	memcpy(buf->raw + buf->idx_read, data, sz_content);
+	memcpy(data, buf->raw + buf->idx_read, sz_content);
 	buf->idx_read += sz_content;
 	return sz_content;
     }
 }
 
-size_t peek_buf(buf_t *buf, uint8_t *data, size_t n) {
+size_t buf_peek(buf_t *buf, uint8_t *data, size_t n) {
     size_t sz_content = buf->idx_write - buf->idx_read;
     if (sz_content >= n) {
-	memcpy(buf->raw + buf->idx_read, data, n);
+	memcpy(data, buf->raw + buf->idx_read, n);
 	return n;
     } else {
-	memcpy(buf->raw + buf->idx_read, data, sz_content);
+	memcpy(data, buf->raw + buf->idx_read, sz_content);
 	return sz_content;
     }
 }
@@ -111,4 +113,4 @@ size_t buf_from_sock(buf_t *buf, apr_socket_t *sock) {
     }
 }
 
-#endif BUFFER_H
+

@@ -24,33 +24,31 @@ typedef struct {
     uint32_t b;
 } struct_add;
 
-rpc_state* add(rpc_state *in) {
+rpc_state* add(rpc_state *state) {
     LOG_DEBUG("server received rpc request.\n");
-    struct_add *sa = (struct_add *)in->buf;
+    struct_add *sa = (struct_add *)state->raw_input;
     uint32_t c = sa->a + sa->b;
-    rpc_state *out = (rpc_state *)malloc(sizeof(rpc_state));    
-    out->buf = (uint8_t*)malloc(sizeof(uint32_t));
-    out->sz = sizeof(uint32_t);
-    memcpy(out->buf, &c, sizeof(uint32_t));
-    return out;
+    
+    state->raw_output = (uint8_t*)malloc(sizeof(uint32_t));
+    state->sz_output = sizeof(uint32_t);
+    memcpy(state->raw_output, &c, sizeof(uint32_t));
+    return NULL;
 }
 
-rpc_state* add_cb(rpc_state *in) {
+rpc_state* add_cb(rpc_state *state) {
     // Do nothing
     LOG_DEBUG("client callback exceuted.\n");
 
-    if (in->ctx->n_rpc == N_RPC) {
-        uint32_t j = apr_atomic_add32(&n_rpc_, N_RPC);
-        if (j + N_RPC == N_RPC * n_client_) {
-            printf("hahaha\n");
-            tm_end_ = apr_time_now();
-            apr_thread_mutex_lock(mx_rpc_);
-            apr_thread_cond_signal(cd_rpc_);
-            apr_thread_mutex_unlock(mx_rpc_);
-        }
-          
-    }
-
+//    if (in->ctx->n_rpc == N_RPC) {
+//        uint32_t j = apr_atomic_add32(&n_rpc_, N_RPC);
+//        if (j + N_RPC == N_RPC * n_client_) {
+//            printf("hahaha\n");
+//            tm_end_ = apr_time_now();
+//            apr_thread_mutex_lock(mx_rpc_);
+//            apr_thread_cond_signal(cd_rpc_);
+//            apr_thread_mutex_unlock(mx_rpc_);
+//        }
+//    }
     return NULL;
 }
 
@@ -84,9 +82,9 @@ void bench_add() {
 
 void* APR_THREAD_FUNC client_thread(apr_thread_t *th, void *v) {
     client_t *client = NULL;
-    client_create(&client);
-    strcpy(client->com.ip, addr);
-    client->com.port = port;
+    client_create(&client, NULL);
+    strcpy(client->comm->ip, addr);
+    client->comm->port = port;
     client_regfun(client, ADD, add_cb);
     tm_begin_ = apr_time_now();
     client_connect(client);
@@ -134,9 +132,9 @@ int main(int argc, char **argv) {
     port = atoi(argv[3]);
     if (strcmp(s_or_c, "server") == 0) {
         server_t *server = NULL;
-        server_create(&server);    
-        strcpy(server->com.ip, addr);
-        server->com.port = port;
+        server_create(&server, NULL);    
+        strcpy(server->comm->ip, addr);
+        server->comm->port = port;
         server_regfun(server, ADD, add); 
         server_start(server);
         printf("server started.\n");

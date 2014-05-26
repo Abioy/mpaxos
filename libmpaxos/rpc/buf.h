@@ -1,6 +1,11 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <apr_network_io.h>
+
 #define SZ_BUF (1024*1024) // 1M
 
 typedef struct {
@@ -18,14 +23,14 @@ size_t buf_readjust(buf_t *buf, size_t sz);
 
 size_t buf_realloc(buf_t *buf, size_t sz);
 
-size_t write_buf(buf_t *buf, uint8_t *data, size_t sz);
+size_t buf_write(buf_t *buf, uint8_t *data, size_t sz);
 
-size_t read_buf(buf_t *buf, uint8_t *data, size_t sz);
+size_t buf_read(buf_t *buf, uint8_t *data, size_t sz);
 
-size_t peek_buf(buf_t *buf, uint8_t *data, size_t sz);
+size_t buf_peek(buf_t *buf, uint8_t *data, size_t sz);
 
 size_t buf_to_sock(buf_t *buf, apr_socket_t *sock);
 
 size_t buf_from_sock(buf_t *buf, apr_socket_t *sock);
 
-#endif BUFFER_H
+#endif // BUFFER_H

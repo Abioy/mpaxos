@@ -1,7 +1,9 @@
 
-#include "rpc_common.h"
+#include "rpc_comm.h"
+#include "server.h"
 #include "client.h"
 
+extern poll_mgr_t *mgr_;
 
 void client_create(client_t **cli, poll_mgr_t *mgr) {
     *cli = (client_t *) malloc(sizeof(client_t));
@@ -19,8 +21,8 @@ void client_create(client_t **cli, poll_mgr_t *mgr) {
 
 void client_destroy(client_t *cli) {
     rpc_common_destroy(cli->comm);
-    buf_destroy(c->buf_recv);
-    buf_destroy(c->buf_send);
+    buf_destroy(cli->buf_recv);
+    buf_destroy(cli->buf_send);
     free(cli);
 }
 
@@ -28,7 +30,8 @@ void client_connect(client_t *cli) {
     LOG_DEBUG("connecting to server %s %d", cli->comm->ip, cli->comm->port);
     
     apr_status_t status = APR_SUCCESS;
-    status = apr_sockaddr_info_get(&cli->comm->sa, cli->comm->ip, APR_INET, cli->comm.port, 0, cli->comm->mp);
+    status = apr_sockaddr_info_get(&cli->comm->sa, cli->comm->ip, APR_INET, 
+				   cli->comm->port, 0, cli->comm->mp);
 
     SAFE_ASSERT(status == APR_SUCCESS);
     status = apr_socket_create(&cli->comm->s, cli->comm->sa->family, SOCK_STREAM, APR_PROTO_TCP, cli->comm->mp);
@@ -50,7 +53,7 @@ void client_connect(client_t *cli) {
         }
     }
     LOG_TRACE("connected socket on remote addr %s, port %d", c->com.ip, c->com.port);
-    status = apr_socket_opt_set(c->com.s, APR_SO_NONBLOCK, 1);
+    status = apr_socket_opt_set(cli->comm->s, APR_SO_NONBLOCK, 1);
     SAFE_ASSERT(status == APR_SUCCESS);
     
     // add to epoll
@@ -59,7 +62,7 @@ void client_connect(client_t *cli) {
 //        // not inited yet, just wait.
 //    }
 //
-    apr_pollfd_t pfd = {ctx->mp, APR_POLL_SOCKET, APR_POLLIN, 0, {NULL}, NULL};
+    apr_pollfd_t pfd = {cli->comm->mp, APR_POLL_SOCKET, APR_POLLIN, 0, {NULL}, NULL};
     pfd.desc.s = cli->comm->s;
     pfd.client_data = cli;
     cli->pjob->pfd = pfd;
@@ -75,14 +78,15 @@ void client_disconnect(client_t *cli) {
 }
 
 void handle_client_read(void *arg) {
-    client_t *cli = (client_t) arg;
+    client_t *cli = (client_t*) arg;
     buf_t *buf = cli->buf_recv;
     apr_socket_t *sock = cli->pjob->pfd.desc.s;
 
     buf_from_sock(buf, sock);
 
     // invoke msg handling.
-    while ((size_t sz_c = buf_sz_content(buf)) > SZ_SZMSG) {
+    size_t sz_c = 0;
+    while ((sz_c = buf_sz_content(buf)) > SZ_SZMSG) {
 	uint32_t sz_msg = 0;
 	buf_peek(buf, &sz_msg, sizeof(sz_msg));
 	if (sz_c > sz_msg + SZ_SZMSG + SZ_MSGID) {
@@ -91,11 +95,11 @@ void handle_client_read(void *arg) {
 	    buf_read(buf, &msgid, SZ_MSGID);
 
 	    rpc_state *state = malloc(sizeof(rpc_state));
-            state->sz = sz_msg;
-            state->raw = malloc(sz_msg);
-            state->ctx = ctx;
+            state->sz_input = sz_msg;
+            state->raw_input = malloc(sz_msg);
+	    //            state->ctx = ctx;
 
-	    buf_read(buf, state->raw, sz_msg);
+	    buf_read(buf, state->raw_input, sz_msg);
 //            state->ctx = ctx;
 /*
             apr_thread_pool_push(tp_on_read_, (*(ctx->on_recv)), (void*)state, 0, NULL);
@@ -107,48 +111,41 @@ void handle_client_read(void *arg) {
 
             rpc_state* (**fun)(void*) = NULL;
             size_t sz;
-            mpr_hash_get(svr->comm->ht, &fid, sizeof(funid_t), (void**)&fun, &sz);
+            mpr_hash_get(cli->comm->ht, &msgid, SZ_MSGID, (void**)&fun, &sz);
             SAFE_ASSERT(fun != NULL);
             LOG_TRACE("going to call function %x", *fun);
 	    //            ctx->n_rpc++;
 	    //            ctx->sz_recv += n;
             rpc_state *ret_s = (**fun)(state);
-            free(state->raw);
+            free(state->raw_input);
             free(state);
-
-	    // TODO write back to this connection.
-            if (ret_s != NULL) {
-                add_write_buf_to_ctx(ctx, fid, ret_s->buf, ret_s->sz);
-                free(ret_s->buf);
-                free(ret_s);
-            }
 	} else {
 	    break;
 	}
     }
 
-    if (status == APR_SUCCESS) {
-	
-    } else if (status == APR_EOF) {
-        LOG_INFO("on read, received eof, close socket");
-        apr_pollset_remove(ctx->ps, &ctx->pfd);
-        // context_destroy(ctx);
-    } else if (status == APR_ECONNRESET) {
-        LOG_ERROR("on read. connection reset.");
-        // TODO [improve] you may retry connect
-        apr_pollset_remove(ctx->ps, &ctx->pfd);
-    } else if (status == APR_EAGAIN) {
-        LOG_ERROR("socket busy, resource temporarily unavailable.");
-        // do nothing.
-    } else {
-        LOG_ERROR("unkown error on poll reading. %s\n", apr_strerror(status, malloc(100), 100));
-        SAFE_ASSERT(0);
-    }
-
+//    if (status == APR_SUCCESS) {
+//	
+//    } else if (status == APR_EOF) {
+//        LOG_INFO("on read, received eof, close socket");
+//        apr_pollset_remove(ctx->ps, &ctx->pfd);
+//        // context_destroy(ctx);
+//    } else if (status == APR_ECONNRESET) {
+//        LOG_ERROR("on read. connection reset.");
+//        // TODO [improve] you may retry connect
+//        apr_pollset_remove(ctx->ps, &ctx->pfd);
+//    } else if (status == APR_EAGAIN) {
+//        LOG_ERROR("socket busy, resource temporarily unavailable.");
+//        // do nothing.
+//    } else {
+//        LOG_ERROR("unkown error on poll reading. %s\n", apr_strerror(status, malloc(100), 100));
+//        SAFE_ASSERT(0);
+//    }
+//
 }
 
 void handle_client_write(void *arg) {
-    client_t *cli = (client_t) arg;
+    client_t *cli = (client_t*) arg;
     buf_t *buf = cli->buf_send;
     apr_socket_t *sock = cli->pjob->pfd.desc.s;
 
@@ -159,12 +156,17 @@ void handle_client_write(void *arg) {
     apr_thread_mutex_unlock(cli->comm->mx);
 }
 
-void client_reg(client_t *cli, funid_t fid, void* fun) {
+void client_reg(client_t *cli, msgid_t msgid, void* fun) {
     LOG_TRACE("client regisger function, %x", fun);
-    mpr_hash_set(cli->comm->ht, &fid, sizeof(funid_t), &fun, sizeof(void*)); 
+    mpr_hash_set(cli->comm->ht, &msgid, SZ_MSGID, &fun, sizeof(void*)); 
 }
 
-void client_call(client_t *c, funid_t fid, const uint8_t *buf, size_t sz_buf) {
-    add_write_buf_to_ctx(c->ctx, fid, buf, sz_buf);
+void client_call(client_t *cli, msgid_t msgid, const uint8_t *data, size_t sz_data) {
+    write_trigger_poll(cli->comm,
+		       cli->pjob,
+		       cli->buf_send,
+		       msgid,
+		       data,
+		       sz_data);
 }
 

@@ -163,8 +163,8 @@ rpc_state* handle_msg_prepare(const msg_prepare_t *p_msg_prep) {
     mpaxos__msg_promise__pack(&msg_prom, buf);
 
     rpc_state *ret_state = (rpc_state*) malloc(sizeof(rpc_state));
-    ret_state->buf = buf;
-    ret_state->sz = sz_msg;
+    ret_state->raw_output = buf;
+    ret_state->sz_output = sz_msg;
   
     for (int i = 0; i < msg_prom.n_ress; i++) {
         free(msg_prom.ress[i]->props);
@@ -242,8 +242,8 @@ rpc_state* handle_msg_accept(const msg_accept_t *msg_accp) {
     free(msg_accd.ress);
 
     rpc_state *ret_state = (rpc_state*) malloc(sizeof(rpc_state));
-    ret_state->buf = buf;
-    ret_state->sz = len;
+    ret_state->raw_output = buf;
+    ret_state->sz_output = len;
     
     return ret_state;
 }

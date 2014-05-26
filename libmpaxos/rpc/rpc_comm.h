@@ -1,6 +1,20 @@
 
+
+
 #ifndef RPC_COMM_H
 #define RPC_COMM_H
+
+#include <stdint.h>
+#include <apr_hash.h>
+#include <apr_network_io.h>
+
+#include "utils/mpr_hash.h"
+
+#define SZ_MSGID sizeof(msgid_t)
+#define SZ_SZMSG sizeof(uint32_t)
+
+typedef uint16_t msgid_t;
+typedef uint16_t funid_t;
 
 /*
  * this contains the shared information of server, client, 
@@ -17,6 +31,20 @@ typedef struct {
     mpr_hash_t *ht;     // hash table of function call
     apr_sockaddr_t *sa; // socket_addr
     apr_socket_t *s;    // socket    
-} rpc_common_t;
+} rpc_comm_t;
+
+void rpc_common_create(rpc_comm_t **comm) {
+    *comm = (rpc_comm_t*) malloc(sizeof(rpc_comm_t));
+    rpc_comm_t *c = *comm;
+    apr_pool_create(&c->mp, NULL);
+    apr_thread_mutex_create(&c->mx, APR_THREAD_MUTEX_UNNESTED, c->mp);
+    mpr_hash_create_ex(&c->ht, 0);
+    memset(c->ip, 0, 100);
+}
+
+void rpc_common_destroy(rpc_comm_t *comm) {
+    apr_thread_mutex_destroy(comm->mx);
+    apr_pool_destroy(comm->mp);
+}
 
 #endif // RPC_COMM_H
