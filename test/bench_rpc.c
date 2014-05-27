@@ -3,7 +3,7 @@
 #include "rpc/rpc.h"
 #include "mpaxos.pb-c.h"
 
-#define N_RPC (100000)
+#define N_RPC (3)
 
 static apr_pool_t *mp_rpc_ = NULL;
 static apr_thread_cond_t *cd_rpc_ = NULL;
@@ -39,16 +39,16 @@ rpc_state* add_cb(rpc_state *state) {
     // Do nothing
     LOG_DEBUG("client callback exceuted.\n");
 
-//    if (in->ctx->n_rpc == N_RPC) {
-//        uint32_t j = apr_atomic_add32(&n_rpc_, N_RPC);
-//        if (j + N_RPC == N_RPC * n_client_) {
-//            printf("hahaha\n");
-//            tm_end_ = apr_time_now();
-//            apr_thread_mutex_lock(mx_rpc_);
-//            apr_thread_cond_signal(cd_rpc_);
-//            apr_thread_mutex_unlock(mx_rpc_);
-//        }
-//    }
+    //    if (in->ctx->n_rpc == N_RPC) {
+        uint32_t j = apr_atomic_add32(&n_rpc_, 1);
+        if (j + 1 == N_RPC * n_client_) {
+            printf("hahaha\n");
+            tm_end_ = apr_time_now();
+            apr_thread_mutex_lock(mx_rpc_);
+            apr_thread_cond_signal(cd_rpc_);
+            apr_thread_mutex_unlock(mx_rpc_);
+        }
+	//    }
     return NULL;
 }
 
@@ -85,7 +85,7 @@ void* APR_THREAD_FUNC client_thread(apr_thread_t *th, void *v) {
     client_create(&client, NULL);
     strcpy(client->comm->ip, addr);
     client->comm->port = port;
-    client_regfun(client, ADD, add_cb);
+    client_reg(client, ADD, add_cb);
     tm_begin_ = apr_time_now();
     client_connect(client);
 //    printf("client connected.\n");
@@ -124,6 +124,11 @@ int main(int argc, char **argv) {
     apr_thread_mutex_create(&mx_rpc_, APR_THREAD_MUTEX_UNNESTED, mp_rpc_);
     rpc_init();
 
+    if (argc < 3) {
+	printf("Usage: %s server|client addr port\n ", argv[0]);
+	exit(0);
+    }
+
     sleep(1);
     printf("after sleep.\n");
     
@@ -135,7 +140,7 @@ int main(int argc, char **argv) {
         server_create(&server, NULL);    
         strcpy(server->comm->ip, addr);
         server->comm->port = port;
-        server_regfun(server, ADD, add); 
+        server_reg(server, ADD, add); 
         server_start(server);
         printf("server started.\n");
         while (1) {

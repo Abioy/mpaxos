@@ -9,10 +9,10 @@ void server_create(server_t **svr, poll_mgr_t *mgr) {
     server_t *s = *svr;
     rpc_common_create(&s->comm);
     s->pjob = (poll_job_t*) malloc(sizeof(poll_job_t));
-    s->pjob->do_read = handle_server_accept;
+    s->pjob->do_read = &handle_server_accept;
     s->pjob->do_write = NULL;
     s->pjob->do_error = NULL;
-
+    s->pjob->holder = s;
     s->pjob->mgr = (mgr != NULL) ? mgr: mgr_;
 
     s->is_start = false;
@@ -52,6 +52,7 @@ void server_bind_listen(server_t *svr) {
         printf("%s", apr_strerror(status, malloc(100), 100));
         SAFE_ASSERT(status == APR_SUCCESS);
     }
+    LOG_DEBUG("successfuly bind and listen on port %d.", svr->comm->port);
 }
 
 void server_start(server_t *svr) {
@@ -59,6 +60,7 @@ void server_start(server_t *svr) {
     server_bind_listen(s);
     apr_pollfd_t pfd = {s->comm->mp, APR_POLL_SOCKET, APR_POLLIN, 0, {NULL}, NULL};
     pfd.desc.s = svr->comm->s;
+    pfd.client_data = svr->pjob;
     svr->pjob->pfd = pfd;
     // TODO add the poll job instead?
     poll_mgr_add_job(svr->pjob->mgr, svr->pjob);
@@ -68,7 +70,8 @@ void server_start(server_t *svr) {
 void server_stop(server_t *svr);
 
 void server_reg(server_t *svr, msgid_t msgid, void* fun) {
-    LOG_TRACE("server regisger function, %x", fun);
+    LOG_TRACE("server regisger function, msg type:%x", (int32_t)msgid);
+    SAFE_ASSERT(fun != NULL);
     mpr_hash_set(svr->comm->ht, &msgid, SZ_MSGID, 
 		 &fun, sizeof(void*));
 }
@@ -78,6 +81,13 @@ void sconn_create(sconn_t **sconn, server_t *svr) {
     sconn_t *sc = *sconn;
     sc->comm = svr->comm; // TODO, is this really a good idea?
     sc->pjob = (poll_job_t *) malloc(sizeof(poll_job_t));
+
+    sc->pjob->do_read = handle_sconn_read;
+    sc->pjob->do_write = handle_sconn_write;
+    sc->pjob->do_error = NULL;
+    sc->pjob->holder = sc;
+    sc->pjob->mgr = svr->pjob->mgr;
+
     buf_create(&sc->buf_recv);
     buf_create(&sc->buf_send);
 }
@@ -95,10 +105,14 @@ void handle_server_accept(void* arg) {
 
     apr_status_t status = APR_SUCCESS;
     apr_socket_t *ns = NULL;
+    
+    LOG_TRACE("on new connection");
+
     status = apr_socket_accept(&ns, svr->comm->s, svr->comm->mp);
 
 //    apr_socket_t *sock_listen = r->com.s;
 //    LOG_INFO("accept on fd %x", sock_listen->socketdes);
+    LOG_DEBUG("accept new connection");
 
     if (status != APR_SUCCESS) {
         LOG_ERROR("recvr accept error.");
@@ -112,14 +126,14 @@ void handle_server_accept(void* arg) {
 
     apr_pollfd_t pfd = {svr->comm->mp, APR_POLL_SOCKET, APR_POLLIN, 0, {NULL}, NULL};
     pfd.desc.s = ns;
-    pfd.client_data = sconn;
+    pfd.client_data = sconn->pjob;
     sconn->pjob->pfd = pfd;
     sconn->pjob->mgr = svr->pjob->mgr;
-    poll_mgr_add_job(sconn->pjob->mgr, sconn);
+    poll_mgr_add_job(sconn->pjob->mgr, sconn->pjob);
 }
 
 void handle_sconn_read(void* arg) {
-    LOG_TRACE("HERE I AM, ON_READ");
+    LOG_TRACE("sconn read handle read.");
 
     sconn_t *sconn = (sconn_t *) arg;
     buf_t *buf = sconn->buf_recv;
@@ -133,11 +147,13 @@ void handle_sconn_read(void* arg) {
     size_t sz_c = 0;
     while ((sz_c = buf_sz_content(buf)) > SZ_SZMSG) {
 	uint32_t sz_msg = 0;
-	buf_peek(buf, &sz_msg, sizeof(sz_msg));
+	SAFE_ASSERT(buf_peek(buf, (uint8_t*)&sz_msg, SZ_SZMSG) == SZ_SZMSG);
+	SAFE_ASSERT(sz_msg > 0);
 	if (sz_c > sz_msg + SZ_SZMSG + SZ_MSGID) {
-	    buf_read(buf, &sz_msg, SZ_SZMSG);
+	    SAFE_ASSERT(buf_read(buf, (uint8_t*)&sz_msg, SZ_SZMSG) == SZ_SZMSG);
 	    msgid_t msgid = 0;
-	    buf_read(buf, &msgid, SZ_MSGID);
+	    SAFE_ASSERT(buf_read(buf, (uint8_t*)&msgid, SZ_MSGID) == SZ_MSGID);
+    	    LOG_TRACE("next message size: %d, type: %x", (int32_t)sz_msg, (int32_t)msgid);
 
 	    rpc_state *state = malloc(sizeof(rpc_state));
             state->sz_input = sz_msg;
@@ -145,8 +161,9 @@ void handle_sconn_read(void* arg) {
 	    state->raw_output = NULL;
 	    state->sz_output = 0;
             state->sconn = sconn;
+	    state->msgid = msgid;
 
-	    buf_read(buf, state->raw_input, sz_msg);
+	    SAFE_ASSERT(buf_read(buf, (uint8_t*)state->raw_input, sz_msg) == sz_msg);
 	    //            apr_thread_pool_push(tp_on_read_, (*(ctx->on_recv)), (void*)state, 0, NULL);
 //            mpr_thread_pool_push(tp_read_, (void*)state);
 //            apr_atomic_inc32(&n_data_recv_);
@@ -197,7 +214,7 @@ void handle_sconn_read(void* arg) {
 void handle_sconn_write(void* arg) {
     sconn_t *sconn = arg;
 
-    LOG_TRACE("write message on socket %x", pfd->desc.s);
+    //   LOG_TRACE("write message on socket %x", pfd->desc.s);
 
     apr_thread_mutex_lock(sconn->comm->mx);
 
@@ -248,26 +265,26 @@ void write_trigger_poll(rpc_comm_t *comm,
     buf_readjust(buf, sz_data + SZ_SZMSG + SZ_MSGID);
 
     // copy memory
-    LOG_TRACE("add message to sending buffer, message size: %d", sz_data);
+    LOG_TRACE("add message to sending buffer, message size: %d, message type: %x", (int32_t)sz_data, (int32_t)msgid);
      
     //    LOG_TRACE("size in buf:%llx, original size:%llx", 
     //        *(ctx->buf_send.buf + ctx->buf_send.offset_end), sz_buf + sizeof(funid_t));
     
     size_t n = SZ_SZMSG;
-    buf_write(buf, sz_data, &n);
+    SAFE_ASSERT(buf_write(buf, (uint8_t*)&sz_data, n) == n);
 
+    SAFE_ASSERT(msgid != 0); // message id cannot be zero
     n = SZ_MSGID;
-    buf_write(buf, msgid, &n);
+    SAFE_ASSERT(buf_write(buf, (uint8_t*)&msgid, n) == n);
 
     n = sz_data;
-    buf_write(buf, msgid, &n);
+    SAFE_ASSERT(buf_write(buf, (uint8_t*)data, n) == n);
 
     // change poll type
     poll_mgr_update_job(pjob->mgr, pjob, APR_POLLIN | APR_POLLOUT);
     
     apr_thread_mutex_unlock(comm->mx);
 }
-
 
 void reply_to(rpc_state_t *state) {
     write_trigger_poll(state->sconn->comm,
@@ -277,10 +294,5 @@ void reply_to(rpc_state_t *state) {
 		      state->raw_output, 
 		      state->sz_output);
 }
-
-
-
-
-
 
 

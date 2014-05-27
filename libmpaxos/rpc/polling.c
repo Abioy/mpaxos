@@ -4,14 +4,18 @@ void* APR_THREAD_FUNC poll_worker_run(
         apr_thread_t *th,
         void *arg) {
     poll_worker_t *worker = arg;
-
-    while (worker->fg_exit) {
+    
+    LOG_TRACE("poll worker loop starts");
+    
+    while (!worker->fg_exit) {
         int num = 0;
         const apr_pollfd_t *ret_pfd;
+	// wait 100 * 1000 micro seconds.
         apr_status_t status = apr_pollset_poll(worker->ps, 100 * 1000, 
-                &num, &ret_pfd);
+					       &num, &ret_pfd);
 
         if (status == APR_SUCCESS) {
+   	    LOG_TRACE("poll worker loop: found something");
             SAFE_ASSERT(num > 0);
             for (int i = 0; i < num; i++) {
                 int rtne = ret_pfd[i].rtnevents;
@@ -19,10 +23,14 @@ void* APR_THREAD_FUNC poll_worker_run(
                 poll_job_t *job = ret_pfd[i].client_data;
                 SAFE_ASSERT(job != NULL);
                 if (rtne & APR_POLLIN) {
-                    job->do_read(job->holder); 
+	    	    LOG_TRACE("poll worker loop: found something to read");
+		    SAFE_ASSERT(job->do_read != NULL);
+		    (*job->do_read)(job->holder); 
                 }
                 if (rtne & APR_POLLOUT) {
-                    job->do_write(job->holder);
+	    	    LOG_TRACE("poll worker loop: found something to write");
+		    SAFE_ASSERT(job->do_write);
+                    (*job->do_write)(job->holder);
                 }
             }
         } else if (status == APR_EINTR) {
@@ -39,6 +47,7 @@ void* APR_THREAD_FUNC poll_worker_run(
         }
     }
     
+    LOG_TRACE("poll worker loop stops");
     SAFE_ASSERT(apr_thread_exit(th, APR_SUCCESS) == APR_SUCCESS);
     return NULL;
 }
@@ -63,6 +72,8 @@ int poll_worker_create(
     apr_pool_create(&w->mp_poll, NULL);
     w->ht_jobs = apr_hash_make(w->mp_poll);
     apr_thread_mutex_create(&w->mx_poll, APR_THREAD_MUTEX_UNNESTED, w->mp_poll);
+    apr_pollset_create(&w->ps, 1000, w->mp_poll, APR_POLLSET_THREADSAFE);
+    w->fg_exit = false;
     poll_worker_start(w);
     *worker = w;
     return 0;
@@ -72,6 +83,7 @@ int poll_worker_destroy(
         poll_worker_t *worker) {
     worker->fg_exit = true; 
     poll_worker_stop(worker);    
+    apr_pollset_destroy(worker->ps);
     apr_pool_destroy(worker->mp_poll);
     free(worker);
     return 0;
@@ -81,22 +93,28 @@ int poll_worker_destroy(
 int poll_worker_add_job(
         poll_worker_t *worker,
         poll_job_t *job) {
+    SAFE_ASSERT(worker != NULL);
     apr_pollset_add(worker->ps, &job->pfd);  
+    return 0;
 }
 
 int poll_worker_remove_job(
         poll_worker_t *worker,
         poll_job_t *job) {
+    SAFE_ASSERT(worker != NULL);
     apr_pollset_remove(worker->ps, &job->pfd);
+    return 0;
 }
 
 int poll_worker_update_job(
         poll_worker_t *worker,
         poll_job_t *job,
         int mode) {
+    SAFE_ASSERT(worker != NULL);
     apr_pollset_remove(worker->ps, &job->pfd);   
     job->pfd.reqevents = mode;
     apr_pollset_add(worker->ps, &job->pfd);
+    return 0;
 }
 
 int poll_mgr_create(
@@ -128,6 +146,7 @@ int poll_mgr_add_job(
     int i = 0; // TODO, hash
     poll_worker_t *worker = mgr->workers[i]; 
     poll_worker_add_job(worker, job);
+    LOG_TRACE("add poll job to manager");
     return 0;
 }
 
@@ -137,6 +156,7 @@ int poll_mgr_remove_job(
     int i = 0; // TODO, hash
     poll_worker_t *worker = mgr->workers[i]; 
     poll_worker_remove_job(worker, job);
+    LOG_TRACE("remove poll job from manager");
     return 0;
 }
 
@@ -147,5 +167,6 @@ int poll_mgr_update_job(
     int i = 0; // TODO, hash
     poll_worker_t *worker = mgr->workers[i]; 
     poll_worker_update_job(worker, job, mode);
+    LOG_TRACE("update poll job in manager");
     return 0;
 }

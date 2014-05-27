@@ -26,6 +26,4 @@ void handle_client_write(void *arg);
 
 void client_reg(client_t *cli, msgid_t, void*);
 
-#define client_regfun client_reg
-
 #endif // CLIENT_H

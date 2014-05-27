@@ -173,9 +173,9 @@ void start_server(int port) {
     server_->comm->port = port;
 
     // register function
-    server_regfun(server_, RPC_PREPARE, on_prepare);
-    server_regfun(server_, RPC_ACCEPT, on_accept);
-    server_regfun(server_, RPC_DECIDE, on_decide);
+    server_reg(server_, RPC_PREPARE, on_prepare);
+    server_reg(server_, RPC_ACCEPT, on_accept);
+    server_reg(server_, RPC_DECIDE, on_decide);
     
     server_start(server_);
     LOG_INFO("Server started on port %d.", port);
@@ -192,7 +192,7 @@ void set_nid_sender(nodeid_t nid, const char* addr, int port) {
     strcpy(c->comm->ip, addr);
     c->comm->port = port;
     // FIXME register function callbacks. 
-    client_regfun(c, RPC_PREPARE, on_promise);
-    client_regfun(c, RPC_ACCEPT, on_accepted);
+    client_reg(c, RPC_PREPARE, on_promise);
+    client_reg(c, RPC_ACCEPT, on_accepted);
     apr_hash_set(ht_sender_, nid_ptr, sizeof(nid), c);
 }

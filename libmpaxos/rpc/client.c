@@ -13,10 +13,11 @@ void client_create(client_t **cli, poll_mgr_t *mgr) {
     c->pjob->do_read = handle_client_read;
     c->pjob->do_write = handle_client_write;
     c->pjob->do_error = NULL;
-    buf_create(c->buf_recv);
-    buf_create(c->buf_send);
-
+    c->pjob->holder = c;
     c->pjob->mgr = (mgr != NULL) ? mgr : mgr_;
+
+    buf_create(&c->buf_recv);
+    buf_create(&c->buf_send);
 }
 
 void client_destroy(client_t *cli) {
@@ -34,7 +35,8 @@ void client_connect(client_t *cli) {
 				   cli->comm->port, 0, cli->comm->mp);
 
     SAFE_ASSERT(status == APR_SUCCESS);
-    status = apr_socket_create(&cli->comm->s, cli->comm->sa->family, SOCK_STREAM, APR_PROTO_TCP, cli->comm->mp);
+    status = apr_socket_create(&cli->comm->s, cli->comm->sa->family, 
+			       SOCK_STREAM, APR_PROTO_TCP, cli->comm->mp);
 
     SAFE_ASSERT(status == APR_SUCCESS);
     status = apr_socket_opt_set(cli->comm->s, APR_TCP_NODELAY, 1);
@@ -52,7 +54,7 @@ void client_connect(client_t *cli) {
             continue;
         }
     }
-    LOG_TRACE("connected socket on remote addr %s, port %d", c->com.ip, c->com.port);
+    LOG_TRACE("connected socket on remote addr %s, port %d", cli->comm->ip, cli->comm->port);
     status = apr_socket_opt_set(cli->comm->s, APR_SO_NONBLOCK, 1);
     SAFE_ASSERT(status == APR_SUCCESS);
     
@@ -64,7 +66,7 @@ void client_connect(client_t *cli) {
 //
     apr_pollfd_t pfd = {cli->comm->mp, APR_POLL_SOCKET, APR_POLLIN, 0, {NULL}, NULL};
     pfd.desc.s = cli->comm->s;
-    pfd.client_data = cli;
+    pfd.client_data = cli->pjob;
     cli->pjob->pfd = pfd;
     poll_mgr_add_job(cli->pjob->mgr, cli->pjob);
     
@@ -88,11 +90,11 @@ void handle_client_read(void *arg) {
     size_t sz_c = 0;
     while ((sz_c = buf_sz_content(buf)) > SZ_SZMSG) {
 	uint32_t sz_msg = 0;
-	buf_peek(buf, &sz_msg, sizeof(sz_msg));
+	buf_peek(buf, (uint8_t*)&sz_msg, sizeof(sz_msg));
 	if (sz_c > sz_msg + SZ_SZMSG + SZ_MSGID) {
-	    buf_read(buf, &sz_msg, SZ_SZMSG);
+	    buf_read(buf, (uint8_t*)&sz_msg, SZ_SZMSG);
 	    msgid_t msgid = 0;
-	    buf_read(buf, &msgid, SZ_MSGID);
+	    buf_read(buf, (uint8_t*)&msgid, SZ_MSGID);
 
 	    rpc_state *state = malloc(sizeof(rpc_state));
             state->sz_input = sz_msg;
@@ -116,8 +118,8 @@ void handle_client_read(void *arg) {
             LOG_TRACE("going to call function %x", *fun);
 	    //            ctx->n_rpc++;
 	    //            ctx->sz_recv += n;
-            rpc_state *ret_s = (**fun)(state);
-	    SAFE_ASSERT(state->raw_output == NULL);
+            (**fun)(state);
+
             free(state->raw_input);
             free(state);
 	} else {
@@ -149,6 +151,8 @@ void handle_client_write(void *arg) {
     client_t *cli = (client_t*) arg;
     buf_t *buf = cli->buf_send;
     apr_socket_t *sock = cli->pjob->pfd.desc.s;
+
+    LOG_TRACE("handle client write");
 
     apr_thread_mutex_lock(cli->comm->mx);
     buf_to_sock(buf, sock);
