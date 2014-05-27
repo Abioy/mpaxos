@@ -23,17 +23,6 @@ poll_mgr_t *mgr_ = NULL;
 #define POLLSET_NUM 100
 #define SZ_POLLSETS 4
 
-static apr_pool_t *mp_rpc_ = NULL; 
-static server_t *server_ = NULL;
-static apr_pollset_t *pollsets_[SZ_POLLSETS];
-static apr_thread_t *ths_poll_[SZ_POLLSETS];
-
-static int send_buf_size = 0;
-static socklen_t optlen;
-static volatile int exit_ = 0;
-//static apr_thread_pool_t *tp_on_read_;
-static mpr_thread_pool_t *tp_read_;
-
 // for statistics
 static apr_time_t time_start_ = 0;
 static apr_time_t time_last_ = 0;

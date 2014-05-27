@@ -242,7 +242,7 @@ int main(int argc, char **argv) {
             ag_n_send_ = atoi(optarg);
             break;
         case 'g':
-            ag_n_send_ = atoi(optarg);
+            ag_n_group_ = atoi(optarg);
             break;;
         case 'b':
             ag_n_batch_ = atoi(optarg);

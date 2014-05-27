@@ -16,6 +16,7 @@ void server_create(server_t **svr, poll_mgr_t *mgr) {
     s->pjob->mgr = (mgr != NULL) ? mgr: mgr_;
 
     s->is_start = false;
+    mpr_hash_create(&s->ht_conn);
 }
 
 void server_destroy(server_t *svr) {
@@ -114,6 +115,12 @@ void handle_server_accept(void* arg) {
 //    LOG_INFO("accept on fd %x", sock_listen->socketdes);
     LOG_DEBUG("accept new connection");
 
+    if (status == APR_EMFILE) {
+	SAFE_ASSERT(0);
+    } else if (status == APR_ENFILE) {
+	SAFE_ASSERT(0);
+    }
+
     if (status != APR_SUCCESS) {
         LOG_ERROR("recvr accept error.");
         LOG_ERROR("%s", apr_strerror(status, calloc(100, 1), 100));
@@ -141,7 +148,7 @@ void handle_sconn_read(void* arg) {
 
     apr_status_t status = APR_SUCCESS;
     //status = apr_socket_recv(pfd->desc.s, (char *)buf, &n);
-    buf_from_sock(buf, sock);
+    status = buf_from_sock(buf, sock);
 
     // invoke msg handling.
     size_t sz_c = 0;
@@ -149,7 +156,7 @@ void handle_sconn_read(void* arg) {
 	uint32_t sz_msg = 0;
 	SAFE_ASSERT(buf_peek(buf, (uint8_t*)&sz_msg, SZ_SZMSG) == SZ_SZMSG);
 	SAFE_ASSERT(sz_msg > 0);
-	if (sz_c > sz_msg + SZ_SZMSG + SZ_MSGID) {
+	if (sz_c >= sz_msg + SZ_SZMSG + SZ_MSGID) {
 	    SAFE_ASSERT(buf_read(buf, (uint8_t*)&sz_msg, SZ_SZMSG) == SZ_SZMSG);
 	    msgid_t msgid = 0;
 	    SAFE_ASSERT(buf_read(buf, (uint8_t*)&msgid, SZ_MSGID) == SZ_MSGID);
@@ -192,23 +199,22 @@ void handle_sconn_read(void* arg) {
 	}
     }
 
-//    if (status == APR_SUCCESS) {
-//	
-//    } else if (status == APR_EOF) {
-//        LOG_INFO("on read, received eof, close socket");
-//        apr_pollset_remove(ctx->ps, &ctx->pfd);
-//        // context_destroy(ctx);
-//    } else if (status == APR_ECONNRESET) {
-//        LOG_ERROR("on read. connection reset.");
-//        // TODO [improve] you may retry connect
-//        apr_pollset_remove(ctx->ps, &ctx->pfd);
-//    } else if (status == APR_EAGAIN) {
-//        LOG_ERROR("socket busy, resource temporarily unavailable.");
-//        // do nothing.
-//    } else {
-//        LOG_ERROR("unkown error on poll reading. %s\n", apr_strerror(status, malloc(100), 100));
-//        SAFE_ASSERT(0);
-//    }
+    if (status == APR_SUCCESS) {
+	
+    } else if (status == APR_EOF) {
+        LOG_DEBUG("sconn poll on read, received eof, close socket");
+	poll_mgr_remove_job(sconn->pjob->mgr, sconn->pjob);
+    } else if (status == APR_ECONNRESET) {
+        LOG_ERROR("on read. connection reset.");
+	poll_mgr_remove_job(sconn->pjob->mgr, sconn->pjob);
+        // TODO [improve] you may retry connect
+    } else if (status == APR_EAGAIN) {
+        LOG_ERROR("socket busy, resource temporarily unavailable.");
+        // do nothing.
+    } else {
+        LOG_ERROR("unkown error on poll reading. %s\n", apr_strerror(status, malloc(100), 100));
+        SAFE_ASSERT(0);
+    }
 }
 
 void handle_sconn_write(void* arg) {
@@ -222,7 +228,9 @@ void handle_sconn_write(void* arg) {
     apr_socket_t *sock = sconn->pjob->pfd.desc.s;
 
     apr_status_t status = APR_SUCCESS;
-    buf_to_sock(buf, sock);
+    status = buf_to_sock(buf, sock);
+
+    SAFE_ASSERT(status == APR_SUCCESS);
 
 //    if (status == APR_SUCCESS || status == APR_EAGAIN) {
 //    

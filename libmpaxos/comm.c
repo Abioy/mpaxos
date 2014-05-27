@@ -127,7 +127,14 @@ rpc_state* on_prepare(rpc_state* state) {
     //        msg_prep->n_rids, state->sz);
     rpc_state* ret_state = handle_msg_prepare(msg_prep);
     mpaxos__msg_prepare__free_unpacked(msg_prep, NULL);
-    return ret_state;
+
+    state->raw_output = (uint8_t*) malloc(ret_state->sz_output);
+    state->sz_output = ret_state->sz_output;
+    memcpy(state->raw_output, ret_state->raw_output, ret_state->sz_output);
+    free(ret_state->raw_output);
+    free(ret_state);
+    
+    return NULL;
 }
 
 rpc_state* on_accept(rpc_state* state) {
@@ -137,7 +144,14 @@ rpc_state* on_accept(rpc_state* state) {
     //        msg_accp->prop->n_rids, state->sz);
     rpc_state* ret_state = handle_msg_accept(msg_accp);
     mpaxos__msg_accept__free_unpacked(msg_accp, NULL);
-    return ret_state;
+
+    state->raw_output = (uint8_t*) malloc(ret_state->sz_output);
+    state->sz_output = ret_state->sz_output;
+    memcpy(state->raw_output, ret_state->raw_output, ret_state->sz_output);
+    free(ret_state->raw_output);
+    free(ret_state);
+
+    return NULL;
 }
 
 rpc_state* on_promise(rpc_state* state) {

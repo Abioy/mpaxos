@@ -84,14 +84,14 @@ void handle_client_read(void *arg) {
     buf_t *buf = cli->buf_recv;
     apr_socket_t *sock = cli->pjob->pfd.desc.s;
 
-    buf_from_sock(buf, sock);
+    apr_status_t status = buf_from_sock(buf, sock);
 
     // invoke msg handling.
     size_t sz_c = 0;
     while ((sz_c = buf_sz_content(buf)) > SZ_SZMSG) {
 	uint32_t sz_msg = 0;
 	buf_peek(buf, (uint8_t*)&sz_msg, sizeof(sz_msg));
-	if (sz_c > sz_msg + SZ_SZMSG + SZ_MSGID) {
+	if (sz_c >= sz_msg + SZ_SZMSG + SZ_MSGID) {
 	    buf_read(buf, (uint8_t*)&sz_msg, SZ_SZMSG);
 	    msgid_t msgid = 0;
 	    buf_read(buf, (uint8_t*)&msgid, SZ_MSGID);
@@ -127,24 +127,22 @@ void handle_client_read(void *arg) {
 	}
     }
 
-//    if (status == APR_SUCCESS) {
-//	
-//    } else if (status == APR_EOF) {
-//        LOG_INFO("on read, received eof, close socket");
-//        apr_pollset_remove(ctx->ps, &ctx->pfd);
-//        // context_destroy(ctx);
-//    } else if (status == APR_ECONNRESET) {
-//        LOG_ERROR("on read. connection reset.");
-//        // TODO [improve] you may retry connect
-//        apr_pollset_remove(ctx->ps, &ctx->pfd);
-//    } else if (status == APR_EAGAIN) {
-//        LOG_ERROR("socket busy, resource temporarily unavailable.");
-//        // do nothing.
-//    } else {
-//        LOG_ERROR("unkown error on poll reading. %s\n", apr_strerror(status, malloc(100), 100));
-//        SAFE_ASSERT(0);
-//    }
-//
+    if (status == APR_SUCCESS) {
+	
+    } else if (status == APR_EOF) {
+        LOG_DEBUG("cli poll on read, received eof, close socket");
+	poll_mgr_remove_job(cli->pjob->mgr, cli->pjob);
+    } else if (status == APR_ECONNRESET) {
+        LOG_ERROR("cli poll on read. connection reset.");
+	poll_mgr_remove_job(cli->pjob->mgr, cli->pjob);
+        // TODO [improve] you may retry connect
+    } else if (status == APR_EAGAIN) {
+        LOG_ERROR("socket busy, resource temporarily unavailable.");
+        // do nothing.
+    } else {
+        LOG_ERROR("unkown error on poll reading. %s\n", apr_strerror(status, malloc(100), 100));
+        SAFE_ASSERT(0);
+    }
 }
 
 void handle_client_write(void *arg) {
