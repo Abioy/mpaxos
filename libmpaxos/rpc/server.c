@@ -209,7 +209,7 @@ void handle_sconn_read(void* arg) {
 	poll_mgr_remove_job(sconn->pjob->mgr, sconn->pjob);
         // TODO [improve] you may retry connect
     } else if (status == APR_EAGAIN) {
-        LOG_ERROR("socket busy, resource temporarily unavailable.");
+        LOG_DEBUG("socket busy, resource temporarily unavailable.");
         // do nothing.
     } else {
         LOG_ERROR("unkown error on poll reading. %s\n", apr_strerror(status, malloc(100), 100));

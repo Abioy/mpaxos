@@ -37,6 +37,7 @@ void view_init() {
     apr_thread_mutex_create(&mx_view_, APR_THREAD_MUTEX_UNNESTED, mp_view_);
 
     mpr_hash_create(&ht_node_info_);
+    LOG_TRACE("view init.");
 }
 
 void view_destroy() {
@@ -77,7 +78,9 @@ bool is_in_group(groupid_t gid) {
     return TRUE;
 }
 
-void set_node(const char *name, const char *addr, int port) {
+void set_node(const char *name, 
+	      const char *addr, 
+	      int port) {
     static nodeid_t nid = 0;
     nid++;
     char *ip = gethostip(addr);
@@ -93,9 +96,10 @@ void set_node(const char *name, const char *addr, int port) {
     strcpy(ninfo.ip, ip);
     mpr_hash_set(ht_node_info_, name, strlen(name) + 1, &ninfo, sizeof(node_info_t));
     
+    SAFE_ASSERT(nid != 0);
     *(nodeid_t *)apr_array_push(arr_nodes_) = nid;
-    LOG_INFO("node added. name:%s, id:%llu, addr: %s, port: %d", 
-        name, nid, addr, port);
+    LOG_INFO("node added. name:%s, id:%x, addr: %s, port: %d", 
+	     name, (int32_t)nid, addr, (int32_t)port);
     free(ip);
 }
 
@@ -132,6 +136,7 @@ apr_array_header_t *get_view(groupid_t gid) {
     apr_thread_mutex_unlock(mx_view_);
 
     SAFE_ASSERT(arr != NULL);
+    SAFE_ASSERT(arr == arr_nodes_); // TODO
     return arr;
 }
 
@@ -140,7 +145,10 @@ apr_array_header_t *get_view_dft(groupid_t gid) {
     return arr_nodes_;
 }
 
-void set_view(groupid_t gid, nodeid_t *nids, size_t sz_nids) {
+void set_view(groupid_t gid, 
+	      nodeid_t *nids, 
+	      size_t sz_nids) {
+    SAFE_ASSERT(0);
     apr_thread_mutex_lock(mx_view_);
     
     apr_array_header_t *arr = NULL;

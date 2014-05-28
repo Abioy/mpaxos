@@ -1,4 +1,5 @@
 
+#include <apr_time.h>
 #include "rpc_comm.h"
 #include "server.h"
 #include "client.h"
@@ -51,6 +52,7 @@ void client_connect(client_t *cli) {
         } else {
             LOG_ERROR("client connect error:%s", apr_strerror(status, malloc(100), 100));
 //            LOG_ERROR("client addr: %s:%d", c->com.ip, c->com.port);
+	    apr_sleep(50 * 1000);
             continue;
         }
     }
@@ -137,7 +139,7 @@ void handle_client_read(void *arg) {
 	poll_mgr_remove_job(cli->pjob->mgr, cli->pjob);
         // TODO [improve] you may retry connect
     } else if (status == APR_EAGAIN) {
-        LOG_ERROR("socket busy, resource temporarily unavailable.");
+        LOG_DEBUG("socket busy, resource temporarily unavailable.");
         // do nothing.
     } else {
         LOG_ERROR("unkown error on poll reading. %s\n", apr_strerror(status, malloc(100), 100));

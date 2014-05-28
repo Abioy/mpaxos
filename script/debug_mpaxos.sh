@@ -1,12 +1,12 @@
 #!/bin/bash
 
 N_HOST=3
-TARGET=../bin/test_mpaxos.out
+TARGET=../bin/bench_mpaxos.out
 n_group=10000
 n_tosend=1000
 is_exit=0
 is_async=1
-n_batch=10
+n_batch=1
 to_sleep=5
 
 DIR_CONFIG=../config/config.local/
@@ -22,15 +22,20 @@ do
     killall test_mpaxos.out &> /dev/null
     sleep 5
     echo "TESTING FOR $n_group GROUPS"
-    for i in $(seq 1 $N_HOST)
+
+    # this is the master
+    echo "LAUNCHING MASTER"
+    i=1
+    command_stdout="$TARGET -c $DIR_CONFIG/config.$N_HOST.$i -s $n_tosend -g $n_group -q $is_exit $to_sleep $group_begin -b $n_batch"
+    nohup xterm -hold -e "$command_stdout" &
+    
+    for i in $(seq 2 $N_HOST)
     do
         echo "LAUNCHING DAEMON $i"
-        command="$TARGET ../config/config.$N_HOST.$i 0  >& ./$DIR_RESULT/result.mpaxos.$N_HOST.$n_group.$i"
-        #echo $command
         group_begin=$(expr 1000 \* $i) 
         group_begin=1000
         to_sleep=5
-        command_stdout="$TARGET $DIR_CONFIG/config.$N_HOST.$i 1 $n_tosend $n_group $is_async $is_exit $to_sleep $group_begin $n_batch"
+        command_stdout="$TARGET -c $DIR_CONFIG/config.$N_HOST.$i -s 0 -q 0"
         nohup xterm -hold -e "$command_stdout" &
         #screen -m -d /bin/bash -c "$command_stdout"
     done

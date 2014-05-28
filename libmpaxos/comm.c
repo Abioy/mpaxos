@@ -30,7 +30,7 @@ void comm_destroy() {
     apr_array_header_t *arr_nid = get_view(1);
     SAFE_ASSERT(arr_nid != NULL);
     for (int i = 0; i < arr_nid->nelts; i++) {
-        nodeid_t nid = arr_nid->elts[i];    
+        nodeid_t nid = ((nodeid_t*)arr_nid->elts)[i];    
         client_t *c = NULL;
         c = apr_hash_get(ht_sender_, &nid, sizeof(nodeid_t));
         client_destroy(c);
@@ -46,14 +46,15 @@ void comm_destroy() {
 
 void send_to(nodeid_t nid, msg_type_t type, const uint8_t *data,
     size_t sz) {
-    client_t *s_ptr;
+    client_t *cli;
     apr_thread_mutex_lock(mx_comm_);
-    s_ptr = apr_hash_get(ht_sender_, &nid, sizeof(nid));
+    SAFE_ASSERT(nid != 0);
+    cli = apr_hash_get(ht_sender_, &nid, sizeof(nid));
     apr_thread_mutex_unlock(mx_comm_);
     //int hash_size = apr_hash_count(sender_ht_);
 
-    SAFE_ASSERT(s_ptr != NULL);
-    client_call(s_ptr, type, data, sz);
+    SAFE_ASSERT(cli != NULL);
+    client_call(cli, type, data, sz);
 }
 
 slotid_t send_to_slot_mgr(groupid_t gid, nodeid_t nid, uint8_t *data,
@@ -83,15 +84,17 @@ slotid_t send_to_slot_mgr(groupid_t gid, nodeid_t nid, uint8_t *data,
  * @param buf
  * @param sz
  */
-void send_to_group(groupid_t gid, msg_type_t type, const uint8_t *buf,
-    size_t sz) {
+void send_to_group(groupid_t gid, 
+		   msg_type_t type, 
+		   const uint8_t *buf,
+		   size_t sz) {
 	// TODO [FIX] this is not thread safe because of apache hash table
 //  apr_hash_t *nid_ht = apr_hash_get(gid_nid_ht_ht_, &gid, sizeof(gid));
     apr_array_header_t *arr_nid = get_view(gid);
     SAFE_ASSERT(arr_nid != NULL);
 
     for (int i = 0; i < arr_nid->nelts; i++) {
-        nodeid_t nid = arr_nid->elts[i];
+        nodeid_t nid = ((nodeid_t*)arr_nid->elts)[i];
         send_to(nid, type, buf, sz);
     }
 }
@@ -100,11 +103,15 @@ void connect_all_senders() {
     // [FIXME]
     apr_array_header_t *arr_nid = get_view(1);
     SAFE_ASSERT(arr_nid != NULL);
-
+    
+    LOG_TRACE("length of arr_nid: %d", (int32_t) arr_nid->nelts);
     for (int i = 0; i < arr_nid->nelts; i++) {
-        nodeid_t nid = arr_nid->elts[i];
+        nodeid_t nid = ((nodeid_t *)arr_nid->elts)[i];
         client_t *c = NULL;
+	LOG_TRACE("get client for node id: %x", (int32_t) nid);
+	SAFE_ASSERT(nid != 0);
         c = apr_hash_get(ht_sender_, &nid, sizeof(nodeid_t));
+	SAFE_ASSERT(c != NULL);
         client_connect(c);
     }
 }
@@ -201,12 +208,15 @@ void set_nid_sender(nodeid_t nid, const char* addr, int port) {
     //Test save the key
     nodeid_t *nid_ptr = apr_pcalloc(mp_global_, sizeof(nid));
     *nid_ptr = nid;
-    client_t *c;
+    client_t *c = NULL;
     client_create(&c, NULL);
     strcpy(c->comm->ip, addr);
     c->comm->port = port;
     // FIXME register function callbacks. 
     client_reg(c, RPC_PREPARE, on_promise);
     client_reg(c, RPC_ACCEPT, on_accepted);
+
+    SAFE_ASSERT(c != NULL);
+    LOG_TRACE("setup client for node: %d", (int32_t) nid);
     apr_hash_set(ht_sender_, nid_ptr, sizeof(nid), c);
 }
