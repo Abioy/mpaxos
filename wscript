@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import os
+from waflib import Options
 from waflib import Logs
 
 APPNAME = "mpaxos"
@@ -16,6 +17,8 @@ CFLAGS = []
 
 def options(opt):
     opt.load("compiler_c")
+    
+    opt.add_option('-d', '--debug', dest='debug', default=False, action='store_true')
 
 def configure(conf):
     conf.load("compiler_c")
@@ -60,16 +63,19 @@ def build(bld):
 
 
 def _enable_debug(conf):
-    if os.getenv("DEBUG") == "1":
+    if Options.options.debug:
         Logs.pprint("PINK", "Debug support enabled")
         conf.env.append_value("CFLAGS", "-Wall -Wno-unused -pthread -O0 -g -rdynamic -fno-omit-frame-pointer -fno-strict-aliasing".split())
         conf.env.append_value("LINKFLAGS", "-Wall -Wno-unused -O0 -g -rdynamic -fno-omit-frame-pointer".split())
     else:
-        conf.env.append_value("CFLAGS", "-Wall -O2 -pthread".split())
+        conf.env.append_value("CFLAGS", "-Wall -O2 -pthread -DNDEBUG".split())
 
     if os.getenv("CLANG") == "1":
         Logs.pprint("PINK", "Use clang as compiler")
         conf.env.append_value("C", "clang++")
+
+#    if os.getenv("DEBUG") == "1":
+
 
 def _enable_static(conf):
     if os.getenv("STATIC") == "1":
