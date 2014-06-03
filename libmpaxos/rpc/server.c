@@ -116,8 +116,10 @@ void handle_server_accept(void* arg) {
     LOG_DEBUG("accept new connection");
 
     if (status == APR_EMFILE) {
+	LOG_ERROR("cannot open more file handles, please check system configurations.");
 	SAFE_ASSERT(0);
     } else if (status == APR_ENFILE) {
+	LOG_ERROR("cannot open more file handles, please check system configurations.");
 	SAFE_ASSERT(0);
     }
 

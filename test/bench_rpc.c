@@ -1,23 +1,29 @@
+
+#include <stdlib.h>
+#include <stdbool.h>
+#include <unistd.h>
 #include <apr_thread_cond.h>
 #include <apr_atomic.h>
+#include <apr_time.h>
 #include "rpc/rpc.h"
 #include "mpaxos.pb-c.h"
-
-#define N_RPC (3)
 
 static apr_pool_t *mp_rpc_ = NULL;
 static apr_thread_cond_t *cd_rpc_ = NULL;
 static apr_thread_mutex_t *mx_rpc_ = NULL;
+
+static char* addr_ = NULL;
+static int port_ = 0;
+static uint32_t n_client_ = 1;
 static volatile apr_uint32_t n_rpc_ = 0;
-static char* addr;
-static int port;
+static bool is_server_ = false;
+static bool is_client_ = false;
+static int32_t max_rpc_ = 10000;
 
 funid_t ADD = 1;
 funid_t PROTO = 2;
 static apr_time_t tm_begin_ = 0;
 static apr_time_t tm_end_ = 0;
-
-static uint32_t n_client_;
 
 typedef struct {
     uint32_t a;
@@ -41,7 +47,7 @@ rpc_state* add_cb(rpc_state *state) {
 
     //    if (in->ctx->n_rpc == N_RPC) {
         uint32_t j = apr_atomic_add32(&n_rpc_, 1);
-        if (j + 1 == N_RPC * n_client_) {
+        if (j + 1 == max_rpc_ * n_client_) {
             printf("hahaha\n");
             tm_end_ = apr_time_now();
             apr_thread_mutex_lock(mx_rpc_);
@@ -83,13 +89,13 @@ void bench_add() {
 void* APR_THREAD_FUNC client_thread(apr_thread_t *th, void *v) {
     client_t *client = NULL;
     client_create(&client, NULL);
-    strcpy(client->comm->ip, addr);
-    client->comm->port = port;
+    strcpy(client->comm->ip, addr_);
+    client->comm->port = port_;
     client_reg(client, ADD, add_cb);
     tm_begin_ = apr_time_now();
     client_connect(client);
 //    printf("client connected.\n");
-    for (int i = 0; i < N_RPC; i++) {
+    for (int i = 0; i < max_rpc_; i++) {
         struct_add sa;
         sa.a = 1;
         sa.b = 2;
@@ -111,6 +117,51 @@ void sig_handler(int signo) {
     }
 }
 
+void usage(char *argv) {
+    //    printf("Usage: %s server|client addr port\n ", argv);
+    fprintf(stderr, "usage:%s ", argv);
+    fprintf(stderr, "-(s|c), -a address -p port [-t n_ct]\n");
+    fprintf(stderr, "where:\n");
+    fprintf(stderr, "\t-s run as server\n");
+    fprintf(stderr, "\t-c run as client\n");
+    fprintf(stderr, "\t-a server address\n");
+    fprintf(stderr, "\t-p server port\n");
+    fprintf(stderr, "\t-t number of client threads\n");
+    fprintf(stderr, "\t-m max number of rpc\n");
+}
+
+void arg_parse(int argc, char **argv) {
+    char ch;
+    while ((ch = getopt(argc, argv, "sca:p:t:hm:")) != EOF) {
+	switch (ch) {
+	case 's':
+	    is_server_ = true;
+	    break;
+	case 'c':
+	    is_client_ = true;
+	    break;
+	case 'a':
+	    addr_ = optarg;
+	    break;
+	case 'p':
+	    port_ = atoi(optarg);
+	    break;
+	case 't':
+	    n_client_ = atoi(optarg);
+	    break;
+	case 'h':
+	    usage(argv[0]);
+	    exit(0);
+	case 'm':
+	    max_rpc_ = atoi(optarg);
+	    break;
+//	default:
+//	    usage(argv[0]);
+//	    return 0;
+	}
+    }
+}
+
 int main(int argc, char **argv) {
 //    for (int i=1; i<NSIG; i++) {
 //        //if (signal(SIGINT, sig_handler) == SIG_ERR) printf("\ncan't catch SIGINT\n");
@@ -124,46 +175,54 @@ int main(int argc, char **argv) {
     apr_thread_mutex_create(&mx_rpc_, APR_THREAD_MUTEX_UNNESTED, mp_rpc_);
     rpc_init();
 
-    if (argc < 3) {
-	printf("Usage: %s server|client addr port\n ", argv[0]);
-	exit(0);
+    arg_parse(argc, argv);
+
+    bool exit = false;
+
+    exit |=  !(is_server_ || is_client_);
+    exit |= (addr_ == NULL);
+    exit |= (port_ == 0);
+
+    if (exit) {
+	fprintf(stderr, "wrong arguments.\n");
+	usage(argv[0]);
+	return 0;
     }
 
-    sleep(1);
-    printf("after sleep.\n");
-    
-    char *s_or_c = argv[1];
-    addr = argv[2];
-    port = atoi(argv[3]);
-    if (strcmp(s_or_c, "server") == 0) {
+    if (is_server_) {
         server_t *server = NULL;
         server_create(&server, NULL);    
-        strcpy(server->comm->ip, addr);
-        server->comm->port = port;
+        strcpy(server->comm->ip, addr_);
+        server->comm->port = port_;
         server_reg(server, ADD, add); 
         server_start(server);
         printf("server started.\n");
-        while (1) {
-            sleep(1);
-        }
-    } else if (strcmp(s_or_c, "client") == 0) {
-        n_client_ = atoi(argv[4]);
-        
+    } 
+    
+    if (is_client_) {
+       
         apr_thread_mutex_lock(mx_rpc_);
         for (int i = 0; i < n_client_; i++) {
             apr_thread_t *th;
             apr_thread_create(&th, NULL, client_thread, NULL, mp_rpc_);
         }
-        printf("rpc triggered for %d adds on %d threads.\n", N_RPC * n_client_, n_client_);
+        printf("rpc triggered for %d adds on %d threads.\n", max_rpc_ * n_client_, n_client_);
         apr_thread_cond_wait(cd_rpc_, mx_rpc_);
         apr_thread_mutex_unlock(mx_rpc_);
 
         int period = (tm_end_ - tm_begin_) / 1000;
-        printf("finish %d rpc in %d ms.\n", N_RPC * n_client_, period);
-        float rate = (float) N_RPC * n_client_ / 1000 / period;
+        printf("finish %d rpc in %d ms.\n", max_rpc_ * n_client_, period);
+        float rate = (float) max_rpc_ * n_client_ / 1000 / period;
         printf("rpc rate %f million per sec.\n", rate);
     }
-    printf("lalala\n");
+
+    fflush(stdout);
+    fflush(stderr);
+
+    while(is_server_) {
+	apr_sleep(1000000);
+    }
+
     rpc_destroy();
     atexit(apr_terminate);
 }

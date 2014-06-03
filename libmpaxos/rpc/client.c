@@ -166,7 +166,10 @@ void client_reg(client_t *cli, msgid_t msgid, void* fun) {
     mpr_hash_set(cli->comm->ht, &msgid, SZ_MSGID, &fun, sizeof(void*)); 
 }
 
-void client_call(client_t *cli, msgid_t msgid, const uint8_t *data, size_t sz_data) {
+void client_call(client_t *cli, 
+		 msgid_t msgid, 
+		 uint8_t *data, 
+		 size_t sz_data) {
     write_trigger_poll(cli->comm,
 		       cli->pjob,
 		       cli->buf_send,
