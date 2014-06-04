@@ -122,7 +122,7 @@ apr_status_t buf_from_sock(buf_t *buf, apr_socket_t *sock) {
 	buf->idx_write += n;
 	sum += n;
 
-	if (status != APR_SUCCESS || n == 0) {
+	if (status != APR_SUCCESS) {
 	    // nothing more to read.
 	    break;
 	}

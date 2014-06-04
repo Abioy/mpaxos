@@ -159,9 +159,37 @@ void handle_client_write(void *arg) {
 
     SAFE_ASSERT(status == APR_SUCCESS || status == APR_EAGAIN);
 
-    int mode = (buf_sz_cnt(buf) > 0) ? APR_POLLIN & APR_POLLOUT : APR_POLLIN;
+    if (status == APR_SUCCESS || status == APR_EAGAIN) {
+	int mode = (buf_sz_cnt(buf) > 0) ? (APR_POLLIN | APR_POLLOUT) : APR_POLLIN;
+	if (buf_sz_cnt(buf) == 0) {
+	    poll_mgr_update_job(cli->pjob->mgr, cli->pjob, mode);
+	}
 
-    poll_mgr_update_job(cli->pjob->mgr, cli->pjob, mode);
+	if (status == APR_EAGAIN) {
+	    LOG_DEBUG("cli poll on write, socket busy, resource "
+		      "temporarily unavailable. mode: %s, size in send buf: %d", 
+		      mode == APR_POLLIN ? "only in" : "in and out",
+		      buf_sz_cnt(buf));
+	} else {
+	    LOG_DEBUG("cli write something out.");
+	}
+    } else if (status == APR_ECONNRESET) {
+        LOG_ERROR("connection reset on write, is this a mac os?");
+	poll_mgr_remove_job(cli->pjob->mgr, cli->pjob);
+        return;
+    } else if (status == APR_EAGAIN) {
+	SAFE_ASSERT(0);
+    } else if (status == APR_EPIPE) {
+        LOG_ERROR("on write, broken pipe, epipe error, is this a mac os?");
+	poll_mgr_remove_job(cli->pjob->mgr, cli->pjob);
+        return;
+    } else {
+        LOG_ERROR("error code: %d, error message: %s",
+		  (int)status, apr_strerror(status, malloc(100), 100));
+        SAFE_ASSERT(status == APR_SUCCESS);
+    }
+
+    //    poll_mgr_update_job(cli->pjob->mgr, cli->pjob, mode);
     apr_thread_mutex_unlock(cli->comm->mx);
 }
 

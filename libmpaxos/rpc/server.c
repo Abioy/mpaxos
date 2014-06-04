@@ -211,7 +211,7 @@ void handle_sconn_read(void* arg) {
 	poll_mgr_remove_job(sconn->pjob->mgr, sconn->pjob);
         // TODO [improve] you may retry connect
     } else if (status == APR_EAGAIN) {
-        LOG_DEBUG("socket busy, resource temporarily unavailable.");
+        LOG_TRACE("sconn poll on read, socket busy, resource temporarily unavailable.");
         // do nothing.
     } else {
         LOG_ERROR("unkown error on poll reading. %s\n", apr_strerror(status, malloc(100), 100));
@@ -233,10 +233,16 @@ void handle_sconn_write(void* arg) {
     status = buf_to_sock(buf, sock);
 
     if (status == APR_SUCCESS || status == APR_EAGAIN) {
-	int mode = (buf_sz_cnt(buf) > 0) ? APR_POLLIN & APR_POLLOUT : APR_POLLIN;
-	poll_mgr_update_job(sconn->pjob->mgr, sconn->pjob, mode);
+	int mode = (buf_sz_cnt(buf) > 0) ? (APR_POLLIN | APR_POLLOUT) : APR_POLLIN;
+	//	if (buf_sz_cnt(buf) == 0) {
+	    poll_mgr_update_job(sconn->pjob->mgr, sconn->pjob, mode);	    
+	    //}
+
 	if (status == APR_EAGAIN) {
-	    LOG_ERROR("sconn poll on write, socket busy, resource temporarily unavailable. mode: %s", mode == APR_POLLIN ? "only in" : "in and out");
+	    LOG_DEBUG("sconn poll on write, socket busy, resource "
+		      "temporarily unavailable. mode: %s, size in send buf: %d", 
+		      mode == APR_POLLIN ? "only in" : "in and out",
+		      buf_sz_cnt(buf));
 	} else {
 	    LOG_DEBUG("sconn write something out.");
 	}

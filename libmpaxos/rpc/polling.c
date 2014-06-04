@@ -39,6 +39,7 @@ void* APR_THREAD_FUNC poll_worker_run(
             LOG_WARN("the receiver epoll exits?");
             continue;
         } else if (status == APR_TIMEUP) {
+	    //LOG_DEBUG("poll time out");
             continue;
         } else {
             LOG_ERROR("unknown poll error. %s", 
@@ -110,10 +111,14 @@ int poll_worker_update_job(
         poll_worker_t *worker,
         poll_job_t *job,
         int mode) {
+    if (job->pfd.reqevents == mode) {
+	return 0;
+    }
+
     SAFE_ASSERT(worker != NULL);
-    apr_pollset_remove(worker->ps, &job->pfd);   
+    SAFE_ASSERT(apr_pollset_remove(worker->ps, &job->pfd) == APR_SUCCESS);   
     job->pfd.reqevents = mode;
-    apr_pollset_add(worker->ps, &job->pfd);
+    SAFE_ASSERT(apr_pollset_add(worker->ps, &job->pfd) == APR_SUCCESS);
     return 0;
 }
 

@@ -20,8 +20,8 @@ static apr_thread_mutex_t *mx_rpc_ = NULL;
 static char* addr_ = NULL;
 static int port_ = 0;
 static uint32_t n_client_ = 1;
-static volatile apr_uint32_t n_rpc_ = 0;
-static volatile apr_uint32_t n_svr_rpc_ = 0;
+static apr_uint32_t n_rpc_ = 0;
+//static volatile apr_uint32_t n_svr_rpc_ = 0;
 static bool is_server_ = false;
 static bool is_client_ = false;
 static int32_t max_rpc_ = 10000;
@@ -37,8 +37,8 @@ typedef struct {
 } struct_add;
 
 rpc_state* add(rpc_state *state) {
-    uint32_t k = apr_atomic_add32(&n_svr_rpc_, 1);
-    LOG_DEBUG("server add called. no: %d", k+1);
+    //    uint32_t k = apr_atomic_add32(&n_svr_rpc_, 1);
+    //    LOG_DEBUG("server add called. no: %d", k+1);
     struct_add *sa = (struct_add *)state->raw_input;
     uint32_t c = sa->a + sa->b;
     
@@ -51,11 +51,11 @@ rpc_state* add(rpc_state *state) {
 rpc_state* add_cb(rpc_state *state) {
     // Do nothing
     
-    uint32_t j = apr_atomic_add32(&n_rpc_, 1);
-    LOG_DEBUG("client callback exceuted. rpc no: %d", j+1);
+    //uint32_t j = apr_atomic_add32(&n_rpc_, 1);
+    n_rpc_ += 1;
+    LOG_DEBUG("client callback exceuted. rpc no: %d", n_rpc_);
 
-    if (j + 1 == max_rpc_ * n_client_) {
-        printf("hahaha\n");
+    if (n_rpc_ == max_rpc_ * n_client_) {
         tm_end_ = apr_time_now();
         apr_thread_mutex_lock(mx_rpc_);
         apr_thread_cond_signal(cd_rpc_);
@@ -213,14 +213,14 @@ int main(int argc, char **argv) {
             apr_thread_t *th;
             apr_thread_create(&th, NULL, client_thread, NULL, mp_rpc_);
         }
-        printf("rpc triggered for %d adds on %d threads.\n", max_rpc_ * n_client_, n_client_);
+        LOG_INFO("rpc triggered for %d adds on %d threads.", max_rpc_ * n_client_, n_client_);
         apr_thread_cond_wait(cd_rpc_, mx_rpc_);
         apr_thread_mutex_unlock(mx_rpc_);
 
-        int period = (tm_end_ - tm_begin_) / 1000;
-        printf("finish %d rpc in %d ms.\n", max_rpc_ * n_client_, period);
-        float rate = (float) max_rpc_ * n_client_ / 1000 / period;
-        printf("rpc rate %f million per sec.\n", rate);
+        int period = (tm_end_ - tm_begin_); //micro seconds
+        LOG_INFO("finish %d rpc in %d ms.", max_rpc_ * n_client_, period/1000);
+        float rate = (float) max_rpc_ * n_client_ / period;
+        LOG_INFO("rpc rate %f million per sec.", rate);
     }
 
     fflush(stdout);
