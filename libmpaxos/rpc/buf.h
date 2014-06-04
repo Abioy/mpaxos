@@ -35,7 +35,10 @@ apr_status_t buf_from_sock(buf_t *buf, apr_socket_t *sock);
 
 static size_t buf_sz_content(buf_t *buf) {
     return buf->idx_write - buf->idx_read;
+}
 
+static size_t buf_sz_cnt(buf_t *buf) {
+    return buf->idx_write - buf->idx_read;
 }
 
 #endif // BUFFER_H

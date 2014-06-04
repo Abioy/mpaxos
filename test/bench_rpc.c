@@ -1,3 +1,8 @@
+/*
+ * bench_rpc.c
+ * Created on: Dec 2, 2013
+ * Author: shuai
+ */
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -16,6 +21,7 @@ static char* addr_ = NULL;
 static int port_ = 0;
 static uint32_t n_client_ = 1;
 static volatile apr_uint32_t n_rpc_ = 0;
+static volatile apr_uint32_t n_svr_rpc_ = 0;
 static bool is_server_ = false;
 static bool is_client_ = false;
 static int32_t max_rpc_ = 10000;
@@ -31,7 +37,8 @@ typedef struct {
 } struct_add;
 
 rpc_state* add(rpc_state *state) {
-    LOG_DEBUG("server received rpc request.\n");
+    uint32_t k = apr_atomic_add32(&n_svr_rpc_, 1);
+    LOG_DEBUG("server add called. no: %d", k+1);
     struct_add *sa = (struct_add *)state->raw_input;
     uint32_t c = sa->a + sa->b;
     
@@ -43,18 +50,18 @@ rpc_state* add(rpc_state *state) {
 
 rpc_state* add_cb(rpc_state *state) {
     // Do nothing
-    LOG_DEBUG("client callback exceuted.\n");
+    
+    uint32_t j = apr_atomic_add32(&n_rpc_, 1);
+    LOG_DEBUG("client callback exceuted. rpc no: %d", j+1);
 
-    //    if (in->ctx->n_rpc == N_RPC) {
-        uint32_t j = apr_atomic_add32(&n_rpc_, 1);
-        if (j + 1 == max_rpc_ * n_client_) {
-            printf("hahaha\n");
-            tm_end_ = apr_time_now();
-            apr_thread_mutex_lock(mx_rpc_);
-            apr_thread_cond_signal(cd_rpc_);
-            apr_thread_mutex_unlock(mx_rpc_);
-        }
-	//    }
+    if (j + 1 == max_rpc_ * n_client_) {
+        printf("hahaha\n");
+        tm_end_ = apr_time_now();
+        apr_thread_mutex_lock(mx_rpc_);
+        apr_thread_cond_signal(cd_rpc_);
+        apr_thread_mutex_unlock(mx_rpc_);
+    }
+    //    }
     return NULL;
 }
 

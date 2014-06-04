@@ -1,8 +1,7 @@
 /*
- * test_mpaxos.cc
- *
- *  Created on: Jan 29, 2013
- *      Author: ms
+ * bench_mpaxos.cc
+ * Created on: Jan 29, 2013
+ * Author: shuai
  */
 
 #include <stdlib.h>

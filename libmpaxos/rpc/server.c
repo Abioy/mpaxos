@@ -256,7 +256,9 @@ void handle_sconn_write(void* arg) {
 //
     // remove from write poll.
     // TODO think about error
-    poll_mgr_update_job(sconn->pjob->mgr, sconn->pjob, APR_POLLIN);
+    int mode = (buf_sz_cnt(buf) > 0) ? APR_POLLIN & APR_POLLOUT : APR_POLLIN;
+
+    poll_mgr_update_job(sconn->pjob->mgr, sconn->pjob, mode);
     apr_thread_mutex_unlock(sconn->comm->mx);
 }
 

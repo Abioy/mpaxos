@@ -139,7 +139,7 @@ void handle_client_read(void *arg) {
 	poll_mgr_remove_job(cli->pjob->mgr, cli->pjob);
         // TODO [improve] you may retry connect
     } else if (status == APR_EAGAIN) {
-        LOG_DEBUG("socket busy, resource temporarily unavailable.");
+        LOG_DEBUG("cli poll on read. read socket busy, resource temporarily unavailable.");
         // do nothing.
     } else {
         LOG_ERROR("unkown error on poll reading. %s\n", apr_strerror(status, malloc(100), 100));
@@ -157,7 +157,9 @@ void handle_client_write(void *arg) {
     apr_thread_mutex_lock(cli->comm->mx);
     buf_to_sock(buf, sock);
 
-    poll_mgr_update_job(cli->pjob->mgr, cli->pjob, APR_POLLIN);
+    int mode = (buf_sz_cnt(buf) > 0) ? APR_POLLIN & APR_POLLOUT : APR_POLLIN;
+
+    poll_mgr_update_job(cli->pjob->mgr, cli->pjob, mode);
     apr_thread_mutex_unlock(cli->comm->mx);
 }
 

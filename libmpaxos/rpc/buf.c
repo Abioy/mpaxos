@@ -91,6 +91,9 @@ apr_status_t buf_to_sock(buf_t *buf, apr_socket_t *sock) {
 	//SAFE_ASSERT(status == APR_SUCCESS);
 	buf->idx_read += n;
 	sum += n;
+	if (status != APR_SUCCESS) {
+	    break;
+	}
     }
     LOG_TRACE("write %d bytes from buf to sock", (int32_t)sum);
     return status;
@@ -113,13 +116,13 @@ apr_status_t buf_from_sock(buf_t *buf, apr_socket_t *sock) {
 	SAFE_ASSERT(n >= 0);
 	//SAFE_ASSERT(status == APR_SUCCESS);
 
-	if (n == 0) {
+	buf->idx_write += n;
+	sum += n;
+
+	if (status != APR_SUCCESS || n == 0) {
 	    // nothing more to read.
 	    break;
 	}
-
-	buf->idx_write += n;
-	sum += n;
     }
     //return sum;
     return status;
