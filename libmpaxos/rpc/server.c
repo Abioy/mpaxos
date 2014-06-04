@@ -235,8 +235,11 @@ void handle_sconn_write(void* arg) {
     if (status == APR_SUCCESS || status == APR_EAGAIN) {
 	int mode = (buf_sz_cnt(buf) > 0) ? APR_POLLIN & APR_POLLOUT : APR_POLLIN;
 	poll_mgr_update_job(sconn->pjob->mgr, sconn->pjob, mode);
-	if (status == APR_EAGAIN)
-	    LOG_ERROR("on write, socket busy, resource temporarily unavailable.");
+	if (status == APR_EAGAIN) {
+	    LOG_ERROR("sconn poll on write, socket busy, resource temporarily unavailable. mode: %s", mode == APR_POLLIN ? "only in" : "in and out");
+	} else {
+	    LOG_DEBUG("sconn write something out.");
+	}
     } else if (status == APR_ECONNRESET) {
         LOG_ERROR("connection reset on write, is this a mac os?");
 	poll_mgr_remove_job(sconn->pjob->mgr, sconn->pjob);

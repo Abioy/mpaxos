@@ -38,13 +38,15 @@ size_t buf_realloc(buf_t *buf, size_t sz) {
     SAFE_ASSERT(sz > (buf->idx_write - buf->idx_read));
     // XXX make sure malloc safe
     uint8_t *nraw = (uint8_t*) malloc(sz);
-    memcpy(nraw, buf->raw + buf->idx_read, buf->idx_write - buf->idx_read);
+    SAFE_ASSERT(nraw != NULL);
+    size_t sz_data = buf->idx_write - buf->idx_read;
+    memcpy(nraw, buf->raw + buf->idx_read, sz_data);
     free(buf->raw);
     buf->raw = nraw;
-    buf->idx_write = buf->idx_write - buf->idx_read;
+    buf->idx_write = sz_data;
     buf->idx_read = 0;
     buf->sz = sz;
-    return buf->sz;
+    return sz;
 }
 
 size_t buf_write(buf_t *buf, uint8_t *data, size_t n) {
