@@ -232,33 +232,27 @@ void handle_sconn_write(void* arg) {
     apr_status_t status = APR_SUCCESS;
     status = buf_to_sock(buf, sock);
 
-    SAFE_ASSERT(status == APR_SUCCESS);
+    if (status == APR_SUCCESS || status == APR_EAGAIN) {
+	int mode = (buf_sz_cnt(buf) > 0) ? APR_POLLIN & APR_POLLOUT : APR_POLLIN;
+	poll_mgr_update_job(sconn->pjob->mgr, sconn->pjob, mode);
+	if (status == APR_EAGAIN)
+	    LOG_ERROR("on write, socket busy, resource temporarily unavailable.");
+    } else if (status == APR_ECONNRESET) {
+        LOG_ERROR("connection reset on write, is this a mac os?");
+	poll_mgr_remove_job(sconn->pjob->mgr, sconn->pjob);
+        return;
+    } else if (status == APR_EAGAIN) {
+	SAFE_ASSERT(0);
+    } else if (status == APR_EPIPE) {
+        LOG_ERROR("on write, broken pipe, epipe error, is this a mac os?");
+	poll_mgr_remove_job(sconn->pjob->mgr, sconn->pjob);
+        return;
+    } else {
+        LOG_ERROR("error code: %d, error message: %s",
+		  (int)status, apr_strerror(status, malloc(100), 100));
+        SAFE_ASSERT(status == APR_SUCCESS);
+    }
 
-//    if (status == APR_SUCCESS || status == APR_EAGAIN) {
-//    
-//    } else if (status == APR_ECONNRESET) {
-//        LOG_ERROR("connection reset on write, is this a mac os?");
-//        apr_pollset_remove(ctx->ps, &ctx->pfd);
-//        return;
-//    } else if (status == APR_EAGAIN) {
-//        LOG_ERROR("on write, socket busy, resource temporarily unavailable.");
-//        // do nothing.
-//    } else if (status == APR_EPIPE) {
-//        LOG_ERROR("on write, broken pipe, epipe error, is this a mac os?");
-//        LOG_ERROR("rpc called %"PRIu64", data received: %"PRIu64" bytes, sent: %"PRIu64" bytes", ctx->n_rpc, ctx->sz_recv, ctx->sz_send);
-//        apr_pollset_remove(ctx->ps, &ctx->pfd);
-//        return;
-//    } else {
-//        LOG_ERROR("error code: %d, error message: %s",(int)status, apr_strerror(status, malloc(100), 100));
-//        LOG_ERROR("try to write %d bytes in write buffer.", tmp);
-//        SAFE_ASSERT(status == APR_SUCCESS);
-//    }
-//
-    // remove from write poll.
-    // TODO think about error
-    int mode = (buf_sz_cnt(buf) > 0) ? APR_POLLIN & APR_POLLOUT : APR_POLLIN;
-
-    poll_mgr_update_job(sconn->pjob->mgr, sconn->pjob, mode);
     apr_thread_mutex_unlock(sconn->comm->mx);
 }
 

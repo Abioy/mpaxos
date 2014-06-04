@@ -107,10 +107,11 @@ apr_status_t buf_from_sock(buf_t *buf, apr_socket_t *sock) {
 
     size_t sum = 0;
     while (true) {
+	buf_readjust(buf, 1);
+
 	size_t empty_tail = buf->sz - buf->idx_write;
 	size_t n = empty_tail;
 
-	buf_readjust(buf, 1);
 	status = apr_socket_recv(sock, buf->raw + buf->idx_write, &n);
 
 	SAFE_ASSERT(n >= 0);

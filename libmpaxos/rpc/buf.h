@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <apr_network_io.h>
 
-#define SZ_BUF (1024*1024) // 1M
+#define SZ_BUF (1*1024*1024) // 1M
 
 typedef struct {
     uint8_t *raw;

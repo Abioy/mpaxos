@@ -155,7 +155,9 @@ void handle_client_write(void *arg) {
     LOG_TRACE("handle client write");
 
     apr_thread_mutex_lock(cli->comm->mx);
-    buf_to_sock(buf, sock);
+    apr_status_t status = buf_to_sock(buf, sock);
+
+    SAFE_ASSERT(status == APR_SUCCESS || status == APR_EAGAIN);
 
     int mode = (buf_sz_cnt(buf) > 0) ? APR_POLLIN & APR_POLLOUT : APR_POLLIN;
 
