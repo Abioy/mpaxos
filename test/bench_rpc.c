@@ -24,12 +24,18 @@ static apr_uint32_t n_rpc_ = 0;
 //static volatile apr_uint32_t n_svr_rpc_ = 0;
 static bool is_server_ = false;
 static bool is_client_ = false;
-static int32_t max_rpc_ = 10000;
+static int32_t max_rpc_ = -1;
+
+static int32_t n_issued_ = 0;
+static int32_t max_outst_ = 1000;
+
+static client_t *cli_ = NULL;
 
 funid_t ADD = 1;
 funid_t PROTO = 2;
 static apr_time_t tm_begin_ = 0;
 static apr_time_t tm_end_ = 0;
+static apr_time_t tm_middle_ = 0;
 
 typedef struct {
     uint32_t a;
@@ -48,6 +54,8 @@ rpc_state* add(rpc_state *state) {
     return NULL;
 }
 
+void call_add(client_t *cli);
+
 rpc_state* add_cb(rpc_state *state) {
     // Do nothing
     
@@ -62,6 +70,19 @@ rpc_state* add_cb(rpc_state *state) {
         apr_thread_mutex_unlock(mx_rpc_);
     }
     //    }
+    
+    if (n_rpc_ % 1000000 == 0) {
+	tm_middle_ = apr_time_now();
+	uint64_t p = tm_middle_ - tm_begin_;
+	double rate = n_rpc_ * 1000000.0 / p;
+	LOG_INFO("rpc rate: %0.2f million per second", rate);
+    }
+    
+    if (max_rpc_ < 0 || n_issued_ < max_rpc_) {
+	n_issued_++;
+	call_add(cli_);
+    }
+    // do another rpc.
     return NULL;
 }
 
@@ -93,6 +114,14 @@ void bench_proto() {
 void bench_add() {
 }
 
+
+void call_add(client_t *cli) {
+    struct_add sa;
+    sa.a = 1;
+    sa.b = 2;
+    client_call(cli, ADD, (uint8_t *)&sa, sizeof(struct_add));
+}
+
 void* APR_THREAD_FUNC client_thread(apr_thread_t *th, void *v) {
     client_t *client = NULL;
     client_create(&client, NULL);
@@ -101,13 +130,15 @@ void* APR_THREAD_FUNC client_thread(apr_thread_t *th, void *v) {
     client_reg(client, ADD, add_cb);
     tm_begin_ = apr_time_now();
     client_connect(client);
+
+    cli_ = client;
 //    printf("client connected.\n");
-    for (int i = 0; i < max_rpc_; i++) {
-        struct_add sa;
-        sa.a = 1;
-        sa.b = 2;
-        client_call(client, ADD, (uint8_t *)&sa, sizeof(struct_add));
+
+    n_issued_ += max_outst_;
+    for (int i = 0; i < max_outst_; i++) {
+	call_add(cli_);
     }
+
     apr_thread_exit(th, APR_SUCCESS);
     return NULL;
 }
@@ -135,11 +166,12 @@ void usage(char *argv) {
     fprintf(stderr, "\t-p server port\n");
     fprintf(stderr, "\t-t number of client threads\n");
     fprintf(stderr, "\t-m max number of rpc\n");
+    fprintf(stderr, "\t-o max outstanding rpc\n");
 }
 
 void arg_parse(int argc, char **argv) {
     char ch;
-    while ((ch = getopt(argc, argv, "sca:p:t:hm:")) != EOF) {
+    while ((ch = getopt(argc, argv, "sca:p:t:hm:o:")) != EOF) {
 	switch (ch) {
 	case 's':
 	    is_server_ = true;
@@ -161,6 +193,9 @@ void arg_parse(int argc, char **argv) {
 	    exit(0);
 	case 'm':
 	    max_rpc_ = atoi(optarg);
+	    break;
+	case 'o':
+	    max_outst_ = atoi(optarg);
 	    break;
 //	default:
 //	    usage(argv[0]);
@@ -203,10 +238,11 @@ int main(int argc, char **argv) {
         server->comm->port = port_;
         server_reg(server, ADD, add); 
         server_start(server);
-        printf("server started.\n");
+        LOG_INFO("server started start on %s, port %d.", addr_, port_);
     } 
     
     if (is_client_) {
+	LOG_INFO("client to %s:%d, test for %d rpc in total, outstanding rpc: %d", addr_, port_, max_rpc_, max_outst_);
        
         apr_thread_mutex_lock(mx_rpc_);
         for (int i = 0; i < n_client_; i++) {
