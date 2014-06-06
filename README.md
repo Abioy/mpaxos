@@ -1,32 +1,27 @@
-MPaxos
-=============
 
-What is MPaxos?
-------------
-
-The name of MPaxos refers to two things. 
-
-1. MPaxos is an extentional protocol based on Lamport's Paxos. 
-1. MPaxos is an RSM (Replication State Machine) framework based on the protocol. This is what you see in this repository.
+# MPaxos
 
 
-What can I do with MPaxos?
------------------
+[MPaxos] is an experimental Paxos codebase for research purposes. 
 
-MPaxos is used for build for highly reliable distributed services.
+The code is still changing every day! Don't use it for serious matters.
 
-1. You can use MPaxos to build a standard Paxos-based RSM, which can tolerate any minority of fail-stops failures.
-1. It is also easy to use MPaxos to build independent RSMs running in Parallel. And more importantly, MPaxos supports transactional commits to these RSMs. This is our extentional part to original Paxos.
+## License
 
+[MPaxos] use [SATA License](LICENSE.txt) (Star And Thank Author License), so you have to star this project before any using. 
 
-What interfaces does MPaxos provide?
--------------------------------
+## Publication
 
-MPaxos provides a simple Write-Ahead-Log (WAL) and callback interface. To build a reliable application, you only need to abstract the operations of application into logs, commit it using MPaxos. After successful a commit, MPaxos will invoke a callback function (on every node), with the committed log as a parameter.
+We have a few publications based on this Paxos codebase:
 
+When Paxos Meets Erasure Code: Reduce Network and Storage Cost in State Machine Replication ([HPDC14](http://www.hpdc.org/2014/program/))
 
+When Paxos Meets 2PC: Efficient Transactions across Parallel Geo-Replicated State Machines (in submission)
 
-How to build, and use MPaxos?
--------------------------
+If you use MPaxos in your publications, you are very welcome to let us know.
 
-Please follow this simple [getting started guide](http://mpaxos.com/doc/) on the project's website. It is also available in the ./doc directory of the source repo.
+## Documents
+
+There is now a very simple [getting started guide](http://mpaxos.com/doc/).
+
+If you want more documents from research guys... Seriously? 
