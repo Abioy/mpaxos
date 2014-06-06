@@ -15,7 +15,6 @@ The code is still changing every day! Don't use it for serious matters.
 We have a few publications based on this Paxos codebase:
 
  - When Paxos Meets Erasure Code: Reduce Network and Storage Cost in State Machine Replication ([HPDC14](http://www.hpdc.org/2014/program/))
-
  - When Paxos Meets 2PC: Efficient Transactions across Parallel Geo-Replicated State Machines (in submission)
 
 If you use MPaxos in your publications, you are very welcome to let us know.
@@ -28,9 +27,9 @@ If you want more documents from research guys... Seriously?
 
 ## Contributors
 
-  [msmummy](https://github.com/msmummy)
-  [zTrix](https://github.com/zTrix)
-  [zorksylar](https://github.com/zorksylar)
+ - [msmummy](https://github.com/msmummy)
+ - [zTrix](https://github.com/zTrix)
+ - [zorksylar](https://github.com/zorksylar)
   
 
 [MPaxos]:https://github.com/msmummy/mpaxos
