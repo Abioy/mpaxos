@@ -25,3 +25,6 @@ If you use MPaxos in your publications, you are very welcome to let us know.
 There is now a very simple [getting started guide](http://mpaxos.com/doc/).
 
 If you want more documents from research guys... Seriously? 
+
+
+[MPaxos]:https://github.com/msmummy/mpaxos
