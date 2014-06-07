@@ -104,10 +104,14 @@ int poll_worker_add_job(
 int poll_worker_remove_job(
         poll_worker_t *worker,
         poll_job_t *job) {
-    SAFE_ASSERT(job->ps != NULL);
+    //    SAFE_ASSERT(job->ps != NULL);
+    if (job->ps == NULL) {
+	return -1;
+    }
+    
     SAFE_ASSERT(worker != NULL);
     SAFE_ASSERT(apr_pollset_remove(worker->ps, &job->pfd) == APR_SUCCESS);
-    job->ps == NULL;
+    job->ps = NULL;
     return 0;
 }
 
@@ -119,11 +123,27 @@ int poll_worker_update_job(
 	return 0;
     }
 
-    SAFE_ASSERT(job->ps != NULL);
+    //    SAFE_ASSERT(job->ps != NULL);
+    if(job->ps == NULL) {
+	return -1;
+    }
+
     SAFE_ASSERT(worker != NULL);
-    SAFE_ASSERT(apr_pollset_remove(worker->ps, &job->pfd) == APR_SUCCESS);   
+
+    apr_status_t status = 0;
+    status = apr_pollset_remove(worker->ps, &job->pfd);   
+    if (status != APR_SUCCESS) {
+	LOG_ERROR("error in remove from pollset. code: %d, message: %s",
+		  (int)status, apr_strerror(status, malloc(100), 100));
+	SAFE_ASSERT(0);
+    }
+    
     job->pfd.reqevents = mode;
-    SAFE_ASSERT(apr_pollset_add(worker->ps, &job->pfd) == APR_SUCCESS);
+    status = apr_pollset_add(worker->ps, &job->pfd);
+    if (status != APR_SUCCESS) {
+	LOG_ERROR("error in readd to pollset. code: %d, message: %s",
+		  (int) status, apr_strerror(status, malloc(100), 100));
+    }
     return 0;
 }
 
