@@ -15,6 +15,7 @@ void client_create(client_t **cli, poll_mgr_t *mgr) {
     c->pjob->do_write = handle_client_write;
     c->pjob->do_error = NULL;
     c->pjob->holder = c;
+    c->pjob->ps = NULL;
     c->pjob->mgr = (mgr != NULL) ? mgr : mgr_;
 
     buf_create(&c->buf_recv);

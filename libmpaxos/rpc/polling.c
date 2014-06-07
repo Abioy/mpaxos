@@ -95,15 +95,19 @@ int poll_worker_add_job(
         poll_worker_t *worker,
         poll_job_t *job) {
     SAFE_ASSERT(worker != NULL);
-    apr_pollset_add(worker->ps, &job->pfd);  
+    SAFE_ASSERT(job->ps == NULL);
+    SAFE_ASSERT(apr_pollset_add(worker->ps, &job->pfd) == APR_SUCCESS);  
+    job->ps = worker->ps;
     return 0;
 }
 
 int poll_worker_remove_job(
         poll_worker_t *worker,
         poll_job_t *job) {
+    SAFE_ASSERT(job->ps != NULL);
     SAFE_ASSERT(worker != NULL);
-    apr_pollset_remove(worker->ps, &job->pfd);
+    SAFE_ASSERT(apr_pollset_remove(worker->ps, &job->pfd) == APR_SUCCESS);
+    job->ps == NULL;
     return 0;
 }
 
@@ -115,6 +119,7 @@ int poll_worker_update_job(
 	return 0;
     }
 
+    SAFE_ASSERT(job->ps != NULL);
     SAFE_ASSERT(worker != NULL);
     SAFE_ASSERT(apr_pollset_remove(worker->ps, &job->pfd) == APR_SUCCESS);   
     job->pfd.reqevents = mode;

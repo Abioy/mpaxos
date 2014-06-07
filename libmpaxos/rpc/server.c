@@ -13,6 +13,7 @@ void server_create(server_t **svr, poll_mgr_t *mgr) {
     s->pjob->do_write = NULL;
     s->pjob->do_error = NULL;
     s->pjob->holder = s;
+    s->pjob->ps = NULL;
     s->pjob->mgr = (mgr != NULL) ? mgr: mgr_;
 
     s->is_start = false;
@@ -53,7 +54,7 @@ void server_bind_listen(server_t *svr) {
         printf("%s", apr_strerror(status, malloc(100), 100));
         SAFE_ASSERT(status == APR_SUCCESS);
     }
-    LOG_DEBUG("successfuly bind and listen on port %d.", svr->comm->port);
+    LOG_INFO("successfuly bind and listen on port %d.", svr->comm->port);
 }
 
 void server_start(server_t *svr) {
@@ -87,6 +88,7 @@ void sconn_create(sconn_t **sconn, server_t *svr) {
     sc->pjob->do_write = handle_sconn_write;
     sc->pjob->do_error = NULL;
     sc->pjob->holder = sc;
+    sc->pjob->ps = NULL;
     sc->pjob->mgr = svr->pjob->mgr;
 
     buf_create(&sc->buf_recv);
@@ -204,10 +206,10 @@ void handle_sconn_read(void* arg) {
     if (status == APR_SUCCESS) {
 	
     } else if (status == APR_EOF) {
-        LOG_DEBUG("sconn poll on read, received eof, close socket");
+        LOG_INFO("sconn poll on read, received eof, close socket");
 	poll_mgr_remove_job(sconn->pjob->mgr, sconn->pjob);
     } else if (status == APR_ECONNRESET) {
-        LOG_ERROR("on read. connection reset.");
+        LOG_INFO("on read. connection reset, close socket");
 	poll_mgr_remove_job(sconn->pjob->mgr, sconn->pjob);
         // TODO [improve] you may retry connect
     } else if (status == APR_EAGAIN) {
@@ -247,13 +249,13 @@ void handle_sconn_write(void* arg) {
 	    LOG_DEBUG("sconn write something out.");
 	}
     } else if (status == APR_ECONNRESET) {
-        LOG_ERROR("connection reset on write, is this a mac os?");
+        LOG_INFO("connection reset on write, is this a mac os?");
 	poll_mgr_remove_job(sconn->pjob->mgr, sconn->pjob);
         return;
     } else if (status == APR_EAGAIN) {
 	SAFE_ASSERT(0);
     } else if (status == APR_EPIPE) {
-        LOG_ERROR("on write, broken pipe, epipe error, is this a mac os?");
+        LOG_INFO("on write, broken pipe, epipe error, is this a mac os?");
 	poll_mgr_remove_job(sconn->pjob->mgr, sconn->pjob);
         return;
     } else {

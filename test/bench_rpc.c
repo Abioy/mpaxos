@@ -74,7 +74,7 @@ rpc_state* add_cb(rpc_state *state) {
     if (n_rpc_ % 1000000 == 0) {
 	tm_middle_ = apr_time_now();
 	uint64_t p = tm_middle_ - tm_begin_;
-	double rate = n_rpc_ * 1000000.0 / p;
+	double rate = n_rpc_ * 1.0 / p;
 	LOG_INFO("rpc rate: %0.2f million per second", rate);
     }
     
