@@ -20,11 +20,13 @@
 #define LOG_LEVEL_TRACE  6
 #define LOG_LEVEL_ALL    6
 
+#ifndef LOG_LEVEL
 #ifdef NDEBUG
 #define LOG_LEVEL LOG_LEVEL_INFO
 #else
 #define LOG_LEVEL LOG_LEVEL_DEBUG
 #endif // NDEBUG
+#endif // LOG_LEVEL
 
 /* Change this to change log level */
 //#define LOG_LEVEL        LOG_LEVEL_TRACE

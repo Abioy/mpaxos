@@ -19,12 +19,14 @@ def options(opt):
     opt.load("compiler_c")
     
     opt.add_option('-d', '--debug', dest='debug', default=False, action='store_true')
+    opt.add_option('-l', '--log', dest="log", default='', help='log level', action='store')
 
 def configure(conf):
     conf.load("compiler_c")
     
     _enable_pic(conf)
     _enable_debug(conf)     #debug
+    _enable_log(conf)       #log level
     _enable_static(conf)    #static
 
     conf.env.LIB_PTHREAD = 'pthread'
@@ -74,6 +76,17 @@ def _enable_debug(conf):
         Logs.pprint("PINK", "Use clang as compiler")
         conf.env.append_value("C", "clang++")
 
+def _enable_log(conf):
+    if Options.options.log == 'debug':
+        Logs.pprint("PINK", "Log level set to debug")
+        conf.env.append_value("CFLAGS", "-DLOG_LEVEL=5")
+    elif Options.options.log == 'info':
+        Logs.pprint("PINK", "Log level set to info")
+        conf.env.append_value("CFLAGS", "-DLOG_LEVEL=4")
+    elif Options.options.log == '':
+        pass
+    else:
+        Logs.pprint("PINK", "unsupported log level")
 #    if os.getenv("DEBUG") == "1":
 
 
