@@ -164,6 +164,7 @@ rpc_state* on_accept(rpc_state* state) {
 rpc_state* on_promise(rpc_state* state) {
     msg_promise_t *msg_prom;
     msg_prom = mpaxos__msg_promise__unpack(NULL, state->sz_input, state->raw_input);
+    LOG_DEBUG("receive PROMISE message");
     //log_message_res("receive", "PROMISE", msg_prom->h, msg_prom->ress, 
     //        msg_prom->n_ress, state->sz);
     handle_msg_promise(msg_prom);
@@ -174,10 +175,12 @@ rpc_state* on_promise(rpc_state* state) {
 rpc_state* on_accepted(rpc_state* state) {
     msg_accepted_t *msg_accd;
     msg_accd = mpaxos__msg_accepted__unpack(NULL, state->sz_input, state->raw_input);
+    LOG_DEBUG("receive ACCEPTED message");
     //log_message_res("receive", "ACCEPTED", msg_accd->h, msg_accd->ress, 
     //        msg_accd->n_ress, state->sz);
     handle_msg_accepted(msg_accd);
     mpaxos__msg_accepted__free_unpacked(msg_accd, NULL);
+    LOG_DEBUG("finish handling ACCEPTED message");
     return NULL;
 }
 

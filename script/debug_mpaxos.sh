@@ -26,7 +26,7 @@ do
     # this is the master
     echo "LAUNCHING MASTER"
     i=1
-    command_stdout="$TARGET -c $DIR_CONFIG/config.$N_HOST.$i -s $n_tosend -g $n_group -q $is_exit $to_sleep $group_begin -b $n_batch"
+    command_stdout="$TARGET -c $DIR_CONFIG/config.$N_HOST.$i -s $n_tosend -g $n_group -q $is_exit -b $n_batch"
     nohup xterm -hold -e "$command_stdout" &
     
     for i in $(seq 2 $N_HOST)

@@ -109,6 +109,7 @@ void handle_msg_promise(msg_promise_t *msg_prom) {
     // handle this round info.
     apr_thread_mutex_lock(tinfo->mx);
     if (tinfo->in_phase != 1) {
+	apr_thread_mutex_unlock(tinfo->mx);
         return;
     }
     
@@ -240,6 +241,7 @@ void handle_msg_accepted(msg_accepted_t *msg) {
     // handle this round info.
     apr_thread_mutex_lock(tinfo->mx);
     if (tinfo->in_phase != 2) { //#
+	apr_thread_mutex_unlock(tinfo->mx);
         return;
     }
 
