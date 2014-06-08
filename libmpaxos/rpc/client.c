@@ -20,6 +20,7 @@ void client_create(client_t **cli, poll_mgr_t *mgr) {
 
     buf_create(&c->buf_recv);
     buf_create(&c->buf_send);
+    LOG_DEBUG("a new client created.");
 }
 
 void client_destroy(client_t *cli) {
@@ -27,6 +28,7 @@ void client_destroy(client_t *cli) {
     buf_destroy(cli->buf_recv);
     buf_destroy(cli->buf_send);
     free(cli);
+    LOG_DEBUG("a client destroyed");
 }
 
 void client_connect(client_t *cli) {
@@ -35,12 +37,12 @@ void client_connect(client_t *cli) {
     apr_status_t status = APR_SUCCESS;
     status = apr_sockaddr_info_get(&cli->comm->sa, cli->comm->ip, APR_INET, 
 				   cli->comm->port, 0, cli->comm->mp);
-
     SAFE_ASSERT(status == APR_SUCCESS);
+
     status = apr_socket_create(&cli->comm->s, cli->comm->sa->family, 
 			       SOCK_STREAM, APR_PROTO_TCP, cli->comm->mp);
-
     SAFE_ASSERT(status == APR_SUCCESS);
+
     status = apr_socket_opt_set(cli->comm->s, APR_TCP_NODELAY, 1);
     SAFE_ASSERT(status == APR_SUCCESS);
 
@@ -50,14 +52,19 @@ void client_connect(client_t *cli) {
         status = apr_socket_connect(cli->comm->s, cli->comm->sa);
         if (status == APR_SUCCESS /*|| status == APR_EINPROGRESS */) {
             break;
-        } else {
+        } else if (status == APR_ECONNREFUSED) {
+	    LOG_DEBUG("client connect refused, maybe the server is not ready yet");
+	} else if (status == APR_EINVAL) {
+	    LOG_ERROR("client connect error, invalid argument. ip: %s, port: %d", 
+		      cli->comm->ip, cli->comm->port);
+	    SAFE_ASSERT(0);
+	} else {
             LOG_ERROR("client connect error:%s", apr_strerror(status, malloc(100), 100));
-//            LOG_ERROR("client addr: %s:%d", c->com.ip, c->com.port);
-	    apr_sleep(50 * 1000);
-            continue;
+	    SAFE_ASSERT(0);
         }
+	apr_sleep(50 * 1000);
     }
-    LOG_TRACE("connected socket on remote addr %s, port %d", cli->comm->ip, cli->comm->port);
+    LOG_INFO("connected socket on remote addr %s, port %d", cli->comm->ip, cli->comm->port);
     status = apr_socket_opt_set(cli->comm->s, APR_SO_NONBLOCK, 1);
     SAFE_ASSERT(status == APR_SUCCESS);
     

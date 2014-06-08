@@ -45,6 +45,7 @@ static void rpc_common_create(rpc_comm_t **comm) {
 static void rpc_common_destroy(rpc_comm_t *comm) {
     apr_thread_mutex_destroy(comm->mx);
     apr_pool_destroy(comm->mp);
+    free(comm);
 }
 
 #endif // RPC_COMM_H
