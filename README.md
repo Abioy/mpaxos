@@ -1,16 +1,16 @@
 
-# MPaxos
+## MPaxos
 
 
 [MPaxos] is an experimental Paxos codebase for research purposes. 
 
 The code is still changing every day! Don't use it for serious matters.
 
-## License
+### License
 
-[MPaxos] use [SATA License](LICENSE.txt) (Star And Thank Author License, originally [here](https://github.com/zTrix/sata-license)), so you have to star this project before any using:) 
+MPaxos use [SATA License](LICENSE.txt) (Star And Thank Author License, originally [here](https://github.com/zTrix/sata-license)), so you have to star this project before any using:) 
 
-## Publication
+### Publication
 
 We have a few publications based on this Paxos codebase:
 
@@ -19,13 +19,13 @@ We have a few publications based on this Paxos codebase:
 
 If you use MPaxos in your publications, you are very welcome to let us know.
 
-## Documents
+### Documents
 
 There is now a very simple [getting started guide](https://github.com/msmummy/mpaxos/wiki/getting-started-guide).
 
 If you want more documents from research guys... Seriously? 
 
-## Contributors
+### Contributors
 
  - [msmummy](https://github.com/msmummy)
  - [zTrix](https://github.com/zTrix)
