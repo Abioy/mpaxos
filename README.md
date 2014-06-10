@@ -8,7 +8,7 @@ The code is still changing every day! Don't use it for serious matters.
 
 ## License
 
-[MPaxos] use [SATA License](LICENSE.txt) (Star And Thank Author License), so you have to star this project before any using. 
+[MPaxos] use [SATA License](LICENSE.txt) (Star And Thank Author License, originally [here](https://github.com/zTrix/sata-license)), so you have to star this project before any using. 
 
 ## Publication
 
