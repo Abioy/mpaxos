@@ -21,7 +21,7 @@ If you use MPaxos in your publications, you are very welcome to let us know.
 
 ## Documents
 
-There is now a very simple [getting started guide](http://mpaxos.com/doc/).
+There is now a very simple [getting started guide](https://github.com/msmummy/mpaxos/wiki/getting-started-guide).
 
 If you want more documents from research guys... Seriously? 
 
