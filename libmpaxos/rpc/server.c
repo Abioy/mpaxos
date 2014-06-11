@@ -115,7 +115,7 @@ void handle_server_accept(void* arg) {
 
 //    apr_socket_t *sock_listen = r->com.s;
 //    LOG_INFO("accept on fd %x", sock_listen->socketdes);
-    LOG_DEBUG("accept new connection");
+    LOG_INFO("accept new connection");
 
     if (status == APR_EMFILE) {
 	LOG_ERROR("cannot open more file handles, please check system configurations.");
@@ -251,13 +251,11 @@ void handle_sconn_write(void* arg) {
     } else if (status == APR_ECONNRESET) {
         LOG_INFO("connection reset on write, is this a mac os?");
 	poll_mgr_remove_job(sconn->pjob->mgr, sconn->pjob);
-        return;
     } else if (status == APR_EAGAIN) {
 	SAFE_ASSERT(0);
     } else if (status == APR_EPIPE) {
-        LOG_INFO("on write, broken pipe, epipe error, is this a mac os?");
+        LOG_INFO("on write, broken pipe, epipe error. remove poll job.");
 	poll_mgr_remove_job(sconn->pjob->mgr, sconn->pjob);
-        return;
     } else {
         LOG_ERROR("error code: %d, error message: %s",
 		  (int)status, apr_strerror(status, malloc(100), 100));
