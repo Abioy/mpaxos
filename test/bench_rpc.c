@@ -19,17 +19,24 @@ static apr_thread_mutex_t *mx_rpc_ = NULL;
 
 static char* addr_ = NULL;
 static int port_ = 0;
-static uint32_t n_client_ = 1;
-static apr_uint32_t n_rpc_ = 0;
+
+
 //static volatile apr_uint32_t n_svr_rpc_ = 0;
 static bool is_server_ = false;
 static bool is_client_ = false;
+
 static int32_t max_rpc_ = -1;
-
-static int32_t n_issued_ = 0;
 static int32_t max_outst_ = 1000;
+static uint32_t n_client_ = 1;
+static volatile apr_uint32_t n_rpc_ = 0;
+static volatile apr_uint32_t n_active_cli_ = 0;
 
-static client_t *cli_ = NULL;
+static client_t **clis_ = NULL;
+static poll_mgr_t **mgrs_ = NULL;
+static uint64_t *n_issues_ = NULL;
+static uint64_t *n_callbacks_ = NULL;
+
+
 
 funid_t ADD = 1;
 funid_t PROTO = 2;
@@ -54,35 +61,41 @@ rpc_state* add(rpc_state *state) {
     return NULL;
 }
 
-void call_add(client_t *cli);
+void call_add(client_t *cli, int k);
 
 rpc_state* add_cb(rpc_state *state) {
     // Do nothing
     
     //uint32_t j = apr_atomic_add32(&n_rpc_, 1);
-    n_rpc_ += 1;
+    
+    uint32_t *res = (uint32_t*) state->raw_input;
+    uint32_t k = *res;
+    
+    n_callbacks_[k] += 1;
     LOG_DEBUG("client callback exceuted. rpc no: %d", n_rpc_);
 
-    if (n_rpc_ == max_rpc_ * n_client_) {
-        tm_end_ = apr_time_now();
-        apr_thread_mutex_lock(mx_rpc_);
-        apr_thread_cond_signal(cd_rpc_);
-        apr_thread_mutex_unlock(mx_rpc_);
+    if (n_callbacks_[k] == max_rpc_) {       
+	if (apr_atomic_dec32(&n_active_cli_) == 0) {
+	    tm_end_ = apr_time_now();
+	    apr_thread_mutex_lock(mx_rpc_);
+	    apr_thread_cond_signal(cd_rpc_);
+	    apr_thread_mutex_unlock(mx_rpc_);
+	}
     }
-    //    }
     
-    if (n_rpc_ % 1000000 == 0) {
+    if (n_callbacks_[k] % 1000000 == 0) {
+	apr_atomic_add32(&n_rpc_, 1000000);
 	tm_middle_ = apr_time_now();
 	uint64_t p = tm_middle_ - tm_begin_;
 	double rate = n_rpc_ * 1.0 / p;
 	LOG_INFO("rpc rate: %0.2f million per second", rate);
     }
-    
-    if (max_rpc_ < 0 || n_issued_ < max_rpc_) {
-	n_issued_++;
-	call_add(cli_);
+
+    // do another rpc.    
+    if (max_rpc_ < 0 || n_issues_[k] < max_rpc_) {
+	n_issues_[k]++;
+	call_add(clis_[k], k);
     }
-    // do another rpc.
     return NULL;
 }
 
@@ -115,28 +128,32 @@ void bench_add() {
 }
 
 
-void call_add(client_t *cli) {
+void call_add(client_t *cli, int k) {
     struct_add sa;
-    sa.a = 1;
-    sa.b = 2;
+    sa.a = k;
+    sa.b = 0;
     client_call(cli, ADD, (uint8_t *)&sa, sizeof(struct_add));
 }
 
 void* APR_THREAD_FUNC client_thread(apr_thread_t *th, void *v) {
+    poll_mgr_t *mgr = NULL;
     client_t *client = NULL;
-    client_create(&client, NULL);
+    poll_mgr_create(&mgr, 1);  
+    client_create(&client, mgr);
     strcpy(client->comm->ip, addr_);
     client->comm->port = port_;
     client_reg(client, ADD, add_cb);
     tm_begin_ = apr_time_now();
     client_connect(client);
 
-    cli_ = client;
+    int k = (intptr_t) v;
+    mgrs_[k] = mgr;
+    clis_[k] = client;
 //    printf("client connected.\n");
 
-    n_issued_ += max_outst_;
+    n_issues_[k] += max_outst_;
     for (int i = 0; i < max_outst_; i++) {
-	call_add(cli_);
+	call_add(clis_[k], k);
     }
 
     apr_thread_exit(th, APR_SUCCESS);
@@ -212,6 +229,7 @@ int main(int argc, char **argv) {
     signal(SIGPIPE, SIG_IGN);
 
     apr_initialize();
+
     apr_pool_create(&mp_rpc_, NULL);
     apr_thread_cond_create(&cd_rpc_, mp_rpc_);
     apr_thread_mutex_create(&mx_rpc_, APR_THREAD_MUTEX_UNNESTED, mp_rpc_);
@@ -242,14 +260,28 @@ int main(int argc, char **argv) {
     } 
     
     if (is_client_) {
-	LOG_INFO("client to %s:%d, test for %d rpc in total, outstanding rpc: %d", addr_, port_, max_rpc_, max_outst_);
+	LOG_INFO("client to %s:%d, test for %d rpc in total, outstanding rpc: %d",
+		 addr_, port_, max_rpc_, max_outst_);
+
+	mgrs_ = (poll_mgr_t **) malloc(n_client_ * sizeof(poll_mgr_t*));
+	clis_ = (client_t **) malloc(n_client_ * sizeof(client_t *));
+	n_issues_ = (uint64_t*) malloc(n_client_ * sizeof(uint64_t));	
+	n_callbacks_ = (uint64_t*) malloc(n_client_ * sizeof(uint64_t));
+	n_active_cli_ = n_client_;
        
         apr_thread_mutex_lock(mx_rpc_);
         for (int i = 0; i < n_client_; i++) {
             apr_thread_t *th;
-            apr_thread_create(&th, NULL, client_thread, NULL, mp_rpc_);
+            apr_thread_create(&th, NULL, client_thread, (intptr_t) i, mp_rpc_);
         }
-        LOG_INFO("rpc triggered for %d adds on %d threads.", max_rpc_ * n_client_, n_client_);
+	
+	
+	if (max_rpc_ < 0) {
+	    LOG_INFO("infinite rpc on %d threads (clients)", n_client_);
+	} else {
+	    LOG_INFO("%d threads (clients), each client run for %d rpc.", n_client_, max_rpc_ * n_client_);
+	}
+
         apr_thread_cond_wait(cd_rpc_, mx_rpc_);
         apr_thread_mutex_unlock(mx_rpc_);
 
@@ -257,6 +289,13 @@ int main(int argc, char **argv) {
         LOG_INFO("finish %d rpc in %d ms.", max_rpc_ * n_client_, period/1000);
         float rate = (float) max_rpc_ * n_client_ / period;
         LOG_INFO("rpc rate %f million per sec.", rate);
+	
+	for (int i = 0; i < n_client_; i++) {
+	    client_destroy(clis_[i]);
+	    poll_mgr_destroy(mgrs_[i]);
+	}
+	free (clis_);
+	free (n_issues_);
     }
 
     fflush(stdout);
