@@ -8,12 +8,9 @@ void server_create(server_t **svr, poll_mgr_t *mgr) {
     *svr = (server_t*) malloc(sizeof(server_t));
     server_t *s = *svr;
     rpc_common_create(&s->comm);
-    s->pjob = (poll_job_t*) malloc(sizeof(poll_job_t));
+    poll_job_create(&s->pjob);
     s->pjob->do_read = &handle_server_accept;
-    s->pjob->do_write = NULL;
-    s->pjob->do_error = NULL;
     s->pjob->holder = s;
-    s->pjob->ps = NULL;
     s->pjob->mgr = (mgr != NULL) ? mgr: mgr_;
 
     s->is_start = false;

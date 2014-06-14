@@ -10,12 +10,10 @@ void client_create(client_t **cli, poll_mgr_t *mgr) {
     *cli = (client_t *) malloc(sizeof(client_t));
     client_t *c = *cli;
     rpc_common_create(&c->comm);
-    c->pjob = (poll_job_t*) malloc(sizeof(poll_job_t));
+    poll_job_create(&c->pjob);
     c->pjob->do_read = handle_client_read;
     c->pjob->do_write = handle_client_write;
-    c->pjob->do_error = NULL;
     c->pjob->holder = c;
-    c->pjob->ps = NULL;
     c->pjob->mgr = (mgr != NULL) ? mgr : mgr_;
 
     buf_create(&c->buf_recv);

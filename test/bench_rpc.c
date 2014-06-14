@@ -36,6 +36,7 @@ static poll_mgr_t **mgrs_ = NULL;
 static uint64_t *n_issues_ = NULL;
 static uint64_t *n_callbacks_ = NULL;
 
+static uint32_t n_server_thread_ = 1;
 
 
 funid_t ADD = 1;
@@ -188,7 +189,7 @@ void usage(char *argv) {
 
 void arg_parse(int argc, char **argv) {
     char ch;
-    while ((ch = getopt(argc, argv, "sca:p:t:hm:o:")) != EOF) {
+    while ((ch = getopt(argc, argv, "sca:p:t:hm:o:r:")) != EOF) {
 	switch (ch) {
 	case 's':
 	    is_server_ = true;
@@ -214,6 +215,8 @@ void arg_parse(int argc, char **argv) {
 	case 'o':
 	    max_outst_ = atoi(optarg);
 	    break;
+	case 'r':
+	    n_server_thread_ = atoi(optarg);
 //	default:
 //	    usage(argv[0]);
 //	    return 0;
@@ -251,7 +254,9 @@ int main(int argc, char **argv) {
 
     if (is_server_) {
         server_t *server = NULL;
-        server_create(&server, NULL);    
+	poll_mgr_t *mgr_server = NULL;
+	poll_mgr_create(&mgr_server, n_server_thread_);
+        server_create(&server, mgr_server);    
         strcpy(server->comm->ip, addr_);
         server->comm->port = port_;
         server_reg(server, ADD, add); 

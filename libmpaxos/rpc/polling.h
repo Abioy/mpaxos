@@ -31,6 +31,7 @@ struct __poll_job {
     void* holder;       // which server, client, or server_connection this job belongs to.
     //    poll_worker_t* worker;       // which worker is doing this poll job.
     poll_mgr_t *mgr;          // which pollmgr is managin this poll job.
+    poll_worker_t *worker;    // which worker holds this job.
     apr_pollfd_t pfd;   // this is where to poll 
     apr_pollset_t *ps;  // this is the pollset, actually it also available via poll worker.
     void (*do_read)(void*); 
@@ -59,6 +60,7 @@ struct __poll_worker {
 struct __poll_mgr {
     poll_worker_t **workers; 
     int n_worker;
+    int idx_worker;
 };
 
 int poll_worker_create(

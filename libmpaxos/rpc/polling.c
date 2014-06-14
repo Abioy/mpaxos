@@ -1,5 +1,22 @@
 #include "polling.h"
 
+
+void poll_job_create(poll_job_t **job) {
+    poll_job_t *j = (poll_job_t*) malloc(sizeof(poll_job_t));
+    j->do_read = NULL;
+    j->do_write = NULL;
+    j->do_error = NULL;
+    j->holder = NULL;
+    j->mgr = NULL;
+    j->worker= NULL;
+    j->ps = NULL;
+    *job = j;
+}
+
+void poll_job_destroy(poll_job_t *job) {
+    free(job);
+}
+
 void* APR_THREAD_FUNC poll_worker_run(
         apr_thread_t *th,
         void *arg) {
@@ -91,6 +108,9 @@ int poll_worker_destroy(
 }
 
 
+/**
+ * thread-safe on different jobs at the same worker.
+ */
 int poll_worker_add_job(
         poll_worker_t *worker,
         poll_job_t *job) {
@@ -152,7 +172,8 @@ int poll_mgr_create(
         int n_worker) {
     poll_mgr_t *m;
     m = (poll_mgr_t*) malloc(sizeof(poll_mgr_t));
-    m->n_worker = n_worker;
+    m->idx_worker = 0;
+    m->n_worker = n_worker;    
     m->workers = (poll_worker_t**) malloc(n_worker * sizeof(poll_mgr_t*)); 
     for (int i = 0; i < n_worker; i++) {
         poll_worker_create(&m->workers[i], m);
@@ -170,11 +191,15 @@ int poll_mgr_destroy(
     return 0;
 }
 
+/**
+ * thread-safe?
+ */
 int poll_mgr_add_job(
         poll_mgr_t *mgr,
         poll_job_t *job) {
-    int i = 0; // TODO, hash
-    poll_worker_t *worker = mgr->workers[i]; 
+    poll_worker_t *worker = mgr->workers[mgr->idx_worker];    
+    mgr->idx_worker = (mgr->idx_worker + 1) % mgr->n_worker;
+    job->worker = worker;
     poll_worker_add_job(worker, job);
     LOG_TRACE("add poll job to manager");
     return 0;
@@ -183,8 +208,9 @@ int poll_mgr_add_job(
 int poll_mgr_remove_job(
         poll_mgr_t *mgr,
         poll_job_t *job) {
-    int i = 0; // TODO, hash
-    poll_worker_t *worker = mgr->workers[i]; 
+    poll_worker_t *worker = job->worker;
+    SAFE_ASSERT(job->mgr == mgr);
+    SAFE_ASSERT(job->worker != NULL);
     poll_worker_remove_job(worker, job);
     LOG_TRACE("remove poll job from manager");
     return 0;
@@ -194,8 +220,10 @@ int poll_mgr_update_job(
         poll_mgr_t *mgr,
         poll_job_t *job,
         int mode) {
-    int i = 0; // TODO, hash
-    poll_worker_t *worker = mgr->workers[i]; 
+    poll_worker_t *worker = job->worker;
+    SAFE_ASSERT(job->mgr == mgr);
+    SAFE_ASSERT(job->worker != NULL);
+
     poll_worker_update_job(worker, job, mode);
     LOG_TRACE("update poll job in manager");
     return 0;
