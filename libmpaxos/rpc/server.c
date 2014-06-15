@@ -78,14 +78,16 @@ void server_reg(server_t *svr, msgid_t msgid, void* fun) {
 void sconn_create(sconn_t **sconn, server_t *svr) {
     *sconn = (sconn_t *) malloc(sizeof(sconn_t));
     sconn_t *sc = *sconn;
-    sc->comm = svr->comm; // TODO, is this really a good idea?
-    sc->pjob = (poll_job_t *) malloc(sizeof(poll_job_t));
+
+    rpc_common_create(&sc->comm);
+    sc->comm->ht = svr->comm->ht; // TODO should be copy.
+
+    poll_job_create(&sc->pjob);
 
     sc->pjob->do_read = handle_sconn_read;
     sc->pjob->do_write = handle_sconn_write;
-    sc->pjob->do_error = NULL;
     sc->pjob->holder = sc;
-    sc->pjob->ps = NULL;
+
     sc->pjob->mgr = svr->pjob->mgr;
 
     buf_create(&sc->buf_recv);
@@ -100,8 +102,6 @@ void sconn_destroy(sconn_t *sconn) {
 
 void handle_server_accept(void* arg) {
     server_t *svr = (server_t *) arg;
-    sconn_t *sconn;
-    sconn_create(&sconn, svr);
 
     apr_status_t status = APR_SUCCESS;
     apr_socket_t *ns = NULL;
@@ -131,6 +131,9 @@ void handle_server_accept(void* arg) {
     apr_socket_opt_set(ns, APR_SO_NONBLOCK, 1);
     apr_socket_opt_set(ns, APR_TCP_NODELAY, 1);
 //    apr_socket_opt_set(ns, APR_SO_REUSEADDR, 1);
+
+    sconn_t *sconn;
+    sconn_create(&sconn, svr);
 
     apr_pollfd_t pfd = {svr->comm->mp, APR_POLL_SOCKET, APR_POLLIN, 0, {NULL}, NULL};
     pfd.desc.s = ns;
