@@ -37,6 +37,7 @@ static uint64_t *n_issues_ = NULL;
 static uint64_t *n_callbacks_ = NULL;
 
 static uint32_t n_server_thread_ = 1;
+static bool is_fast_ = true;
 
 funid_t ADD = 0x8001;
 funid_t FAST_ADD = 0x0001;
@@ -191,7 +192,7 @@ void usage(char *argv) {
 
 void arg_parse(int argc, char **argv) {
     char ch;
-    while ((ch = getopt(argc, argv, "sca:p:t:hm:o:r:")) != EOF) {
+    while ((ch = getopt(argc, argv, "sca:p:t:hm:o:r:f:")) != EOF) {
 	switch (ch) {
 	case 's':
 	    is_server_ = true;
@@ -219,6 +220,10 @@ void arg_parse(int argc, char **argv) {
 	    break;
 	case 'r':
 	    n_server_thread_ = atoi(optarg);
+	    break;
+	case 'f':
+	    is_fast_ = atoi(optarg);
+	    break;
 //	default:
 //	    usage(argv[0]);
 //	    return 0;
@@ -241,7 +246,7 @@ int main(int argc, char **argv) {
     rpc_init();
 
     arg_parse(argc, argv);
-
+    ADD = is_fast_ ? FAST_ADD : SLOW_ADD;
     bool exit = false;
 
     exit |=  !(is_server_ || is_client_);
