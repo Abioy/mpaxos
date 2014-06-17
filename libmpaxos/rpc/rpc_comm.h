@@ -12,6 +12,7 @@
 
 #define SZ_MSGID sizeof(msgid_t)
 #define SZ_SZMSG sizeof(uint32_t)
+#define NEW_THREAD_CALL (0x8000)
 
 typedef uint16_t msgid_t;
 typedef uint16_t funid_t;

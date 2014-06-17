@@ -1,14 +1,16 @@
 
 
+#include <apr_thread_pool.h>
 #include "polling.h"
 #include "buf.h"
 
-
 typedef struct {
-    rpc_comm_t *comm;
+rpc_comm_t *comm;
     poll_job_t *pjob;
     mpr_hash_t *ht_conn;
     bool is_start;
+    // thread pool for handling slow messages.
+    apr_thread_pool_t *tp;
 } server_t;
 
 typedef struct {
@@ -16,6 +18,7 @@ typedef struct {
     poll_job_t *pjob;
     buf_t *buf_recv;
     buf_t *buf_send;
+    apr_thread_pool_t *tp;
 } sconn_t;
 
 typedef struct {

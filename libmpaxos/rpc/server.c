@@ -15,12 +15,15 @@ void server_create(server_t **svr, poll_mgr_t *mgr) {
 
     s->is_start = false;
     mpr_hash_create(&s->ht_conn);
+
+    apr_thread_pool_create(&s->tp, 10, 10, s->comm->mp);
 }
 
 void server_destroy(server_t *svr) {
     rpc_common_destroy(svr->comm);
     // TODO maybe destroy all connections first?
     mpr_hash_destroy(svr->ht_conn);
+    apr_thread_pool_destroy(svr->tp);
     free(svr);
 }
 
@@ -63,7 +66,7 @@ void server_start(server_t *svr) {
     svr->pjob->pfd = pfd;
     // TODO add the poll job instead?
     poll_mgr_add_job(svr->pjob->mgr, svr->pjob);
-    //    apr_pollset_add(svr->job->ps, &pfd);    
+//    apr_pollset_add(svr->job->ps, &pfd);    
 }
 
 void server_stop(server_t *svr);
@@ -72,12 +75,13 @@ void server_reg(server_t *svr, msgid_t msgid, void* fun) {
     LOG_TRACE("server regisger function, msg type:%x", (int32_t)msgid);
     SAFE_ASSERT(fun != NULL);
     mpr_hash_set(svr->comm->ht, &msgid, SZ_MSGID, 
-		 &fun, sizeof(void*));
+		     &fun, sizeof(void*));
 }
 
 void sconn_create(sconn_t **sconn, server_t *svr) {
     *sconn = (sconn_t *) malloc(sizeof(sconn_t));
     sconn_t *sc = *sconn;
+    sc->tp = svr->tp;
 
     rpc_common_create(&sc->comm);
     sc->comm->ht = svr->comm->ht; // TODO should be copy.
@@ -143,6 +147,30 @@ void handle_server_accept(void* arg) {
     poll_mgr_add_job(sconn->pjob->mgr, sconn->pjob);
 }
 
+void* APR_THREAD_FUNC msg_call(apr_thread_t *th, void* arg) {
+    rpc_state *state = arg;
+    // this is where i run it in a new thread or just in the poll thread.
+    rpc_state* (**fun)(void*) = NULL;
+    size_t sz;
+    sconn_t *sconn = state->sconn;
+    msgid_t msgid = state->msgid;
+    mpr_hash_get(sconn->comm->ht, &msgid, SZ_MSGID, (void**)&fun, &sz);
+    SAFE_ASSERT(fun != NULL);
+    LOG_TRACE("going to call function %x", *fun);
+	   
+    (**fun)(state);
+
+    // write back to this connection.	    
+    if (state->raw_output) {
+	reply_to(state);
+	free(state->raw_output);
+    }
+    free(state->raw_input);
+    free(state);
+    // the above should be in a seperate function call.
+    return NULL;
+}
+
 void handle_sconn_read(void* arg) {
     LOG_TRACE("sconn read handle read.");
 
@@ -181,23 +209,14 @@ void handle_sconn_read(void* arg) {
             //(*(ctx->on_recv))(NULL, state);
             // FIXME call
 
-            rpc_state* (**fun)(void*) = NULL;
-            size_t sz;
-            mpr_hash_get(sconn->comm->ht, &msgid, SZ_MSGID, (void**)&fun, &sz);
-            SAFE_ASSERT(fun != NULL);
-            LOG_TRACE("going to call function %x", *fun);
-	    //            ctx->n_rpc++;
-	    //            ctx->sz_recv += n;
-            (**fun)(state);
-
-	    // write back to this connection.	    
-	    if (state->raw_output) {
-		reply_to(state);
-		free(state->raw_output);
+	    if (msgid & NEW_THREAD_CALL) {
+		apr_thread_pool_t *tp = sconn->tp;
+		SAFE_ASSERT(tp != NULL);
+		apr_thread_pool_push(tp, msg_call, state, 0, NULL);
+	    } else {
+		msg_call(NULL, state);
 	    }
-
-            free(state->raw_input);
-            free(state);
+	    
 	} else {
 	    break;
 	}

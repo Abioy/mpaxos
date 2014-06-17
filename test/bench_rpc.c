@@ -38,8 +38,10 @@ static uint64_t *n_callbacks_ = NULL;
 
 static uint32_t n_server_thread_ = 1;
 
+funid_t ADD = 0x8001;
+funid_t FAST_ADD = 0x0001;
+funid_t SLOW_ADD = 0x8001;
 
-funid_t ADD = 1;
 funid_t PROTO = 2;
 static apr_time_t tm_begin_ = 0;
 static apr_time_t tm_end_ = 0;
@@ -284,7 +286,8 @@ int main(int argc, char **argv) {
 	if (max_rpc_ < 0) {
 	    LOG_INFO("infinite rpc on %d threads (clients)", n_client_);
 	} else {
-	    LOG_INFO("%d threads (clients), each client run for %d rpc.", n_client_, max_rpc_ * n_client_);
+	    LOG_INFO("%d threads (clients), each client run for %d rpc.", 
+		     n_client_, max_rpc_ * n_client_);
 	}
 
         apr_thread_cond_wait(cd_rpc_, mx_rpc_);
