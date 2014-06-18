@@ -15,7 +15,7 @@ pargs = ['--cflags', '--libs']
 CFLAGS = []
 
 COMPILER_LANG = "compiler_c"
-COMPILER_LANG = "compiler_cxx"
+#COMPILER_LANG = "compiler_cxx"
 
 
 def options(opt):
