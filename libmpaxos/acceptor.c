@@ -59,7 +59,7 @@ accp_info_t* get_accp_info(groupid_t gid, slotid_t sid) {
     iid.sid = sid;
     accp_info_t *ainfo = NULL;
     size_t sz;
-    ainfo = apr_hash_get(ht_accp_info_, &iid, sizeof(instid_t));
+    ainfo = (accp_info_t*) apr_hash_get(ht_accp_info_, &iid, sizeof(instid_t));
     if (ainfo == NULL) {
         // FIXME make sure this is not a value that is decided and forgotten.
         accp_info_create(&ainfo, iid);
@@ -77,7 +77,7 @@ void acceptor_forget(groupid_t gid, slotid_t sid) {
     size_t sz;
 
     apr_thread_mutex_lock(mx_accp_);
-    ainfo = apr_hash_get(ht_accp_info_, &iid, sizeof(instid_t));
+    ainfo = (accp_info_t*)apr_hash_get(ht_accp_info_, &iid, sizeof(instid_t));
     if (ainfo != NULL) {
         apr_hash_set(ht_accp_info_, &iid, sizeof(instid_t), NULL);
     } 
@@ -213,7 +213,7 @@ rpc_state* handle_msg_accept(const msg_accept_t *msg_accp) {
         if (rid->bid >= maxbid) {
             response->ack = MPAXOS__ACK_ENUM__SUCCESS;
             record_accepted(rid, msg_accp->prop);
-            proposal_t **p = apr_array_push(ainfo->arr_prop);
+            proposal_t **p = (proposal_t**) apr_array_push(ainfo->arr_prop);
             // *p = apr_pcalloc(ainfo->mp, sizeof(proposal_t));
             // prop_cpy(*p, msg_accp->prop, ainfo->mp);
             *p = prop_copy(msg_accp->prop);

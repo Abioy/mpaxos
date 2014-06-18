@@ -121,7 +121,7 @@ void unlock_group_commit(groupid_t* gids, size_t sz_gids) {
 int mpaxos_commit_raw(groupid_t *gids, size_t sz_gids, uint8_t *data, 
     size_t sz_data, uint8_t *data_c, size_t sz_data_c, void* cb_para) {
     mpaxos_req_t *r = (mpaxos_req_t *)malloc(sizeof(mpaxos_req_t));
-    r->gids = malloc(sz_gids * sizeof(groupid_t));
+    r->gids = (groupid_t*) malloc(sz_gids * sizeof(groupid_t));
     r->sz_gids = sz_gids;
     r->sz_data = sz_data;
     r->sz_data_c = sz_data_c;
@@ -129,14 +129,14 @@ int mpaxos_commit_raw(groupid_t *gids, size_t sz_gids, uint8_t *data,
     r->n_retry = 0;
     r->id = gen_txn_id();
     if (sz_data > 0) {
-        r->data = malloc(sz_data);
+        r->data = (uint8_t*)malloc(sz_data);
         memcpy(r->data, data, sz_data);
     } else {
         r->data = NULL;
     }
     
     if (sz_data_c > 0) {
-        r->data_c = malloc(sz_data_c);
+        r->data_c = (uint8_t*)malloc(sz_data_c);
         memcpy(r->data_c, data_c, sz_data_c);
     } else {
         r->data_c = NULL;
@@ -157,11 +157,11 @@ int mpaxos_commit_req(mpaxos_req_t *req) {
     r->id = gen_txn_id();
 
     if (r->sz_gids > 0) {
-        r->gids = malloc(r->sz_gids * sizeof(groupid_t)); 
+        r->gids = (groupid_t*)malloc(r->sz_gids * sizeof(groupid_t)); 
         memcpy(r->gids, req->gids, r->sz_gids * sizeof(groupid_t));
     } else if (r->sz_gids == 0) {
         r->sz_gids = 1;
-        r->gids = malloc(1 * sizeof(groupid_t));
+        r->gids = (groupid_t*)malloc(1 * sizeof(groupid_t));
         r->gids[0] = 1; 
     } else {
         SAFE_ASSERT(0);
@@ -188,11 +188,11 @@ int mpaxos_commit_req(mpaxos_req_t *req) {
 pthread_mutex_t add_last_cb_sid_mutex = PTHREAD_MUTEX_INITIALIZER;
 int add_last_cb_sid(groupid_t gid) {
     pthread_mutex_lock(&add_last_cb_sid_mutex);
-    slotid_t* sid_ptr = apr_hash_get(lastslot_ht_, &gid, sizeof(gid));
+    slotid_t* sid_ptr = (slotid_t*)apr_hash_get(lastslot_ht_, &gid, sizeof(gid));
     if (sid_ptr == NULL) {
-        sid_ptr = apr_palloc(mp_global_, sizeof(slotid_t));
+        sid_ptr = (slotid_t*) apr_palloc(mp_global_, sizeof(slotid_t));
         *sid_ptr = 0;
-        groupid_t *gid_ptr = apr_palloc(mp_global_, sizeof(groupid_t));
+        groupid_t *gid_ptr = (groupid_t*)apr_palloc(mp_global_, sizeof(groupid_t));
         *gid_ptr = gid;
         apr_hash_set(lastslot_ht_, gid_ptr, sizeof(gid), sid_ptr);
     }
@@ -208,11 +208,11 @@ pthread_mutex_t get_last_cb_sid_mutex = PTHREAD_MUTEX_INITIALIZER;
 int get_last_cb_sid(groupid_t gid) {
     // TODO [FIX] need to lock.
     pthread_mutex_lock(&get_last_cb_sid_mutex);
-    slotid_t* sid_ptr = apr_hash_get(lastslot_ht_, &gid, sizeof(gid));
+    slotid_t* sid_ptr = (slotid_t*)apr_hash_get(lastslot_ht_, &gid, sizeof(gid));
     if (sid_ptr == NULL) {
-        sid_ptr = apr_palloc(mp_global_, sizeof(slotid_t));
+        sid_ptr = (slotid_t*) apr_palloc(mp_global_, sizeof(slotid_t));
         *sid_ptr = 0;
-        groupid_t *gid_ptr = apr_palloc(mp_global_, sizeof(groupid_t));
+        groupid_t *gid_ptr = (groupid_t*)apr_palloc(mp_global_, sizeof(groupid_t));
         *gid_ptr = gid;
         apr_hash_set(lastslot_ht_, gid_ptr, sizeof(gid), sid_ptr);
     }
@@ -223,11 +223,11 @@ int get_last_cb_sid(groupid_t gid) {
 }
 
 int get_insnum(groupid_t gid, slotid_t** in) {
-    slotid_t* sid_ptr = apr_hash_get(lastslot_ht_, &gid, sizeof(gid));
+    slotid_t* sid_ptr = (slotid_t*)apr_hash_get(lastslot_ht_, &gid, sizeof(gid));
     if (sid_ptr == NULL) {
-        sid_ptr = apr_palloc(mp_global_, sizeof(slotid_t));
+        sid_ptr = (slotid_t*)apr_palloc(mp_global_, sizeof(slotid_t));
         *sid_ptr = 0;
-        groupid_t *gid_ptr = apr_palloc(mp_global_, sizeof(groupid_t));
+        groupid_t *gid_ptr = (groupid_t*)apr_palloc(mp_global_, sizeof(groupid_t));
         *gid_ptr = gid;
         apr_hash_set(lastslot_ht_, gid_ptr, sizeof(gid), sid_ptr);
     }

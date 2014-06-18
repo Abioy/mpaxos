@@ -30,7 +30,7 @@ void client_reg(client_t *cli,
 
 void client_call(client_t *cli, 
 		 msgid_t msgid, 
-		 uint8_t * data, 
+		 const uint8_t * data, 
 		 size_t sz_data);
 
 

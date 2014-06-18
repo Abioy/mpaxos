@@ -41,7 +41,7 @@ typedef struct {
 
 
 static void mpr_hash_create_ex(mpr_hash_t **hash, int flag) {
-    *hash = calloc(sizeof(mpr_hash_t), 1);
+    *hash = (mpr_hash_t*)calloc(sizeof(mpr_hash_t), 1);
     apr_initialize();
     apr_pool_create(&(*hash)->mp, NULL);
     (*hash)->ht = apr_hash_make((*hash)->mp);
@@ -80,7 +80,7 @@ static void mpr_hash_set(mpr_hash_t *hash, const void *key, size_t sz_key,
 //    apr_thread_mutex_lock(hash->mx);
     apr_thread_rwlock_wrlock(hash->rwl);    
     // delete the old value.
-    mpr_hash_value_t *v_old = apr_hash_get(hash->ht, key, sz_key);
+    mpr_hash_value_t *v_old = (mpr_hash_value_t*) apr_hash_get(hash->ht, key, sz_key);
     if (v_old != NULL) {
         apr_hash_set(hash->ht, v_old->key, v_old->sz_key, NULL);
         free(v_old->key);
@@ -92,7 +92,7 @@ static void mpr_hash_set(mpr_hash_t *hash, const void *key, size_t sz_key,
     mpr_hash_value_t *v_new = NULL;
     if (value != NULL) {
         LOG_TRACE("set new value in hash table.");
-        v_new = malloc(sizeof(mpr_hash_value_t));
+        v_new = (mpr_hash_value_t*) malloc(sizeof(mpr_hash_value_t));
         v_new->key = malloc(sz_key);
         v_new->value = malloc(sz_value);
         memcpy(v_new->key, key, sz_key);
@@ -115,7 +115,7 @@ static void mpr_hash_get(mpr_hash_t *hash, const void *key, size_t sz_key,
         apr_thread_rwlock_rdlock(hash->rwl);
     }
     
-    mpr_hash_value_t *v_old = apr_hash_get(hash->ht, key, sz_key);
+    mpr_hash_value_t *v_old = (mpr_hash_value_t*)apr_hash_get(hash->ht, key, sz_key);
     if (v_old != NULL) {
         *value = v_old->value;
         *sz_value = v_old->sz_value;

@@ -106,7 +106,7 @@ static void prop_cpy(proposal_t *dest, const proposal_t *src, apr_pool_t *mp) {
     mpaxos__proposal__init(dest);
     dest->nid = src->nid;
     dest->n_rids = src->n_rids;
-    dest->rids = apr_pcalloc(mp, sizeof(instid_t*) * src->n_rids);
+    dest->rids = (roundid_t**) apr_pcalloc(mp, sizeof(instid_t*) * src->n_rids);
     int i;
     for (i = 0; i < src->n_rids; i++) {
         dest->rids[i] = (roundid_t *)apr_pcalloc(mp, sizeof(roundid_t));
@@ -125,11 +125,11 @@ static void prop_cpy(proposal_t *dest, const proposal_t *src, apr_pool_t *mp) {
  */
 static proposal_t *prop_copy(const proposal_t *src) {
     SAFE_ASSERT(src != NULL);
-    proposal_t *dst = malloc(sizeof(proposal_t));
+    proposal_t *dst = (proposal_t*)malloc(sizeof(proposal_t));
     mpaxos__proposal__init(dst);
     dst->nid = src->nid;
     dst->n_rids = src->n_rids;
-    dst->rids = malloc(sizeof(instid_t*) * src->n_rids);
+    dst->rids = (roundid_t**) malloc(sizeof(instid_t*) * src->n_rids);
     for (int i = 0; i < src->n_rids; i++) {
         dst->rids[i] = (roundid_t *) malloc(sizeof(roundid_t));
         mpaxos__roundid_t__init(dst->rids[i]);
@@ -156,7 +156,7 @@ static void prop_free(proposal_t *prop) {
 static void prop_pack(proposal_t *prop, uint8_t **buf, size_t *sz_buf) {
     size_t sz = mpaxos__proposal__get_packed_size(prop);
     *sz_buf = sz;
-    *buf =  malloc(sz);
+    *buf =  (uint8_t*)malloc(sz);
     mpaxos__proposal__pack(prop, *buf);
 }
 

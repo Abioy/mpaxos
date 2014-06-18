@@ -6,7 +6,7 @@
 
 static char* gethostip(const char* hostname) {
     struct hostent *h = NULL;
-    char *buf = malloc(100);
+    char *buf = (char*)malloc(100);
     h = gethostbyname(hostname);
     if (h == NULL) {
         return NULL;

@@ -13,6 +13,7 @@
 #include <apr.h>
 #include <apr_hash.h>
 #include <apr_queue.h>
+#include <apr_errno.h>
 #include <apr_thread_mutex.h>
 
 #include "safe_assert.h"
@@ -66,10 +67,10 @@ static void mpr_dag_interrupt(mpr_dag_t *dag) {
 static void mpr_dag_push(mpr_dag_t *dag, queueid_t *qids, 
         size_t sz_qids, void* data) {
 
-    mpr_dag_node_t *node = malloc(sizeof(mpr_dag_node_t));
+    mpr_dag_node_t *node = (mpr_dag_node_t*)malloc(sizeof(mpr_dag_node_t));
     node->color = BLACK;
     node->data = data;
-    node->qids = malloc(sizeof(queueid_t) * sz_qids);
+    node->qids = (queueid_t*)malloc(sizeof(queueid_t) * sz_qids);
     memcpy(node->qids, qids, sizeof(queueid_t) * sz_qids);
     node->sz_qids = sz_qids;
         
@@ -80,10 +81,10 @@ static void mpr_dag_push(mpr_dag_t *dag, queueid_t *qids,
     apr_thread_mutex_lock(dag->mx);
     for (int i = 0; i < sz_qids; i++) {
         queueid_t qid = qids[i];
-        mpr_queue_t* qu = apr_hash_get(dag->ht, &qid, sizeof(queueid_t));
+        mpr_queue_t* qu = (mpr_queue_t*)apr_hash_get(dag->ht, &qid, sizeof(queueid_t));
         if (qu == NULL) {
             mpr_queue_create(&qu, 1000, dag->mp);
-            queueid_t *key = apr_pcalloc(dag->mp, sizeof(qid));
+            queueid_t *key = (queueid_t*)apr_pcalloc(dag->mp, sizeof(qid));
             *key = qid;
             apr_hash_set(dag->ht, key, sizeof(qid), qu);
         }
@@ -113,7 +114,7 @@ static void mpr_dag_pop(mpr_dag_t *dag, queueid_t *qids, size_t sz_qids, void** 
     mpr_dag_node_t *node = NULL;
     for (int i = 0; i < sz_qids; i++) {
         queueid_t qid = qids[i];
-        mpr_queue_t* qu = apr_hash_get(dag->ht, &qid, sizeof(queueid_t));
+        mpr_queue_t* qu = (mpr_queue_t*)apr_hash_get(dag->ht, &qid, sizeof(queueid_t));
         SAFE_ASSERT(qu != NULL);
         apr_status_t status = mpr_queue_trypop(qu, (void **)&node);
         SAFE_ASSERT(status == APR_SUCCESS);
@@ -130,7 +131,7 @@ static void mpr_dag_pop(mpr_dag_t *dag, queueid_t *qids, size_t sz_qids, void** 
             int goto_white = 1;
             for (int j = 0; j < node->sz_qids; j++) {
                 qid = node->qids[j];
-                mpr_queue_t* qu = apr_hash_get(dag->ht, &qid, sizeof(queueid_t));
+                mpr_queue_t* qu = (mpr_queue_t*)apr_hash_get(dag->ht, &qid, sizeof(queueid_t));
                 void *head = NULL;
                 mpr_queue_peek(qu, &head);
                 if (head != node) {
@@ -170,7 +171,8 @@ static apr_status_t mpr_dag_getwhite(mpr_dag_t *dag, queueid_t **qids,
     case APR_EINTR:
         break;
     default:
-        LOG_ERROR("dag get error: %s", apr_strerror(status, calloc(100, 1), 100));
+        LOG_ERROR("dag get error: %s", 
+		  apr_strerror(status, (char*)calloc(100, 1), 100));
         SAFE_ASSERT(0);
     }
 

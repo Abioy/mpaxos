@@ -17,4 +17,6 @@ void mpaxos_async_destroy();
 
 void async_ready_callback(mpaxos_req_t*);
 
+txnid_t gen_txn_id();
+
 #endif

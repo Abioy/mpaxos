@@ -25,11 +25,11 @@ void mlock_init() {
 pthread_mutex_t* m_getlock(char* name) {
     mlock_init();
     pthread_mutex_lock(&mx_index_);
-    pthread_mutex_t *v = apr_hash_get(ht_index_, name, strlen(name));
+    pthread_mutex_t *v = (pthread_mutex_t *)apr_hash_get(ht_index_, name, strlen(name));
     if (v == NULL) {
-        char *k = apr_pcalloc(pl_index_, strlen(name) + 1);
+        char *k = (char*)apr_pcalloc(pl_index_, strlen(name) + 1);
         strcpy(k, name);
-        v = apr_pcalloc(pl_index_, sizeof(pthread_mutex_t));
+        v = (pthread_mutex_t*)apr_pcalloc(pl_index_, sizeof(pthread_mutex_t));
         pthread_mutex_init(v, NULL);
         apr_hash_set(ht_index_, k, strlen(k), v);
     }

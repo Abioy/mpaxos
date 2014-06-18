@@ -14,15 +14,21 @@ out = "bin"
 pargs = ['--cflags', '--libs']
 CFLAGS = []
 
+COMPILER_LANG = "compiler_c"
+COMPILER_LANG = "compiler_cxx"
+
 
 def options(opt):
-    opt.load("compiler_c")
+#    opt.load("compiler_c++")
+    opt.load(COMPILER_LANG)
     
     opt.add_option('-d', '--debug', dest='debug', default=False, action='store_true')
     opt.add_option('-l', '--log', dest="log", default='', help='log level', action='store')
+    opt.add_option('-c', '--compiler', dest="compiler", default='', action="store")
 
 def configure(conf):
-    conf.load("compiler_c")
+#    conf.load("compiler_c++")
+    conf.load(COMPILER_LANG)
     
     _enable_pic(conf)
     _enable_debug(conf)     #debug
@@ -37,7 +43,7 @@ def configure(conf):
 #    conf.check_cfg(package='libprotobuf-c', uselib_store='PROTOBUF', args=pargs)
 #    conf.check_cfg(package='leveldb', uselib_store='LEVELDB', args=pargs)
     conf.check_cfg(package='check', uselib_store='CHECK', args=pargs)
-    conf.check(compiler='c', lib="leveldb", mandatory=True, uselib_store="LEVELDB")
+#    conf.check(compiler='c', lib="leveldb", mandatory=True, uselib_store="LEVELDB")
 
     #c99
     conf.env.append_value("CFLAGS", "-std=c99")

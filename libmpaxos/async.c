@@ -140,7 +140,7 @@ void mpaxos_async_destroy() {
  */
 void* APR_THREAD_FUNC async_commit_job(apr_thread_t *th, void *v) {
     // cannot call on same group concurrently, otherwise would be wrong.
-    mpaxos_req_t *req = v;
+    mpaxos_req_t *req = (mpaxos_req_t *)v;
     LOG_DEBUG("try to commit asynchronously.");
     mpaxos_start_request(req);
 

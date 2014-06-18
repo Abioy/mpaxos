@@ -32,7 +32,7 @@ void comm_destroy() {
     for (int i = 0; i < arr_nid->nelts; i++) {
         nodeid_t nid = ((nodeid_t*)arr_nid->elts)[i];    
         client_t *c = NULL;
-        c = apr_hash_get(ht_sender_, &nid, sizeof(nodeid_t));
+        c = (client_t*)apr_hash_get(ht_sender_, &nid, sizeof(nodeid_t));
         client_destroy(c);
     }
 
@@ -49,7 +49,7 @@ void send_to(nodeid_t nid, msg_type_t type, const uint8_t *data,
     client_t *cli;
     apr_thread_mutex_lock(mx_comm_);
     SAFE_ASSERT(nid != 0);
-    cli = apr_hash_get(ht_sender_, &nid, sizeof(nid));
+    cli = (client_t*)apr_hash_get(ht_sender_, &nid, sizeof(nid));
     apr_thread_mutex_unlock(mx_comm_);
     //int hash_size = apr_hash_count(sender_ht_);
 
@@ -107,10 +107,10 @@ void connect_all_senders() {
     LOG_TRACE("length of arr_nid: %d", (int32_t) arr_nid->nelts);
     for (int i = 0; i < arr_nid->nelts; i++) {
         nodeid_t nid = ((nodeid_t *)arr_nid->elts)[i];
-        client_t *c = NULL;
 	LOG_TRACE("get client for node id: %x", (int32_t) nid);
 	SAFE_ASSERT(nid != 0);
-        c = apr_hash_get(ht_sender_, &nid, sizeof(nodeid_t));
+        client_t *c = NULL;
+        c = (client_t*) apr_hash_get(ht_sender_, &nid, sizeof(nodeid_t));
 	SAFE_ASSERT(c != NULL);
         client_connect(c);
     }

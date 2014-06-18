@@ -154,7 +154,7 @@ int mpaxos_start_request(mpaxos_req_t *req) {
 txn_info_t* get_txn_info(txnid_t tid) {
     apr_thread_mutex_lock(mx_txn_info_);
     txn_info_t *info = NULL;
-    info = apr_hash_get(ht_txn_info_, &tid, sizeof(txnid_t));
+    info = (txn_info_t*) apr_hash_get(ht_txn_info_, &tid, sizeof(txnid_t));
     apr_thread_mutex_unlock(mx_txn_info_);
     return info;
 }
