@@ -41,9 +41,9 @@ Suite *check_suite (void) {
     tcase_set_timeout(tc_mpr, 0);
     suite_add_tcase(s, tc_mpr);
 
-    TCase *tc_proto = tcase_create("Protobuf");
-    tcase_add_test(tc_proto, protobuf);
-    suite_add_tcase(s, tc_proto);
+    //TCase *tc_proto = tcase_create("Protobuf");
+    //tcase_add_test(tc_proto, protobuf);
+    //suite_add_tcase(s, tc_proto);
 
     TCase *tc_zfec = tcase_create("zfec");
     tcase_add_test(tc_zfec, zfec);

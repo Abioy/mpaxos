@@ -74,6 +74,8 @@ void* APR_THREAD_FUNC poll_worker_run(
         apr_thread_t *th,
         void* arg);
 
+int poll_job_create(poll_job_t **job);
+
 int poll_worker_start(
         poll_worker_t *worker);
 

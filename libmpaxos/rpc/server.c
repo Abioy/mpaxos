@@ -45,13 +45,13 @@ void server_bind_listen(server_t *svr) {
     status = apr_socket_bind(svr->comm->s, svr->comm->sa);
     if (status != APR_SUCCESS) {
         LOG_ERROR("cannot bind.");
-        printf("%s", apr_strerror(status, malloc(100), 100));
+        printf("%s", apr_strerror(status, (char*)malloc(100), 100));
         SAFE_ASSERT(status == APR_SUCCESS);
     }
     status = apr_socket_listen(svr->comm->s, 30000); // This is important!
     if (status != APR_SUCCESS) {
         LOG_ERROR("cannot listen.");
-        printf("%s", apr_strerror(status, malloc(100), 100));
+        printf("%s", apr_strerror(status, (char*)malloc(100), 100));
         SAFE_ASSERT(status == APR_SUCCESS);
     }
     LOG_INFO("successfuly bind and listen on port %d.", svr->comm->port);
@@ -128,7 +128,7 @@ void handle_server_accept(void* arg) {
 
     if (status != APR_SUCCESS) {
         LOG_ERROR("recvr accept error.");
-        LOG_ERROR("%s", apr_strerror(status, calloc(100, 1), 100));
+        LOG_ERROR("%s", apr_strerror(status, (char*)malloc(100), 100));
         SAFE_ASSERT(status == APR_SUCCESS);
     }
 
@@ -148,7 +148,7 @@ void handle_server_accept(void* arg) {
 }
 
 void* APR_THREAD_FUNC msg_call(apr_thread_t *th, void* arg) {
-    rpc_state *state = arg;
+    rpc_state *state = (rpc_state*)arg;
     // this is where i run it in a new thread or just in the poll thread.
     rpc_state* (**fun)(void*) = NULL;
     size_t sz;
@@ -194,9 +194,9 @@ void handle_sconn_read(void* arg) {
 	    SAFE_ASSERT(buf_read(buf, (uint8_t*)&msgid, SZ_MSGID) == SZ_MSGID);
     	    LOG_TRACE("next message size: %d, type: %x", (int32_t)sz_msg, (int32_t)msgid);
 
-	    rpc_state *state = malloc(sizeof(rpc_state));
+	    rpc_state *state = (rpc_state*)malloc(sizeof(rpc_state));
             state->sz_input = sz_msg;
-            state->raw_input = malloc(sz_msg);
+            state->raw_input = (uint8_t*)malloc(sz_msg);
 	    state->raw_output = NULL;
 	    state->sz_output = 0;
             state->sconn = sconn;
@@ -235,13 +235,14 @@ void handle_sconn_read(void* arg) {
         LOG_TRACE("sconn poll on read, socket busy, resource temporarily unavailable.");
         // do nothing.
     } else {
-        LOG_ERROR("unkown error on poll reading. %s\n", apr_strerror(status, malloc(100), 100));
+        LOG_ERROR("unkown error on poll reading. %s\n", 
+		  apr_strerror(status, (char*)malloc(100), 100));
         SAFE_ASSERT(0);
     }
 }
 
 void handle_sconn_write(void* arg) {
-    sconn_t *sconn = arg;
+    sconn_t *sconn = (sconn_t*)arg;
 
     //   LOG_TRACE("write message on socket %x", pfd->desc.s);
 
@@ -277,7 +278,7 @@ void handle_sconn_write(void* arg) {
 	poll_mgr_remove_job(sconn->pjob->mgr, sconn->pjob);
     } else {
         LOG_ERROR("error code: %d, error message: %s",
-		  (int)status, apr_strerror(status, malloc(100), 100));
+		  (int)status, apr_strerror(status, (char*)malloc(100), 100));
         SAFE_ASSERT(status == APR_SUCCESS);
     }
 
@@ -288,7 +289,7 @@ void write_trigger_poll(rpc_comm_t *comm,
 			poll_job_t* pjob, 
 			buf_t *buf, 
 			msgid_t msgid, 
-			uint8_t *data, 
+			const uint8_t *data, 
 			size_t sz_data) {
     apr_thread_mutex_lock(comm->mx);
     

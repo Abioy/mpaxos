@@ -18,7 +18,7 @@ void* APR_THREAD_FUNC mpr_hash_thread_test(apr_thread_t *th, void* data) {
     if (data == NULL) {
         h = ht;  
     } else {
-        h = data;
+        h = (mpr_hash_t*)data;
     }
     for (uint32_t i = 0; i < N_HASH_ACCESS; i++) {
         size_t sz;
@@ -26,6 +26,7 @@ void* APR_THREAD_FUNC mpr_hash_thread_test(apr_thread_t *th, void* data) {
         mpr_hash_get(h, &i, sizeof(uint32_t), (void**)&v, &sz); 
     }
     apr_thread_exit(th, APR_SUCCESS);
+    return NULL;
 }
 
 START_TEST(mpr_hash) {
@@ -57,7 +58,7 @@ START_TEST(mpr_hash) {
     ck_assert(res != NULL && *res == 10);
 
     uint8_t kfun = 9;
-    void *sfun = simple_fun;
+    void (*sfun)() = simple_fun;
     mpr_hash_set(ht, &kfun, sizeof(uint8_t), &sfun, sizeof(void *));
     void (**fun)() = NULL;
     mpr_hash_get(ht, &kfun, sizeof(uint8_t), (void**)&fun, &sz);

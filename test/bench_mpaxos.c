@@ -268,11 +268,11 @@ int main(int argc, char **argv) {
     }
     
     if (ag_sz_data_ > 0) {
-        TEST_DATA = calloc(ag_sz_data_, 1);
+        TEST_DATA = (uint8_t*)calloc(ag_sz_data_, 1);
     }
 
     if (ag_sz_data_c_ > 0) {
-        TEST_DATA_C = malloc(ag_sz_data_c_);
+        TEST_DATA_C = (uint8_t*)malloc(ag_sz_data_c_);
     }
     
     LOG_INFO("test for %d messages.", ag_n_send_);

@@ -27,7 +27,7 @@ void recorder_init();
 
 //void record_proposal(proposal_t *prop);
 
-void record_decided(proposal_t*);
+//void record_decided(proposal_t*);
 
-void record_accepted(roundid_t *rid, proposal_t *prop);
+//void record_accepted(roundid_t *rid, proposal_t *prop);
 

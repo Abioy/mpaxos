@@ -11,7 +11,7 @@
 #include <apr_atomic.h>
 #include <apr_time.h>
 #include "rpc/rpc.h"
-#include "mpaxos.pb-c.h"
+//#include "mpaxos.pb-c.h"
 
 static apr_pool_t *mp_rpc_ = NULL;
 static apr_thread_cond_t *cd_rpc_ = NULL;
@@ -146,7 +146,7 @@ void* APR_THREAD_FUNC client_thread(apr_thread_t *th, void *v) {
     client_create(&client, mgr);
     strcpy(client->comm->ip, addr_);
     client->comm->port = port_;
-    client_reg(client, ADD, add_cb);
+    client_reg(client, ADD, (void*)add_cb);
     tm_begin_ = apr_time_now();
     client_connect(client);
 
@@ -266,7 +266,7 @@ int main(int argc, char **argv) {
         server_create(&server, mgr_server);    
         strcpy(server->comm->ip, addr_);
         server->comm->port = port_;
-        server_reg(server, ADD, add); 
+        server_reg(server, ADD, (void*)add); 
         server_start(server);
         LOG_INFO("server started start on %s, port %d.", addr_, port_);
     } 
@@ -282,9 +282,9 @@ int main(int argc, char **argv) {
 	n_active_cli_ = n_client_;
        
         apr_thread_mutex_lock(mx_rpc_);
-        for (int i = 0; i < n_client_; i++) {
+        for (intptr_t i = 0; i < n_client_; i++) {
             apr_thread_t *th;
-            apr_thread_create(&th, NULL, client_thread, (intptr_t) i, mp_rpc_);
+            apr_thread_create(&th, NULL, client_thread, (void*) i, mp_rpc_);
         }
 	
 	

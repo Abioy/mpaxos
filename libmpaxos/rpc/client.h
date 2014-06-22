@@ -26,7 +26,8 @@ void handle_client_read(void *arg);
 void handle_client_write(void *arg);
 
 void client_reg(client_t *cli, 
-		msgid_t, void*);
+		msgid_t, 
+		void*);
 
 void client_call(client_t *cli, 
 		 msgid_t msgid, 

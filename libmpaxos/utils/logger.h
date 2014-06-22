@@ -9,6 +9,7 @@
 #ifndef LOGGER_H_
 #define LOGGER_H_
 
+#include <stdio.h>
 #include <apr_time.h>
 
 #define LOG_LEVEL_OFF    0

@@ -56,7 +56,7 @@ void write_trigger_poll(rpc_comm_t *comm,
 			poll_job_t* pjob, 
 			buf_t *buf, 
 			msgid_t msgid, 
-			uint8_t *data, 
+			const uint8_t *data, 
 			size_t sz_data);
 
 void reply_to(rpc_state_t *state);

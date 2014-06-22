@@ -111,7 +111,7 @@ void set_nodename(const char* nodename) {
     SAFE_ASSERT(ninfo != NULL);
     local_nid_ = ninfo->nid;
     port_ = ninfo->port;
-    nodename_ = malloc(strlen(nodename) + 1);
+    nodename_ = (char*)malloc(strlen(nodename) + 1);
     strcpy(nodename_, nodename);
 }
 
@@ -127,9 +127,9 @@ apr_array_header_t *get_group_nodes(groupid_t gid) {
 apr_array_header_t *get_view(groupid_t gid) {
     apr_thread_mutex_lock(mx_view_);
     apr_array_header_t *arr = NULL;
-    arr = apr_hash_get(ht_view_, &gid, sizeof(groupid_t)); 
+    arr = (apr_array_header_t*)apr_hash_get(ht_view_, &gid, sizeof(groupid_t)); 
     if (arr == NULL) {
-        groupid_t *g = apr_palloc(mp_view_, sizeof(groupid_t));
+        groupid_t *g = (groupid_t*)apr_palloc(mp_view_, sizeof(groupid_t));
         arr = get_view_dft(gid); 
         apr_hash_set(ht_view_, g, sizeof(groupid_t), arr);
     }
@@ -157,7 +157,7 @@ void set_view(groupid_t gid,
         nodeid_t nid = nids[i];
         *(nodeid_t *)apr_array_push(arr) = nid;
     }
-    groupid_t *g = apr_palloc(mp_view_, sizeof(groupid_t));
+    groupid_t *g = (groupid_t*)apr_palloc(mp_view_, sizeof(groupid_t));
     apr_hash_set(ht_view_, g, sizeof(groupid_t), arr);
     
     apr_thread_mutex_unlock(mx_view_);
@@ -169,28 +169,28 @@ void set_view(groupid_t gid,
  */
 apr_hash_t* view_group_table(groupid_t gid) {
     gid = 1; // temporary
-    apr_hash_t *nid_ht = apr_hash_get(gid_nid_ht_ht_, &gid, sizeof(gid));
+    apr_hash_t *nid_ht = (apr_hash_t*)apr_hash_get(gid_nid_ht_ht_, &gid, sizeof(gid));
     return nid_ht;
 }
 
 int set_gid_nid(groupid_t gid, nodeid_t nid) {
     // need to save all the keys;
-    groupid_t *gid_ptr = apr_palloc(mp_view_, sizeof(groupid_t));
-    nodeid_t *nid_ptr = apr_palloc(mp_view_, sizeof(nodeid_t));
+    groupid_t *gid_ptr = (groupid_t*) apr_palloc(mp_view_, sizeof(groupid_t));
+    nodeid_t *nid_ptr = (nodeid_t*) apr_palloc(mp_view_, sizeof(nodeid_t));
     *gid_ptr = gid;
     *nid_ptr = nid;
 
     apr_hash_t *nid_ht;
     apr_hash_t *gid_ht;
 
-    nid_ht = apr_hash_get(gid_nid_ht_ht_, gid_ptr, sizeof(gid));
+    nid_ht = (apr_hash_t*) apr_hash_get(gid_nid_ht_ht_, gid_ptr, sizeof(gid));
     if (nid_ht == NULL) {
      nid_ht =   apr_hash_make(mp_view_);
      apr_hash_set(gid_nid_ht_ht_, gid_ptr, sizeof(gid), nid_ht);
     }
     apr_hash_set(nid_ht, nid_ptr, sizeof(nid), nid_ptr);
     
-    gid_ht = apr_hash_get(nid_gid_ht_ht_, nid_ptr, sizeof(nid));
+    gid_ht = (apr_hash_t*) apr_hash_get(nid_gid_ht_ht_, nid_ptr, sizeof(nid));
     if (gid_ht == NULL) {
         gid_ht = apr_hash_make(mp_view_);
         apr_hash_set(nid_gid_ht_ht_, nid_ptr, sizeof(nid), gid_ht);

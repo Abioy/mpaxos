@@ -16,7 +16,7 @@ typedef struct {
 } mpr_thread_pool_t;
 
 void* APR_THREAD_FUNC mpr_thread_pool_run(apr_thread_t *t, void* arg) {
-    mpr_thread_pool_t *tp = arg;
+    mpr_thread_pool_t *tp = (mpr_thread_pool_t*) arg;
     while (apr_atomic_read32(&tp->is_exit) == 0) {
         void *param;
         apr_status_t status = APR_SUCCESS;
@@ -30,7 +30,7 @@ void* APR_THREAD_FUNC mpr_thread_pool_run(apr_thread_t *t, void* arg) {
             continue;
         } else {
             LOG_ERROR("queue pop not successful: %s", 
-                    apr_strerror(status, calloc(100, 1), 100));
+		      apr_strerror(status, (char*)malloc(100), 100));
             SAFE_ASSERT(0);
         }
         (*(tp->func))(NULL, param);
@@ -40,13 +40,13 @@ void* APR_THREAD_FUNC mpr_thread_pool_run(apr_thread_t *t, void* arg) {
 }
 
 void mpr_thread_pool_create(mpr_thread_pool_t **tp, apr_thread_start_t func) {
-    *tp = malloc(sizeof(mpr_thread_pool_t));
+    *tp = (mpr_thread_pool_t*) malloc(sizeof(mpr_thread_pool_t));
     apr_pool_create(&(*tp)->mp, NULL);
     apr_queue_create(&(*tp)->qu, SZ_QUEUE, (*tp)->mp);
     apr_thread_mutex_create(&(*tp)->mx, APR_THREAD_MUTEX_UNNESTED, (*tp)->mp);
     apr_atomic_set32(&(*tp)->is_exit, 0);
     (*tp)->func = func;
-    (*tp)->th = malloc(sizeof(apr_thread_t*) * SZ_THREADPOOL);
+    (*tp)->th = (apr_thread_t**)malloc(sizeof(apr_thread_t*) * SZ_THREADPOOL);
     for (int i = 0; i < SZ_THREADPOOL; i++) {
         apr_thread_create(&(*tp)->th[i], NULL, mpr_thread_pool_run, *tp, (*tp)->mp);  
     }

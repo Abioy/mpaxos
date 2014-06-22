@@ -58,7 +58,7 @@ void client_connect(client_t *cli) {
 		      cli->comm->ip, cli->comm->port);
 	    SAFE_ASSERT(0);
 	} else {
-            LOG_ERROR("client connect error:%s", apr_strerror(status, malloc(100), 100));
+            LOG_ERROR("client connect error:%s", apr_strerror(status, (char*)malloc(100), 100));
 	    SAFE_ASSERT(0);
         }
 	apr_sleep(50 * 1000);
@@ -105,9 +105,9 @@ void handle_client_read(void *arg) {
 	    msgid_t msgid = 0;
 	    buf_read(buf, (uint8_t*)&msgid, SZ_MSGID);
 
-	    rpc_state *state = malloc(sizeof(rpc_state));
+	    rpc_state *state = (rpc_state*)malloc(sizeof(rpc_state));
             state->sz_input = sz_msg;
-            state->raw_input = malloc(sz_msg);
+            state->raw_input = (uint8_t *)malloc(sz_msg);
 	    //            state->ctx = ctx;
 
 	    buf_read(buf, state->raw_input, sz_msg);
@@ -149,7 +149,8 @@ void handle_client_read(void *arg) {
         LOG_DEBUG("cli poll on read. read socket busy, resource temporarily unavailable.");
         // do nothing.
     } else {
-        LOG_ERROR("unkown error on poll reading. %s\n", apr_strerror(status, malloc(100), 100));
+        LOG_ERROR("unkown error on poll reading. %s\n", 
+		  apr_strerror(status, (char*)malloc(100), 100));
         SAFE_ASSERT(0);
     }
 }
@@ -192,7 +193,7 @@ void handle_client_write(void *arg) {
         return;
     } else {
         LOG_ERROR("error code: %d, error message: %s",
-		  (int)status, apr_strerror(status, malloc(100), 100));
+		  (int)status, apr_strerror(status, (char*)malloc(100), 100));
         SAFE_ASSERT(status == APR_SUCCESS);
     }
 

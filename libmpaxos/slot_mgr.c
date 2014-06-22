@@ -54,12 +54,12 @@ bool is_slot_mgr(groupid_t gid) {
 
 slotid_t alloc_slot(groupid_t gid, nodeid_t nid) {
     pthread_mutex_lock(&slot_mutex);
-    slotid_t *sid = apr_hash_get(slot_ht_, &gid, sizeof(gid));
+    slotid_t *sid = (slotid_t*)apr_hash_get(slot_ht_, &gid, sizeof(gid));
     if (sid == NULL) {
         LOG_DEBUG("first time alloc for group gid:%u", gid);
         // have not alloced any slot for this group.
-        groupid_t *k = apr_palloc(slot_pool_, sizeof(gid));
-        slotid_t *v = apr_palloc(slot_pool_, sizeof(slotid_t)); 
+        groupid_t *k = (groupid_t*)apr_palloc(slot_pool_, sizeof(gid));
+        slotid_t *v = (slotid_t*)apr_palloc(slot_pool_, sizeof(slotid_t)); 
         *k = gid;
         // TODO [IMPROVE] slot starts from last
         *v = 0;

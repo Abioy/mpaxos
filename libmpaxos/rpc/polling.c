@@ -1,7 +1,7 @@
 #include "polling.h"
 
 
-void poll_job_create(poll_job_t **job) {
+int poll_job_create(poll_job_t **job) {
     poll_job_t *j = (poll_job_t*) malloc(sizeof(poll_job_t));
     j->do_read = NULL;
     j->do_write = NULL;
@@ -11,6 +11,7 @@ void poll_job_create(poll_job_t **job) {
     j->worker= NULL;
     j->ps = NULL;
     *job = j;
+    return 0;
 }
 
 void poll_job_destroy(poll_job_t *job) {
@@ -20,7 +21,7 @@ void poll_job_destroy(poll_job_t *job) {
 void* APR_THREAD_FUNC poll_worker_run(
         apr_thread_t *th,
         void *arg) {
-    poll_worker_t *worker = arg;
+    poll_worker_t *worker = (poll_worker_t*)arg;
     
     LOG_TRACE("poll worker loop starts");
     
@@ -37,7 +38,7 @@ void* APR_THREAD_FUNC poll_worker_run(
             for (int i = 0; i < num; i++) {
                 int rtne = ret_pfd[i].rtnevents;
                 SAFE_ASSERT(rtne & (APR_POLLIN | APR_POLLOUT));
-                poll_job_t *job = ret_pfd[i].client_data;
+                poll_job_t *job = (poll_job_t *)ret_pfd[i].client_data;
                 SAFE_ASSERT(job != NULL);
                 if (rtne & APR_POLLIN) {
 	    	    LOG_TRACE("poll worker loop: found something to read");
@@ -60,7 +61,7 @@ void* APR_THREAD_FUNC poll_worker_run(
             continue;
         } else {
             LOG_ERROR("unknown poll error. %s", 
-                    apr_strerror(status, calloc(1, 100), 100));
+		      apr_strerror(status, (char*)malloc(100), 100));
             SAFE_ASSERT(0);
         }
     }
@@ -154,7 +155,7 @@ int poll_worker_update_job(
     status = apr_pollset_remove(worker->ps, &job->pfd);   
     if (status != APR_SUCCESS) {
 	LOG_ERROR("error in remove from pollset. code: %d, message: %s",
-		  (int)status, apr_strerror(status, malloc(100), 100));
+		  (int)status, apr_strerror(status, (char*)malloc(100), 100));
 	SAFE_ASSERT(0);
     }
     
@@ -162,7 +163,7 @@ int poll_worker_update_job(
     status = apr_pollset_add(worker->ps, &job->pfd);
     if (status != APR_SUCCESS) {
 	LOG_ERROR("error in readd to pollset. code: %d, message: %s",
-		  (int) status, apr_strerror(status, malloc(100), 100));
+		  (int) status, apr_strerror(status, (char*)malloc(100), 100));
     }
     return 0;
 }

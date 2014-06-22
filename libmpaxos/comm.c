@@ -127,79 +127,79 @@ void send_to_groups(groupid_t* gids, size_t sz_gids,
 //    }
 }
 
-rpc_state* on_prepare(rpc_state* state) {
-    msg_prepare_t *msg_prep;
-    msg_prep = mpaxos__msg_prepare__unpack(NULL, state->sz_input, state->raw_input);
-    //    log_message_rid("receive", "PREPARE", msg_prep->h, msg_prep->rids, 
-    //        msg_prep->n_rids, state->sz);
-    rpc_state* ret_state = handle_msg_prepare(msg_prep);
-    mpaxos__msg_prepare__free_unpacked(msg_prep, NULL);
+//rpc_state* on_prepare(rpc_state* state) {
+//    msg_prepare_t *msg_prep;
+//    msg_prep = mpaxos__msg_prepare__unpack(NULL, state->sz_input, state->raw_input);
+//    //    log_message_rid("receive", "PREPARE", msg_prep->h, msg_prep->rids, 
+//    //        msg_prep->n_rids, state->sz);
+//    rpc_state* ret_state = handle_msg_prepare(msg_prep);
+//    mpaxos__msg_prepare__free_unpacked(msg_prep, NULL);
+//
+//    state->raw_output = (uint8_t*) malloc(ret_state->sz_output);
+//    state->sz_output = ret_state->sz_output;
+//    memcpy(state->raw_output, ret_state->raw_output, ret_state->sz_output);
+//    free(ret_state->raw_output);
+//    free(ret_state);
+//    
+//    return NULL;
+//}
+//
+//rpc_state* on_accept(rpc_state* state) {
+//    msg_accept_t *msg_accp;
+//    msg_accp = mpaxos__msg_accept__unpack(NULL, state->sz_input, state->raw_input);
+//    //log_message_rid("receive", "ACCEPT", msg_accp->h, msg_accp->prop->rids,
+//    //        msg_accp->prop->n_rids, state->sz);
+//    rpc_state* ret_state = handle_msg_accept(msg_accp);
+//    mpaxos__msg_accept__free_unpacked(msg_accp, NULL);
+//
+//    state->raw_output = (uint8_t*) malloc(ret_state->sz_output);
+//    state->sz_output = ret_state->sz_output;
+//    memcpy(state->raw_output, ret_state->raw_output, ret_state->sz_output);
+//    free(ret_state->raw_output);
+//    free(ret_state);
+//
+//    return NULL;
+//}
 
-    state->raw_output = (uint8_t*) malloc(ret_state->sz_output);
-    state->sz_output = ret_state->sz_output;
-    memcpy(state->raw_output, ret_state->raw_output, ret_state->sz_output);
-    free(ret_state->raw_output);
-    free(ret_state);
-    
-    return NULL;
-}
-
-rpc_state* on_accept(rpc_state* state) {
-    msg_accept_t *msg_accp;
-    msg_accp = mpaxos__msg_accept__unpack(NULL, state->sz_input, state->raw_input);
-    //log_message_rid("receive", "ACCEPT", msg_accp->h, msg_accp->prop->rids,
-    //        msg_accp->prop->n_rids, state->sz);
-    rpc_state* ret_state = handle_msg_accept(msg_accp);
-    mpaxos__msg_accept__free_unpacked(msg_accp, NULL);
-
-    state->raw_output = (uint8_t*) malloc(ret_state->sz_output);
-    state->sz_output = ret_state->sz_output;
-    memcpy(state->raw_output, ret_state->raw_output, ret_state->sz_output);
-    free(ret_state->raw_output);
-    free(ret_state);
-
-    return NULL;
-}
-
-rpc_state* on_promise(rpc_state* state) {
-    msg_promise_t *msg_prom;
-    msg_prom = mpaxos__msg_promise__unpack(NULL, state->sz_input, state->raw_input);
-    LOG_DEBUG("receive PROMISE message");
-    //log_message_res("receive", "PROMISE", msg_prom->h, msg_prom->ress, 
-    //        msg_prom->n_ress, state->sz);
-    handle_msg_promise(msg_prom);
-    mpaxos__msg_promise__free_unpacked(msg_prom, NULL);
-    return NULL;
-}
-
-rpc_state* on_accepted(rpc_state* state) {
-    msg_accepted_t *msg_accd;
-    msg_accd = mpaxos__msg_accepted__unpack(NULL, state->sz_input, state->raw_input);
-    LOG_DEBUG("receive ACCEPTED message");
-    //log_message_res("receive", "ACCEPTED", msg_accd->h, msg_accd->ress, 
-    //        msg_accd->n_ress, state->sz);
-    handle_msg_accepted(msg_accd);
-    mpaxos__msg_accepted__free_unpacked(msg_accd, NULL);
-    LOG_DEBUG("finish handling ACCEPTED message");
-    return NULL;
-}
-
-rpc_state* on_decide(rpc_state* state) {
-    msg_decide_t *msg_dcd = NULL;
-    msg_dcd = mpaxos__msg_decide__unpack(NULL, state->sz_input, state->raw_input);
-    handle_msg_decide(msg_dcd);
-    mpaxos__msg_decide__free_unpacked(msg_dcd, NULL);
-    return NULL;
-}
+//rpc_state* on_promise(rpc_state* state) {
+//    msg_promise_t *msg_prom;
+//    msg_prom = mpaxos__msg_promise__unpack(NULL, state->sz_input, state->raw_input);
+//    LOG_DEBUG("receive PROMISE message");
+//    //log_message_res("receive", "PROMISE", msg_prom->h, msg_prom->ress, 
+//    //        msg_prom->n_ress, state->sz);
+//    handle_msg_promise(msg_prom);
+//    mpaxos__msg_promise__free_unpacked(msg_prom, NULL);
+//    return NULL;
+//}
+//
+//rpc_state* on_accepted(rpc_state* state) {
+//    msg_accepted_t *msg_accd;
+//    msg_accd = mpaxos__msg_accepted__unpack(NULL, state->sz_input, state->raw_input);
+//    LOG_DEBUG("receive ACCEPTED message");
+//    //log_message_res("receive", "ACCEPTED", msg_accd->h, msg_accd->ress, 
+//    //        msg_accd->n_ress, state->sz);
+//    handle_msg_accepted(msg_accd);
+//    mpaxos__msg_accepted__free_unpacked(msg_accd, NULL);
+//    LOG_DEBUG("finish handling ACCEPTED message");
+//    return NULL;
+//}
+//
+//rpc_state* on_decide(rpc_state* state) {
+//    msg_decide_t *msg_dcd = NULL;
+//    msg_dcd = mpaxos__msg_decide__unpack(NULL, state->sz_input, state->raw_input);
+//    handle_msg_decide(msg_dcd);
+//    mpaxos__msg_decide__free_unpacked(msg_dcd, NULL);
+//    return NULL;
+//}
 
 void start_server(int port) {
     server_create(&server_, NULL);
     server_->comm->port = port;
 
     // register function
-    server_reg(server_, RPC_PREPARE, on_prepare);
-    server_reg(server_, RPC_ACCEPT, on_accept);
-    server_reg(server_, RPC_DECIDE, on_decide);
+    //    server_reg(server_, RPC_PREPARE, on_prepare);
+    //server_reg(server_, RPC_ACCEPT, on_accept);
+    //server_reg(server_, RPC_DECIDE, on_decide);
     
     server_start(server_);
     LOG_INFO("Server started on port %d.", port);
@@ -209,15 +209,15 @@ void start_server(int port) {
 
 void set_nid_sender(nodeid_t nid, const char* addr, int port) {
     //Test save the key
-    nodeid_t *nid_ptr = apr_pcalloc(mp_global_, sizeof(nid));
+    nodeid_t *nid_ptr = (nodeid_t *)apr_pcalloc(mp_global_, sizeof(nid));
     *nid_ptr = nid;
     client_t *c = NULL;
     client_create(&c, NULL);
     strcpy(c->comm->ip, addr);
     c->comm->port = port;
     // FIXME register function callbacks. 
-    client_reg(c, RPC_PREPARE, on_promise);
-    client_reg(c, RPC_ACCEPT, on_accepted);
+    //    client_reg(c, RPC_PREPARE, on_promise);
+    //client_reg(c, RPC_ACCEPT, on_accepted);
 
     SAFE_ASSERT(c != NULL);
     LOG_TRACE("setup client for node: %d", (int32_t) nid);

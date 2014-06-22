@@ -89,7 +89,7 @@ apr_status_t buf_to_sock(buf_t *buf, apr_socket_t *sock) {
 	if (n == 0) {
 	    break;
 	}
-	status = apr_socket_send(sock, buf->raw + buf->idx_read, &n);
+	status = apr_socket_send(sock, (const char*)(buf->raw + buf->idx_read), &n);
 	//SAFE_ASSERT(status == APR_SUCCESS);
 	buf->idx_read += n;
 	sum += n;
@@ -114,7 +114,7 @@ apr_status_t buf_from_sock(buf_t *buf, apr_socket_t *sock) {
 	size_t empty_tail = buf->sz - buf->idx_write;
 	size_t n = empty_tail;
 
-	status = apr_socket_recv(sock, buf->raw + buf->idx_write, &n);
+	status = apr_socket_recv(sock, (char*)(buf->raw + buf->idx_write), &n);
 
 	SAFE_ASSERT(n >= 0);
 	//SAFE_ASSERT(status == APR_SUCCESS);
