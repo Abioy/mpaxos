@@ -1,5 +1,6 @@
 
 #include <apr_time.h>
+#include "polling.h"
 #include "rpc_comm.h"
 #include "server.h"
 #include "client.h"
