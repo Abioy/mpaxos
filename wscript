@@ -57,22 +57,22 @@ def configure(conf):
 
 def build(bld):
 
-    bld.stlib(source=bld.path.ant_glob("libzfec/*.c"), target="zfec", includes="libzfec")
-    bld.shlib(source=bld.path.ant_glob("libmpaxos/rpc/*.c libmpaxos/*.c"), 
+    bld.stlib(source=bld.path.ant_glob("libzfec/*.cc"), target="zfec", includes="libzfec")
+    bld.shlib(source=bld.path.ant_glob("libmpaxos/rpc/*.cc libmpaxos/*.cc"), 
               target="mpaxos",
               includes="include libzfec libmpaxos",
               use="APR APR-UTIL JSON PTHREAD LEVELDB PROTOBUF zfec ",
               install_path="${PREFIX}/lib")
-    bld.stlib(source=bld.path.ant_glob("libmpaxos/rpc/*.c libmpaxos/*.c"), 
+    bld.stlib(source=bld.path.ant_glob("libmpaxos/rpc/*.cc libmpaxos/*.cc"), 
               target="mpaxos", 
               includes="include libzfec libmpaxos", 
               use="APR APR-UTIL JSON PTHREAD LEVELDB PROTOBUF zfec ", 
               install_path="${PREFIX}/lib")
-
-    bld.program(source="test/test_check.c", target="test_check.out", 
+    
+    bld.program(source="test/test_check.cc", target="test_check.out", 
                 includes="include libmpaxos libzfec", 
                 use="mpaxos APR APR-UTIL CHECK zfec")
-#                install_path=False)
+#               install_path=False)
 
 
 
@@ -82,7 +82,7 @@ def build(bld):
                 use="mpaxos APR APR-UTIL", 
                 install_path=False)
 
-#    Logs.pprint("PINK", "program")
+#   Logs.pprint("PINK", "program")
 
     bld.program(source="test/bench_rpc.cc", 
                 target="bench_rpc.out", 

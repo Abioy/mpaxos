@@ -16,7 +16,7 @@
 #include "logger.h"
 
 #ifdef	__cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 #define MPR_HASH_THREAD_UNSAFE  (0x0)
@@ -132,7 +132,7 @@ static void mpr_hash_get(mpr_hash_t *hash, const void *key, size_t sz_key,
 
 
 #ifdef	__cplusplus
-}
+//}
 #endif
 
 #endif	/* MPR_HASH_H */

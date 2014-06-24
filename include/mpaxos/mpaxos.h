@@ -16,7 +16,7 @@
 #include "mpaxos-types.h"
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 extern apr_pool_t *mp_global_;
@@ -77,7 +77,7 @@ int add_last_cb_sid(groupid_t gid);
 int commit_async_run();
 
 #ifdef __cplusplus
-}
+//}
 #endif
 
 #endif /* MPAXOS_H_ */

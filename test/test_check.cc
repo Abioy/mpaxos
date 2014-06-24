@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <check.h>
 
-#include "test_hostname.c"
-#include "test_mpr_hash.c"
-#include "test_protobuf.c"
-#include "test_zfec.c"
-#include "test_hello.c"
+#include "test_hostname.cc"
+#include "test_mpr_hash.cc"
+#include "test_protobuf.cc"
+#include "test_zfec.cc"
+#include "test_hello.cc"
 
 //#include "test_rpc.c"
 

@@ -1,4 +1,5 @@
 
+#include "comm.h"
 #include "include_all.h"
 
 static apr_pool_t *mp_comm_;
@@ -207,7 +208,7 @@ void start_server(int port) {
     connect_all_senders();
 }
 
-void set_nid_sender(nodeid_t nid, const char* addr, int port) {
+void set_nid_sender(nodeid_t nid, char* addr, int port) {
     //Test save the key
     nodeid_t *nid_ptr = (nodeid_t *)apr_pcalloc(mp_global_, sizeof(nid));
     *nid_ptr = nid;

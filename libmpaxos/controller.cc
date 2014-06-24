@@ -111,11 +111,12 @@ void controller_destroy() {
 //    apr_hash_clear(tinfo->ht_ginfo);
 //    txn_info_destroy(tinfo);
 //}
-//
-//int mpaxos_start_request(mpaxos_req_t *req) {
+
+int mpaxos_start_request(mpaxos_req_t *req) {
 //    if (req->n_retry >0) {
 //        LOG_DEBUG("retry a request");
 //    }
+//
 //    roundid_t **rids = NULL;
 //    rids = (roundid_t **) malloc(req->sz_gids * sizeof(roundid_t *));
 //    
@@ -149,7 +150,7 @@ void controller_destroy() {
 //        mpaxos_prepare(info);
 //    }
 //    return 0;
-//}
+}
 //
 //txn_info_t* get_txn_info(txnid_t tid) {
 //    apr_thread_mutex_lock(mx_txn_info_);

@@ -10,7 +10,6 @@
 #include "utils/hostname.h"
 #include "utils/mpr_hash.h"
 
-
 static apr_pool_t *mp_view_ = NULL;
 static apr_hash_t *gid_nid_ht_ht_; //groupid_t -> nodeid_t ht
 static apr_hash_t *nid_gid_ht_ht_; //nodeid_t -> groupid_t ht

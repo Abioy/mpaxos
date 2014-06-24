@@ -9,7 +9,7 @@
 #define	INCLUDE_ALL_H
 
 #ifdef	__cplusplus
-extern "C" {
+//extern "C" {
 #endif
     
 #include <stdio.h>
@@ -41,7 +41,7 @@ extern "C" {
 
 
 #ifdef	__cplusplus
-}
+//}
 #endif
 
 #endif	/* INCLUDE_ALL_H */
