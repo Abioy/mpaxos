@@ -1,6 +1,6 @@
 #!/bin/bash
 
-n_tosend=1
+n_tosend=10
 
 N_HOST=5
 USER=shuai
@@ -13,10 +13,10 @@ MHOST[4]=beaker-23
 MHOST[5]=beaker-24
 
 TARGET=../bin/bench_mpaxos.out
-DIR_RESULT=result.rspaxos.thp
+DIR_RESULT=result.rspaxos.lat
 is_exit=0
 is_async=1
-n_group=10
+n_group=1
 n_batch=1
 
 mkdir $DIR_RESULT &> /dev/null
@@ -36,7 +36,7 @@ do
     do
         echo "LAUNCHING DAEMON $i"
         group_begin=$(expr 100000 \* $i)
-        command="nohup ~/bworkspace/mpaxos/bin/bench_mpaxos.out -c ~/bworkspace/mpaxos/config/config.beaker/config.$N_HOST.$i -s 0 -q 0 &> ~/bworkspace/mpaxos/script/result.rspaxos.thp/$sz_data.$i &" 
+        command="nohup ~/bworkspace/mpaxos/bin/bench_mpaxos.out -c ~/bworkspace/mpaxos/config/config.beaker/config.$N_HOST.$i -s 0 -q 0 &> ~/bworkspace/mpaxos/script/result.rspaxos.lat/$sz_data.$i &" 
         echo $command
         nohup ssh $USER@${MHOST[$i]} $command &
     done
@@ -47,7 +47,7 @@ do
     #    command="screen -m -d /bin/bash -c \"~/bworkspace/mpaxos/bin/bench_mpaxos.out -c ~/bworkspace/mpaxos/config/config.beaker/config.$N_HOST.$i -s $n_tosend -g $n_group -d 0 -e $sz_data -q 1 >& ~/bworkspace/mpaxos/script/result.rspaxos.lat/$sz_data.$i\"" 
     #    echo $command
     #    nohup ssh $USER@${MHOST[$i]} $command &
-        ~/bworkspace/mpaxos/bin/bench_mpaxos.out -c ~/bworkspace/mpaxos/config/config.beaker/config.$N_HOST.$i -s $n_tosend -g $n_group -d 0 -e $sz_data -q 1 >& ~/bworkspace/mpaxos/script/result.rspaxos.thp/$sz_data.$i 
+        ~/bworkspace/mpaxos/bin/bench_mpaxos.out -c ~/bworkspace/mpaxos/config/config.beaker/config.$N_HOST.$i -s $n_tosend -g $n_group -d 0 -e $sz_data -q 1 >& ~/bworkspace/mpaxos/script/result.rspaxos.lat/$sz_data.$i 
     done
 
     #for i in $(seq $N_HOST)
@@ -55,7 +55,7 @@ do
     #    r=""
     #    while [ "$r" = "" ]
     #    do
-    #        command="cd ~/bworkspace/mpaxos/script/; cat result.rspaxos.thp/$sz_data.$i | grep \"All my task is done\""
+    #        command="cd ~/bworkspace/mpaxos/script/; cat result.rspaxos.lat/$sz_data.$i | grep \"All my task is done\""
     #        r=$(ssh $USER@${MHOST[$i]} "$command")
     #        sleep 1
     #    done

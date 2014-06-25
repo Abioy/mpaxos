@@ -1,6 +1,6 @@
 #!/bin/bash
 
-n_tosend=10
+n_tosend=1
 
 N_HOST=5
 USER=shuai
@@ -16,7 +16,7 @@ TARGET=../bin/bench_mpaxos.out
 DIR_RESULT=result.rspaxos.thp
 is_exit=0
 is_async=1
-n_group=1
+n_group=10
 n_batch=1
 
 mkdir $DIR_RESULT &> /dev/null
