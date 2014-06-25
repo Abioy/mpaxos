@@ -373,6 +373,7 @@ int mpaxos_accept(txn_info_t *tinfo) {
         prop->rids = tinfo->rids;
         prop->value.data = tinfo->req->data;
         prop->value.len = tinfo->req->sz_data;
+        LOG_DEBUG("propose value, size:%d", prop->value.len);
         prop->nid = get_local_nid();
     }
     
@@ -384,7 +385,10 @@ int mpaxos_accept(txn_info_t *tinfo) {
         coded_value_t **cv = rs_encode(tinfo->req->data_c, tinfo->req->sz_data_c, k, n);
         broadcast_msg_accept_c(tinfo, prop, cv);
     } else {
-        broadcast_msg_accept(tinfo, prop);
+        // TODO FIXME
+        int k = 1, n = 5;
+        coded_value_t **cv = rs_encode(tinfo->req->data, tinfo->req->sz_data, k, n);
+        broadcast_msg_accept_c(tinfo, prop, cv);
     }
 
 	/*----------------------------- phase II end ----------------------------*/
@@ -485,11 +489,13 @@ void broadcast_msg_accept(txn_info_t *tinfo,
         gids[i] = prop_p->rids[i]->gid;
     }
 
+    LOG_DEBUG("broadcast proposal, value size:%d", msg_accp.prop->value.len);
     size_t sz_msg = mpaxos__msg_accept__get_packed_size (&msg_accp);
     log_message_rid("broadcast", "ACCEPT", msg_accp.h, prop_p->rids, prop_p->n_rids, sz_msg);
     char *buf = (char *)malloc(sz_msg);
     mpaxos__msg_accept__pack(&msg_accp, (uint8_t *)buf);
     send_to_groups(gids, prop_p->n_rids, RPC_ACCEPT, buf, sz_msg);
+    LOG_DEBUG("broadcasted proposal, value size:%d", msg_accp.prop->value.len);
 
     free(buf);
     free(gids);

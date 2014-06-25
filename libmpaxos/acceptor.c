@@ -217,6 +217,7 @@ rpc_state* handle_msg_accept(const msg_accept_t *msg_accp) {
             // *p = apr_pcalloc(ainfo->mp, sizeof(proposal_t));
             // prop_cpy(*p, msg_accp->prop, ainfo->mp);
             *p = prop_copy(msg_accp->prop);
+            LOG_DEBUG("value accepted, size:%d", msg_accp->prop->value.len);
         } else if (rid->bid < maxbid) {
             response->ack = MPAXOS__ACK_ENUM__ERR_BID;
         } else {
