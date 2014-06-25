@@ -92,7 +92,7 @@ void stat_result() {
     double period = (time_end_ - time_begin_) / 1000000.0;
     int period_ms = (time_end_ - time_begin_) / 1000;
     uint64_t msg_count = ag_n_send_ * ag_n_group_;
-    uint64_t data_count = msg_count * ag_sz_data_;
+    uint64_t data_count = msg_count * (ag_sz_data_ + ag_sz_data_c_);
     double prop_rate = (msg_count + 0.0) / period;
     LOG_INFO("%"PRIu64" proposals commited in %dms, rate:%.2f props/s",
             msg_count, period_ms, prop_rate);
