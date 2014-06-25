@@ -1,37 +1,33 @@
 {
-    "groups":[1,2,3,4,5,6,7,8,9,10],
-    "local_nid":2,
-    "local_port":8882,
+    "_comments": "nodename is optional, it can be set via API. 
+                    flush option could be: ABANDON, MEM, ASYNC, SYNC",
+    "nodename": "node2",
+    "flush": "ABANDON",
     "nodes":[
     {
-        "nid":1,
-        "groups":[1,2,3,4,5,6,7,8,9,10],
-        "addr":"localhost",
-        "port":8881
+        "name": "node1",
+        "addr": "beaker-20",
+        "port": 8881
     },
     {
-        "nid":2,
-        "groups":[1,2,3,4,5,6,7,8,9,10],
-        "addr":"localhost",
-        "port":8882
+        "name": "node2",
+        "addr": "beaker-21",
+        "port": 8882
     },
     {
-        "nid":3,
-        "groups":[1,2,3,4,5,6,7,8,9,10],
-        "addr":"localhost",
-        "port":8883
+        "name": "node3",
+        "addr": "beaker-22",
+        "port": 8883
     },
     {
-        "nid":4,
-        "groups":[1,2,3,4,5,6,7,8,9,10],
-        "addr":"localhost",
-        "port":8884
+        "name": "node4",
+        "addr": "beaker-23",
+        "port": 8884
     },
     {
-        "nid":5,
-        "groups":[1,2,3,4,5,6,7,8,9,10],
-        "addr":"localhost",
-        "port":8885
+        "name": "node5",
+        "addr": "beaker-24",
+        "port": 8885
     }
     ]
 }
