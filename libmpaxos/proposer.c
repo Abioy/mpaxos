@@ -380,7 +380,7 @@ int mpaxos_accept(txn_info_t *tinfo) {
         // in RS-Paxos, regenerate the proposal by encoding the value.
         // encode the data.  
         // [FIXME] fixed k & n temprarily.
-        int k = 2, n = 5;
+        int k = 3, n = 5;
         coded_value_t **cv = rs_encode(tinfo->req->data_c, tinfo->req->sz_data_c, k, n);
         broadcast_msg_accept_c(tinfo, prop, cv);
     } else {
@@ -520,7 +520,7 @@ void broadcast_msg_accept_c(txn_info_t *tinfo,
     SAFE_ASSERT(arr_nid != NULL);
 
     for (int i = 0; i < arr_nid->nelts; i++) {
-        nodeid_t nid = arr_nid->elts[i];
+        nodeid_t nid = ((nodeid_t*)arr_nid->elts)[i];
         prop_p->coded_value = cvs[i];
         size_t sz_msg = mpaxos__msg_accept__get_packed_size (&msg_accp);
         log_message_rid("broadcast", "ACCEPT", msg_accp.h, prop_p->rids, prop_p->n_rids, sz_msg);
