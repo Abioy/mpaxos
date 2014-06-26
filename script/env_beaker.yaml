@@ -1,0 +1,10 @@
+# configuration for nyu beaker
+
+username: shuai
+dir: /home/shuai/bworkspace
+host:
+    - beaker-20
+    - beaker-21
+    - beaker-22
+    - beaker-23
+    - beaker-25
