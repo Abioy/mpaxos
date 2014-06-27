@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     base = 1024
     for i in range(8):
-        lauch_test(10, 1, 0, base)
+        lauch_test(10, 1, base, 0)
         base *= 4
 
     # collect results
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         base *= 4
 
     print("-------------------------------------------------")
-    print("---------------RS-Paxos Latency (ms)-------------")
+    print("-----------------Paxos Latency (ms)--------------")
     print("-------------------------------------------------")
     
     for data in LABEL_DATA:
