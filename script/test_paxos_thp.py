@@ -75,8 +75,7 @@ if __name__ == "__main__":
             if r:
                 c = int(r.group(1))
                 t = int(r.group(2))
-                c * 
-                thp = c * base * 1.0 * 1000 / t
+                thp = c * base * 8.0 * 1000 / t
                 thps.append(thp)
 #                rate = c / (t / 1000.0)
 #                rates[j].append(rate)
