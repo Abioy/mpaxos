@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     base = 1024
     for i in range(8):
-        lauch_test(1, 10, base, 0)
+        lauch_test(1, 10, 0, base)
         base *= 4
 
     # collect results
@@ -75,7 +75,7 @@ if __name__ == "__main__":
             if r:
                 c = int(r.group(1))
                 t = int(r.group(2))
-                thp = c * base * 8.0 / t / 1000
+                thp = c * base * 8.0  / t / 1000
                 thps.append(thp)
 #                rate = c / (t / 1000.0)
 #                rates[j].append(rate)
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         base *= 4
 
     print("-------------------------------------------------")
-    print("---------------Paxos Throuput (Mbps)-------------")
+    print("--------------RS-Paxos Throuput (Mbps)-----------")
     print("-------------------------------------------------")
     
     for data in LABEL_DATA:
