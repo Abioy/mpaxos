@@ -7,6 +7,7 @@ import yaml
 N_HOST = 5
 DIR = ""
 DIR_RESULT = "result.rspaxos.lat"
+DIR_CONFIG = "config.beaker"
 LABEL_DATA = ['1K', '4K', '16K', '64K', '256K', '1M', '4M', '16M']
 HOSTS = []
 
