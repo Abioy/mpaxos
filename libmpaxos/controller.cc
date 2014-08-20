@@ -72,28 +72,28 @@ void controller_destroy() {
 //
 //
 //
-txn_info_t *attach_txn_info(roundid_t **rids, size_t sz_rids, 
-    mpaxos_req_t *req) {
-
-    txn_info_t *info = NULL;
-    txn_info_create(&info, rids, sz_rids, req);
-    
-    for (size_t i = 0; i < sz_rids; i++) {
-        group_info_t *ginfo = NULL;
-        group_info_create(&ginfo, info, rids[i]);
-        // add group to round
-        apr_hash_set(info->ht_ginfo, &ginfo->gid, sizeof(groupid_t), ginfo);
-    }
-
-    apr_thread_mutex_lock(mx_txn_info_);
-    // txn_info_t *info = apr_hash_get(ht_txn_info_, &(req->id), sizeof(roundid_t));
-    // it should be a new round.
-    // SAFE_ASSERT(info == NULL);
-    // attach txn
-    apr_hash_set(ht_txn_info_, &info->tid, sizeof(txnid_t), info);
-    apr_thread_mutex_unlock(mx_txn_info_);
-    return info;
-}
+//txn_info_t *attach_txn_info(roundid_t **rids, size_t sz_rids, 
+//    mpaxos_req_t *req) {
+//
+//    txn_info_t *info = NULL;
+//    txn_info_create(&info, rids, sz_rids, req);
+//    
+//    for (size_t i = 0; i < sz_rids; i++) {
+//        group_info_t *ginfo = NULL;
+//        group_info_create(&ginfo, info, rids[i]);
+//        // add group to round
+//        apr_hash_set(info->ht_ginfo, &ginfo->gid, sizeof(groupid_t), ginfo);
+//    }
+//
+//    apr_thread_mutex_lock(mx_txn_info_);
+//    // txn_info_t *info = apr_hash_get(ht_txn_info_, &(req->id), sizeof(roundid_t));
+//    // it should be a new round.
+//    // SAFE_ASSERT(info == NULL);
+//    // attach txn
+//    apr_hash_set(ht_txn_info_, &info->tid, sizeof(txnid_t), info);
+//    apr_thread_mutex_unlock(mx_txn_info_);
+//    return info;
+//}
 
 //void detach_txn_info(txn_info_t *tinfo) {
 //    apr_thread_mutex_lock(mx_txn_info_);
@@ -113,16 +113,16 @@ txn_info_t *attach_txn_info(roundid_t **rids, size_t sz_rids,
 //}
 
 int mpaxos_start_request(mpaxos_req_t *req) {
-    SAFE_ASSERT(req->sz_gids == 1); //temporarily only support this.
+    //SAFE_ASSERT(req->sz_gids == 1); //temporarily only support this.
 
-    if (req->n_retry >0) {
-        LOG_DEBUG("retry a request");
-    }
+    //if (req->n_retry >0) {
+    //    LOG_DEBUG("retry a request");
+    //}
 
-    int skip_prep = 0;
-    slotid_t next_sid = 0;
+    //int skip_prep = 0;
+    //slotid_t next_sid = 0;
 
-    next_sid = get_newest_sid(gid, &skip_prep);
+    //next_sid = get_newest_sid(gid, &skip_prep);
 
     //roundid_t **rids = NULL;
     //rids = (roundid_t **) malloc(req->sz_gids * sizeof(roundid_t *));
@@ -141,25 +141,25 @@ int mpaxos_start_request(mpaxos_req_t *req) {
     //    }
     //}
     
-    int bid_base = (is_saveprep) ? BID_PRIOR : BID_NORMAL;
+    //int bid_base = (is_saveprep) ? BID_PRIOR : BID_NORMAL;
 
     //for (int i = 0; i < req->sz_gids; i++) {
     //    rids[i]->bid = bid_base += req->n_retry;
     //}
 
-    ballotid_t bid = req->n_retry + bid_base;
+    //ballotid_t bid = req->n_retry + bid_base;
 
-    txn_info_t *info = attach_txn_info(rids, req->sz_gids, req);
+    //txn_info_t *info = attach_txn_info(rids, req->sz_gids, req);
     
-    if (skip_prep) {
-        LOG_DEBUG("save the prepare phase, go directly into phase 2.");
-        info->in_phase = 2;
-        mpaxos_accept(info);
-    } else {
-        info->in_phase =1;
-        LOG_DEBUG("Start phase 1 prepare.");
-        mpaxos_prepare(info);
-    }
+    //if (skip_prep) {
+    //    LOG_DEBUG("save the prepare phase, go directly into phase 2.");
+    //    info->in_phase = 2;
+    //    mpaxos_accept(info);
+    //} else {
+    //    info->in_phase =1;
+    //    LOG_DEBUG("Start phase 1 prepare.");
+    //    mpaxos_prepare(info);
+    //}
     return 0;
 }
 //
