@@ -2,14 +2,14 @@
 
 N_HOST=3
 TARGET=../bin/bench_mpaxos.out
-n_group=10000
-n_tosend=1000
+n_group=1
+n_tosend=1
 is_exit=0
 is_async=1
 n_batch=1
 to_sleep=5
 
-DIR_CONFIG=../config/config.local/
+DIR_CONFIG=../config/config.local
 DIR_RESULT=result.mpaxos.debug
 
 killall test_mpaxos.out &> /dev/null
@@ -26,7 +26,7 @@ do
     # this is the master
     echo "LAUNCHING MASTER"
     i=1
-    command_stdout="$TARGET -c $DIR_CONFIG/config.$N_HOST.$i -s $n_tosend -g $n_group -q $is_exit -b $n_batch"
+    command_stdout="$TARGET -c $DIR_CONFIG/config.$N_HOST.$i -s $n_tosend -d 0 -e 16000000 -g 10 $n_group -q $is_exit -b $n_batch"
     nohup xterm -hold -e "$command_stdout" &
     
     for i in $(seq 2 $N_HOST)

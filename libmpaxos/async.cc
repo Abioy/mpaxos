@@ -4,7 +4,7 @@
  * has a request queue and a lock. The deamon
  * keeps scanning every queue with the lock.
  */
-#define MAX_THREADS 0
+#define MAX_THREADS 30
 
 #include "include_all.h"
 
@@ -197,9 +197,9 @@ void* APR_THREAD_FUNC mpaxos_async_daemon(apr_thread_t *th, void* data) {
             SAFE_ASSERT(status == APR_SUCCESS);
             LOG_TRACE("white node got from dag");
             req->tm_start = apr_time_now();
-            //status = apr_thread_pool_push(tp_async_, async_commit_job, 
-            //    (void*)req, 0, NULL);
-            async_commit_job(NULL, req);
+            status = apr_thread_pool_push(tp_async_, async_commit_job, 
+                (void*)req, 0, NULL);
+            //async_commit_job(NULL, req);
             SAFE_ASSERT(status == APR_SUCCESS);
             //mpaxos_start_request(req);
         } else if (status == APR_EOF) {
