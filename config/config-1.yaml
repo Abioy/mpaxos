@@ -1,0 +1,4 @@
+host:
+  - name: node1
+    addr: localhost
+    port: 8881
