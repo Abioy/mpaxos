@@ -5,6 +5,17 @@
 #include "mpaxos/mpaxos-types.h"
 
 typedef struct {
+    std::string name;  
+    std::string addr;
+    int32_t port;
+} host_info_t;
+
+
+void mpaxos_add_node(std::string hostname, std::string addr, int32_t port);
+
+void mpaxos_node_info(std::string& hostname);
+
+typedef struct {
     nodeid_t nid;
     int port;
     char name[100];

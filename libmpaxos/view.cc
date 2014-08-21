@@ -10,6 +10,25 @@
 #include "utils/hostname.h"
 #include "utils/mpr_hash.h"
 
+
+static std::map<std::string, host_info_t> hosts_;    
+
+
+void mpaxos_add_node(std::string hostname, std::string addr, int32_t port) {
+    // TODO: [Loli]
+    ;
+}
+
+host_info_t&  mpaxos_node_info(std::string& hostname) {
+    // TODO: [Loli]
+    ;
+}
+
+host_info_t& mpaxos_whoami() {
+    // TODO: [Loli]
+    ;
+}
+
 static apr_pool_t *mp_view_ = NULL;
 static apr_hash_t *gid_nid_ht_ht_; //groupid_t -> nodeid_t ht
 static apr_hash_t *nid_gid_ht_ht_; //nodeid_t -> groupid_t ht
