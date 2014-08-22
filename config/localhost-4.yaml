@@ -8,3 +8,6 @@ host:
   - name: node3
     addr: localhost
     port: 8883
+  - name: node4
+    addr: localhost
+    port: 8884
