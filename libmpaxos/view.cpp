@@ -12,6 +12,7 @@
 
 
 static std::map<std::string, host_info_t> hosts_;    
+static std::string my_hostname_;
 
 
 void mpaxos_add_node(std::string hostname, std::string addr, int32_t port) {
@@ -27,6 +28,10 @@ host_info_t&  mpaxos_node_info(std::string& hostname) {
 host_info_t& mpaxos_whoami() {
     // TODO: [Loli]
     ;
+}
+
+void mpaxos_set_me(std::string &hostname) {
+    my_hostname_ = hostname;
 }
 
 static apr_pool_t *mp_view_ = NULL;
