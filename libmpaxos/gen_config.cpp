@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 //	const std::string username = config["username"].as<std::string>();
 	printf("OK!\n");
 	std::string number_str = argv[1];
-	std::string filename = "config/config-" + number_str + ".yaml";
+	std::string filename = "config/localhost-" + number_str + ".yaml";
 	std::ofstream fout(filename.c_str());
 
 	fout << config;

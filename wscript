@@ -42,10 +42,11 @@ def configure(conf):
     conf.check_cfg(package='json', uselib_store='JSON', args=pargs)
     conf.check_cfg(package='protobuf', uselib_store='PROTOBUF', args=pargs)
     conf.check_cfg(package='check', uselib_store='CHECK', args=pargs)
+    conf.check_cfg(package='yaml-cpp', uselib_store='YAML-CPP', args=pargs)
 #    conf.check(compiler='c', lib="leveldb", mandatory=True, uselib_store="LEVELDB")
 
     #c99
-    conf.env.append_value("CFLAGS", "-std=c99")
+#    conf.env.append_value("CFLAGS", "-std=c99")
 
     conf.env.PREFIX = "/usr"
     conf.env.LIBDIR = "/usr/lib"
@@ -58,15 +59,15 @@ def configure(conf):
 def build(bld):
 
     bld.stlib(source=bld.path.ant_glob("libzfec/*.cc"), target="zfec", includes="libzfec")
-    bld.shlib(source=bld.path.ant_glob("libmpaxos/rpc/*.cc libmpaxos/*.cc"), 
+    bld.shlib(source=bld.path.ant_glob("libmpaxos/rpc/*.cc libmpaxos/*.cc libmpaxos/*.cpp"), 
               target="mpaxos",
               includes="include libzfec libmpaxos",
-              use="APR APR-UTIL JSON PTHREAD LEVELDB PROTOBUF zfec ",
+              use="APR APR-UTIL JSON PTHREAD LEVELDB PROTOBUF zfec YAML-CPP",
               install_path="${PREFIX}/lib")
-    bld.stlib(source=bld.path.ant_glob("libmpaxos/rpc/*.cc libmpaxos/*.cc"), 
+    bld.stlib(source=bld.path.ant_glob("libmpaxos/rpc/*.cc libmpaxos/*.cc libmpaxos/*.cpp"), 
               target="mpaxos", 
               includes="include libzfec libmpaxos", 
-              use="APR APR-UTIL JSON PTHREAD LEVELDB PROTOBUF zfec ", 
+              use="APR APR-UTIL JSON PTHREAD LEVELDB PROTOBUF zfec YAML-CPP", 
               install_path="${PREFIX}/lib")
     
     bld.program(source="test/test_check.cc", target="test_check.out", 
