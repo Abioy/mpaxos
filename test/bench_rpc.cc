@@ -260,9 +260,9 @@ int main(int argc, char **argv) {
     }
 
     if (is_server_) {
-        server_t *server = NULL;
-	poll_mgr_t *mgr_server = NULL;
-	poll_mgr_create(&mgr_server, n_server_thread_);
+        server_t *server = NULL;	
+		poll_mgr_t *mgr_server = NULL;
+		poll_mgr_create(&mgr_server, n_server_thread_);
         server_create(&server, mgr_server);    
         strcpy(server->comm->ip, addr_);
         server->comm->port = port_;

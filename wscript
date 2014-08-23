@@ -91,6 +91,12 @@ def build(bld):
                 use="mpaxos APR APR-UTIL CHECK", 
                 install_path=False)
 
+    bld.program(source="test/test_rpc.cpp", 
+                target="test_rpc.out", 
+                includes="include libmpaxos libzfec", 
+                use="mpaxos APR APR-UTIL CHECK", 
+                install_path=False)
+
     bld.install_files('${PREFIX}/include', 
                       bld.path.ant_glob('include/mpaxos/*.h'))
     bld(features='subst', source='mpaxos.pc.in', 

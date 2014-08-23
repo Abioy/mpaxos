@@ -7,6 +7,7 @@
 #include "test_protobuf.cc"
 #include "test_zfec.cc"
 #include "test_hello.cc"
+#include "test_rpc.cc"
 
 //#include "test_rpc.c"
 
@@ -49,12 +50,14 @@ Suite *check_suite (void) {
     tcase_add_test(tc_zfec, zfec);
     suite_add_tcase(s, tc_zfec);
 
+	/* wrong now
     TCase *tc_hello = tcase_create("hello");
     tcase_add_test(tc_hello, hello);
     suite_add_tcase(s, tc_hello);
-//    TCase *tc_rpc = tcase_create("RPC");
-//    tcase_add_test(tc_rpc, rpc);
-//    suite_add_tcase(s, tc_util);
+*/
+    TCase *tc_rpc = tcase_create("RPC");
+    tcase_add_test(tc_rpc, rpc);
+    suite_add_tcase(s, tc_rpc);
 
     return s;
 }

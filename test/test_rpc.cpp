@@ -45,8 +45,8 @@ void sig_handler(int signo) {
     }
 }
 
-START_TEST (rpc) {
-//int main(){
+//START_TEST (rpc) {
+int main(){
     //if (signal(SIGINT, sig_handler) == SIG_ERR) printf("\ncan't catch SIGINT\n");
     signal(SIGPIPE, SIG_IGN);
 
@@ -81,4 +81,5 @@ START_TEST (rpc) {
     printf("client called.\n");
     rpc_destroy();
 }
-END_TEST
+//END_TEST
+
