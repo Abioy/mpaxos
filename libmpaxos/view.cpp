@@ -13,7 +13,7 @@
 
 
 static host_map_t hosts_;    
-static host_map_it_t hosts_it_;
+//static host_map_it_t hosts_it_;
 static host_info_t *my_host_info_ = NULL;
 
 void mpaxos_add_node(std::string hostname, std::string addr, int32_t port) {
@@ -23,14 +23,14 @@ void mpaxos_add_node(std::string hostname, std::string addr, int32_t port) {
 	hosts_[hostname].port = port;
 }
 
-host_info_t mpaxos_node_info(std::string hostname) {
+host_info_t* mpaxos_node_info(std::string &hostname) {
     // TODO: [Loli]
 //	hosts_it_ = hosts_.find(hotname);
 //	my_host_info_ = &(hosts_it_->second);
  //   return my_host_info_;
     LOG_INFO("mapxos_node_info. name:%s,  addr: %s, port: %d", 
 	     hosts_[hostname].name.c_str(), hosts_[hostname].addr.c_str(), hosts_[hostname].port);
-	return hosts_[hostname];
+	return &(hosts_[hostname]);
 }
 
 host_info_t* mpaxos_whoami() {
@@ -40,7 +40,7 @@ host_info_t* mpaxos_whoami() {
     return my_host_info_;
 }
 
-void mpaxos_set_me(std::string hostname) {
+void mpaxos_set_me(std::string &hostname) {
     my_host_info_ = &(hosts_[hostname]);
 }
 

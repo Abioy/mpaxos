@@ -69,13 +69,14 @@ int mpaxos_config_load(const char *cf) {
 
 int mpaxos_config_set(const char *key, const char *value) {
     if (strcmp(key, "nodename") == 0) {
-		mpaxos_set_me(value);
+		std::string value_str = value;
+		mpaxos_set_me(value_str);
         set_nodename(value);                 
 		host_info_t *my = mpaxos_whoami();
 		LOG_INFO("whoami. name:%s,  addr: %s, port: %d", 
-	     my->name.c_str(), my->addr.c_str(), my->port);
+			my->name.c_str(), my->addr.c_str(), my->port);
 		my->port = 2222;
-		mpaxos_node_info(value);
+		mpaxos_node_info(value_str);
     }
     return 0;
 }
