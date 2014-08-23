@@ -47,18 +47,20 @@ int mpaxos_config_load(const char *cf) {
 
 		YAML::Node node = nodes[i];
 
-		const char* name = node["name"].as<std::string>().c_str();
-		const char* addr = node["addr"].as<std::string>().c_str();
+		std::string name = node["name"].as<std::string>();
+		std::string addr = node["addr"].as<std::string>();
         int port = node["port"].as<int>();
 
         // set a node in view
-        set_node(name, addr, port);
+		mpaxos_add_node(name, addr, port);
+        set_node(name.c_str(), addr.c_str(), port);
     }
     
 	YAML::Node config_nodename = config["nodename"];
     if (config_nodename != NULL) {
-        const char* nodename = config_nodename["nodename"].as<std::string>().c_str();
-        mpaxos_config_set("nodename", nodename); 
+		std::string nodename = config_nodename["nodename"].as<std::string>();
+//		mpaxos_set_me(nodename);
+        mpaxos_config_set("nodename", nodename.c_str()); 
 	}
 
     LOG_INFO("config file loaded\n");
@@ -67,7 +69,13 @@ int mpaxos_config_load(const char *cf) {
 
 int mpaxos_config_set(const char *key, const char *value) {
     if (strcmp(key, "nodename") == 0) {
+		mpaxos_set_me(value);
         set_nodename(value);                 
+		host_info_t *my = mpaxos_whoami();
+		LOG_INFO("whoami. name:%s,  addr: %s, port: %d", 
+	     my->name.c_str(), my->addr.c_str(), my->port);
+		my->port = 2222;
+		mpaxos_node_info(value);
     }
     return 0;
 }

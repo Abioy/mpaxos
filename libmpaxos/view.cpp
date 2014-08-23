@@ -9,29 +9,39 @@
 #include "utils/safe_assert.h"
 #include "utils/hostname.h"
 #include "utils/mpr_hash.h"
+#include <iostream>
 
 
-static std::map<std::string, host_info_t> hosts_;    
-static std::string my_hostname_;
-
+static host_map_t hosts_;    
+static host_map_it_t hosts_it_;
+static host_info_t *my_host_info_ = NULL;
 
 void mpaxos_add_node(std::string hostname, std::string addr, int32_t port) {
     // TODO: [Loli]
-    ;
+	hosts_[hostname].name = hostname;	
+    hosts_[hostname].addr = addr;
+	hosts_[hostname].port = port;
 }
 
-host_info_t&  mpaxos_node_info(std::string& hostname) {
+host_info_t mpaxos_node_info(std::string hostname) {
     // TODO: [Loli]
-    ;
+//	hosts_it_ = hosts_.find(hotname);
+//	my_host_info_ = &(hosts_it_->second);
+ //   return my_host_info_;
+    LOG_INFO("mapxos_node_info. name:%s,  addr: %s, port: %d", 
+	     hosts_[hostname].name.c_str(), hosts_[hostname].addr.c_str(), hosts_[hostname].port);
+	return hosts_[hostname];
 }
 
-host_info_t& mpaxos_whoami() {
+host_info_t* mpaxos_whoami() {
     // TODO: [Loli]
-    ;
+    LOG_INFO("mpaxos_whoami. name:%s,  addr: %s, port: %d", 
+	     my_host_info_->name.c_str(), my_host_info_->addr.c_str(), my_host_info_->port);
+    return my_host_info_;
 }
 
-void mpaxos_set_me(std::string &hostname) {
-    my_hostname_ = hostname;
+void mpaxos_set_me(std::string hostname) {
+    my_host_info_ = &(hosts_[hostname]);
 }
 
 static apr_pool_t *mp_view_ = NULL;
