@@ -16,6 +16,26 @@
 #define RPC_LEARNED     6
 #define RPC_DECIDE      7
 
+// now just leave these functions empty. 
+void mpaxos_comm_init();
+
+void mpaxos_comm_destroy();
+
+// TODO: [Loli]
+// start server, and connect all clients, remember the clients by hostname.
+void mpaxos_comm_start();
+
+// TODO: [Loli]
+// shutdown all the clients, then shutdown the server 
+void mpaxos_comm_stop();
+
+void mpaxos_comm_sendto(std::string& hostname, msg_type_t msg_type,
+        const uint8_t* data, size_t sz);
+
+void mpaxos_comm_sendto_all(msg_type_t msg_type, const uint8_t *data, size_t sz);
+
+
+// Below is deprecated.
 void comm_init();
 
 void comm_destroy();
