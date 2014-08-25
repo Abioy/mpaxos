@@ -11,12 +11,8 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-std::string int2string(int i)
-{
-	std::ostringstream ost;
-	ost << i;
-	return ost.str();
-}
+#include "tools.hpp"
+
 int main(int argc, char *argv[])
 {
 	if(argc < 2){

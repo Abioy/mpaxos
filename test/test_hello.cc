@@ -13,7 +13,7 @@ static void cb(mpaxos_req_t *req) {
 
 START_TEST(hello) {
     mpaxos_init();
-    mpaxos_config_load("./config/config.1.1");
+    mpaxos_config_load("./config/localhost-4.yaml");
     mpaxos_config_set("nodename", "node1");
     mpaxos_set_cb_god(cb);
     mpaxos_start();

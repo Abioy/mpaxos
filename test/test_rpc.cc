@@ -52,22 +52,22 @@ START_TEST (rpc) {
 
     server_t *server = NULL;
     client_t *client = NULL;
-	poll_mgr_t *mgr_server = NULL;
-	poll_mgr_t *mgr_client = NULL;
+	poll_mgr_t *mgr = NULL;
+//	poll_mgr_t *mgr_client = NULL;
 
 	apr_initialize();
 
     rpc_init();
-    poll_mgr_create(&mgr_server, 1);  
-    server_create(&server, mgr_server);    
+    poll_mgr_create(&mgr, 1);  
+    server_create(&server, mgr);    
     strcpy(server->comm->ip, "127.0.0.1");
     server->comm->port = 9999;
     server_reg(server, ADD, (void*)add); 
     server_start(server);
     printf("server started.\n");
 
-    poll_mgr_create(&mgr_client, 1);  
-    client_create(&client, mgr_client);
+  //  poll_mgr_create(&mgr_client, 1);  
+    client_create(&client, mgr);
     strcpy(client->comm->ip, "127.0.0.1");
     client->comm->port = 9999;
     client_reg(client, ADD, (void*)add_cb);

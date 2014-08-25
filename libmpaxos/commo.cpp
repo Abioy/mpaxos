@@ -1,10 +1,12 @@
 
-#include "comm.h"
+#include "commo.hpp"
 #include "include_all.h"
+#include <iostream>
 
 static apr_pool_t *mp_comm_;
 static apr_hash_t *ht_sender_; //nodeid_t -> sender_t
 static apr_thread_mutex_t *mx_comm_;
+static std::map<std::string, client_t *> client_map_;
 
 server_t *server_ = NULL;
 
@@ -15,6 +17,102 @@ server_t *server_ = NULL;
 //time_t recv_start_time = 0;
 //time_t recv_last_time = 0;
 //time_t recv_curr_time = 0;
+
+funid_t ADD = 1;
+
+typedef struct {
+    uint32_t a;
+    uint32_t b;
+} struct_add;
+
+rpc_state* add(rpc_state *state) {
+    struct_add *sa = (struct_add *)state->raw_input;
+    uint32_t c = sa->a + sa->b;
+
+	LOG_INFO("server add a:%d + b:%d\n",sa->a, sa->b);
+    state->raw_output = (uint8_t*)malloc(sizeof(uint32_t));
+    state->sz_output = sizeof(uint32_t);
+    memcpy(state->raw_output, &c, sizeof(uint32_t));
+    return NULL;
+}
+
+rpc_state* add_cb(rpc_state *state) {
+    // Do nothing
+    
+    uint32_t *res = (uint32_t*) state->raw_input;
+	uint32_t k = *res;
+    
+    LOG_INFO("client callback exceuted result:%d. \n",k);
+    return NULL;
+}
+
+void mpaxos_commo_start() {
+
+	//apr_initialize();
+
+	poll_mgr_t *mgr= NULL;
+
+	host_info_t *myself = mpaxos_whoami();
+
+    signal(SIGPIPE, SIG_IGN);
+
+    rpc_init();
+
+    poll_mgr_create(&mgr, 1);  
+    server_create(&server_, mgr);    
+
+    strcpy(server_->comm->ip, myself->addr.c_str());
+    server_->comm->port = myself->port;
+    server_reg(server_, ADD, (void*)add); 
+    server_start(server_);
+	std::cout << "server info-- addr: " << myself ->addr << " port:  "
+	   	<< myself->port << std::endl;
+    printf("server started.\n");
+
+
+	host_map_t *allnodes = mpaxos_get_all_nodes();
+	for(host_map_it_t it = allnodes->begin(); it != allnodes->end(); it++) {
+		
+		client_map_[it->first] = NULL; 
+		client_create(&client_map_[it->first], mgr);
+		strcpy(client_map_[it->first]->comm->ip, it->second.addr.c_str());
+		client_map_[it->first]->comm->port = it->second.port;
+		client_reg(client_map_[it->first], ADD, (void*)add_cb);
+		std::cout << it->first << " client created" <<std::endl;
+		client_connect(client_map_[it->first]);
+
+		std::cout << it->first << " client connected" <<std::endl;
+	}
+	
+	std::cout << myself->name << ": all client connected" <<std::endl;
+//	rpc_destroy();
+}
+
+// No Test
+void mpaxos_commo_stop() {
+
+	server_destroy(server_);
+	
+	for(std::map<std::string, client_t *>::iterator it = client_map_.begin();
+		   	it != client_map_.end(); it++) {
+		client_destroy(it->second);				
+	}
+    rpc_destroy();
+}
+
+void mpaxos_commo_sendto(std::string& hostname, msg_type_t msg_type,
+        const uint8_t* data, size_t sz) {
+	client_call(client_map_[hostname], msg_type, data, sz);
+	std::cout << " client called -- hostname:" << hostname <<std::endl;
+}
+
+void mpaxos_commo_sendto_all(msg_type_t msg_type, const uint8_t *data, size_t sz) {
+
+	for(std::map<std::string, client_t *>::iterator it = client_map_.begin();
+		   	it != client_map_.end(); it++) {
+		client_call(it->second, msg_type, data, sz);
+	}
+}
 
 void comm_init() {
     apr_pool_create(&mp_comm_, NULL);

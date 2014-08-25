@@ -7,6 +7,8 @@
 #include "mpaxos/mpaxos.h"
 #include "mpaxos/mpaxos-types.h"
 #include "internal_types.h"
+#include <string>
+#include <map>
 
 #define RPC_PREPARE     1
 #define RPC_PROMISE     2
@@ -17,22 +19,22 @@
 #define RPC_DECIDE      7
 
 // now just leave these functions empty. 
-void mpaxos_comm_init();
+void mpaxos_commo_init();
 
-void mpaxos_comm_destroy();
+void mpaxos_commo_destroy();
 
 // TODO: [Loli]
 // start server, and connect all clients, remember the clients by hostname.
-void mpaxos_comm_start();
+void mpaxos_commo_start();
 
 // TODO: [Loli]
 // shutdown all the clients, then shutdown the server 
-void mpaxos_comm_stop();
+void mpaxos_commo_stop();
 
-void mpaxos_comm_sendto(std::string& hostname, msg_type_t msg_type,
+void mpaxos_commo_sendto(std::string& hostname, msg_type_t msg_type,
         const uint8_t* data, size_t sz);
 
-void mpaxos_comm_sendto_all(msg_type_t msg_type, const uint8_t *data, size_t sz);
+void mpaxos_commo_sendto_all(msg_type_t msg_type, const uint8_t *data, size_t sz);
 
 
 // Below is deprecated.

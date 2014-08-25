@@ -3,8 +3,8 @@
  * all nodes belong to all groups. you don't have to create groups.
  */
 
-#include "view.h"
-#include "comm.h"
+#include "view.hpp"
+#include "commo.hpp"
 #include "utils/logger.h"
 #include "utils/safe_assert.h"
 #include "utils/hostname.h"
@@ -38,6 +38,10 @@ host_info_t* mpaxos_whoami() {
     LOG_INFO("mpaxos_whoami. name:%s,  addr: %s, port: %d", 
 	     my_host_info_->name.c_str(), my_host_info_->addr.c_str(), my_host_info_->port);
     return my_host_info_;
+}
+
+host_map_t* mpaxos_get_all_nodes() {
+	return &(hosts_);
 }
 
 void mpaxos_set_me(std::string &hostname) {

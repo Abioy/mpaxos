@@ -13,12 +13,14 @@ typedef struct {
 } host_info_t;
 
 typedef std::map<std::string, host_info_t> host_map_t;
-//typedef host_map_t::iterator host_map_it_t;
+typedef host_map_t::iterator host_map_it_t;
 //static host_info_t *my_host_info_t;
 
 void mpaxos_add_node(std::string hostname, std::string addr, int32_t port);
 
 host_info_t* mpaxos_node_info(std::string &hostname);
+
+host_map_t* mpaxos_get_all_nodes();
 
 host_info_t* mpaxos_whoami();
 

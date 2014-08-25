@@ -17,8 +17,8 @@
 #include <iostream>
 
 #include "mpaxos/mpaxos.h"
-#include "comm.h"
-#include "view.h"
+#include "commo.hpp"
+#include "view.hpp"
 #include "utils/hostname.h"
 #include "utils/logger.h"
 
@@ -59,8 +59,8 @@ int mpaxos_config_load(const char *cf) {
 	YAML::Node config_nodename = config["nodename"];
     if (config_nodename != NULL) {
 		std::string nodename = config_nodename["nodename"].as<std::string>();
-//		mpaxos_set_me(nodename);
-        mpaxos_config_set("nodename", nodename.c_str()); 
+		mpaxos_set_me(nodename);
+   //     mpaxos_config_set("nodename", nodename.c_str()); 
 	}
 
     LOG_INFO("config file loaded\n");
@@ -75,7 +75,7 @@ int mpaxos_config_set(const char *key, const char *value) {
 		host_info_t *my = mpaxos_whoami();
 		LOG_INFO("whoami. name:%s,  addr: %s, port: %d", 
 			my->name.c_str(), my->addr.c_str(), my->port);
-		my->port = 2222;
+	//	my->port = 2222;
 		mpaxos_node_info(value_str);
     }
     return 0;

@@ -9,12 +9,12 @@
 #include "mpaxos/mpaxos.h"
 #include "proposer.h"
 #include "acceptor.h"
-#include "view.h"
+#include "view.hpp"
 #include "slot_mgr.h"
 #include "utils/logger.h"
 #include "utils/mtime.h"
 #include "utils/mlock.h"
-#include "comm.h"
+#include "commo.hpp"
 #include "async.h"
 
 slotid_t get_newest_sid(groupid_t gid, int *is_me);

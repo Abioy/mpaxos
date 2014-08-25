@@ -91,8 +91,8 @@ def build(bld):
                 use="mpaxos APR APR-UTIL CHECK", 
                 install_path=False)
 
-    bld.program(source="test/test_rpc.cpp", 
-                target="test_rpc.out", 
+    bld.program(source="test/test_commo.cpp", 
+                target="test_commo.out", 
                 includes="include libmpaxos libzfec", 
                 use="mpaxos APR APR-UTIL CHECK", 
                 install_path=False)

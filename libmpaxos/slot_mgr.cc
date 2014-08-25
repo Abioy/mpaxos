@@ -8,8 +8,8 @@
 #include "internal_types.h"
 #include "slot_mgr.h"
 #include "utils/logger.h"
-#include "comm.h"
-#include "view.h"
+#include "commo.hpp"
+#include "view.hpp"
 #include "recorder.h"
 
 apr_pool_t *slot_pool_;
