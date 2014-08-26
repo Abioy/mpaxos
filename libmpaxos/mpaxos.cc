@@ -181,7 +181,9 @@ int mpaxos_commit_req(mpaxos_req_t *req) {
         r->data_c = NULL;
     }
 
+	LOG_INFO("before mpaxos_enlist(r)\n");
     mpaxos_async_enlist(r);    
+    //mpaxos_enlist(r);    
     return 0;
 }
 

@@ -9,7 +9,7 @@
 #include "include_all.h"
 
 static apr_pool_t *mp_async_; // a pool for constants in asynchronous callback module.
-static mpaxos_cb_t cb_god_ = NULL; // a god callback function on all groups.
+//static mpaxos_cb_t cb_god_ = NULL; // a god callback function on all groups.
 static apr_thread_pool_t *tp_async_;  // thread pool for asynchronous commit and call back.
 static apr_thread_mutex_t *mx_gids_; // a lock to help visit the three hash tables below.
 static apr_hash_t *ht_me_cb_;   // groupid_t -> apr_thread_mutex_t, lock on each group for callback.
@@ -73,11 +73,11 @@ void mpaxos_async_enlist(mpaxos_req_t *req) {
     LOG_TRACE("the first group in this request, gid:%x", req->gids[0]);
 }
 
-
-/**
+/*
+ * no use by loli 
  * !!!IMPORTANT!!!
  * this function is NOT entirely thread-safe. same gid cannot call concurrently.
- */
+ *
 void invoke_callback(mpaxos_req_t* req) {
     // TODO [fix]
     // check_callback(p_r);
@@ -95,6 +95,7 @@ void invoke_callback(mpaxos_req_t* req) {
     // if there is value at sid + 1, then callback!
     // LOG_DEBUG("%d callback invoked on group %d, last callback: %d", c, gid, sid-1);
 }
+*/
 
 void mpaxos_set_cb(groupid_t gid, mpaxos_cb_t cb) {
     // TODO [xxx]
@@ -111,9 +112,6 @@ void mpaxos_set_cb(groupid_t gid, mpaxos_cb_t cb) {
     //apr_hash_set(cb_me_ht_, k, sizeof(groupid_t), p_me); 
 }
 
-void mpaxos_set_cb_god(mpaxos_cb_t cb) {
-    cb_god_ = cb;
-}
 
 void mpaxos_async_destroy() {
     LOG_DEBUG("async module to be destroyed.");
@@ -147,6 +145,7 @@ void* APR_THREAD_FUNC async_commit_job(apr_thread_t *th, void *v) {
     return NULL;
 }
 
+/* ready_callback no use by loli
 void async_ready_callback(mpaxos_req_t *req) {
     // TODO [fix] for call back
 	LOG_DEBUG("ready for call back.");
@@ -167,6 +166,7 @@ void async_ready_callback(mpaxos_req_t *req) {
     free(req->data);
     free(req);
 }
+*/
 
 /**
  * this runs in a background thread. keeps poping from the async job queue.

@@ -76,6 +76,9 @@ int add_last_cb_sid(groupid_t gid);
 
 int commit_async_run();
 
+void mpaxos_enlist(mpaxos_req_t *req);
+
+void mpaxos_retire(mpaxos_req_t *req);
 #ifdef __cplusplus
 //}
 #endif

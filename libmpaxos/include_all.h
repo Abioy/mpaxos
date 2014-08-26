@@ -38,6 +38,7 @@
 #include "controller.h"
 #include "db_helper.h"
 #include "rs_helper.h"
+#include "draft.hpp"
 
 
 #ifdef	__cplusplus

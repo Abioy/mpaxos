@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # coding: utf-8
 
+import sys
 import os
 from waflib import Options
 from waflib import Logs
@@ -34,7 +35,7 @@ def configure(conf):
     _enable_debug(conf)     #debug
     _enable_log(conf)       #log level
     _enable_static(conf)    #static
-    _enable_cxx11(conf):
+    _enable_cxx11(conf)
 
     conf.env.LIB_PTHREAD = 'pthread'
     conf.check_cfg(atleast_pkgconfig_version='0.0.0') 
@@ -94,6 +95,12 @@ def build(bld):
 
     bld.program(source="test/test_commo.cpp", 
                 target="test_commo.out", 
+                includes="include libmpaxos libzfec", 
+                use="mpaxos APR APR-UTIL CHECK", 
+                install_path=False)
+
+    bld.program(source="test/test_draft.cpp", 
+                target="test_draft.out", 
                 includes="include libmpaxos libzfec", 
                 use="mpaxos APR APR-UTIL CHECK", 
                 install_path=False)
