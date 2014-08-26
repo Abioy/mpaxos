@@ -34,6 +34,7 @@ def configure(conf):
     _enable_debug(conf)     #debug
     _enable_log(conf)       #log level
     _enable_static(conf)    #static
+    _enable_cxx11(conf):
 
     conf.env.LIB_PTHREAD = 'pthread'
     conf.check_cfg(atleast_pkgconfig_version='0.0.0') 
@@ -149,3 +150,10 @@ def _enable_pic(conf):
     conf.env.append_value("CFLAGS", "-fPIC")
     conf.env.append_value("CXXFLAGS", "-fPIC")
     conf.env.append_value("LINKFLAGS", "-fPIC")
+
+def _enable_cxx11(conf):
+    Logs.pprint("PINK", "C++11 features enabled")
+    if sys.platform == "darwin":
+        conf.env.append_value("CXXFLAGS", "-stdlib=libc++")
+        conf.env.append_value("LINKFLAGS", "-stdlib=libc++")
+    conf.env.append_value("CXXFLAGS", "-std=c++0x")
