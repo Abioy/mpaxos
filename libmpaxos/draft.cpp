@@ -4,6 +4,7 @@
  * Date: 2014/8/26
  * Usage:Add/Remove request into/from a list  
  * PS: I love u, ms.
+ * I love you too, jj.
  *
  */
 
@@ -20,7 +21,11 @@ void mpaxos_set_cb_god(mpaxos_cb_t cb) {
 
 void mpaxos_enlist(mpaxos_req_t *req) {
 	req_mutex_.lock();
+    // TODO: [Loli] copy before push
 	req_deque_.push_back(req);
+    // TODO: [Loli] call mpaxos_start_req in captain 
+    //
+    // TODO: [Loli] use LOG_DEBUG and LOG_INFO instead of printf
 	printf("sz: %d\n",req->sz_data);
 	req_mutex_.unlock();
 }
