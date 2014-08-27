@@ -1,6 +1,6 @@
 package mpaxos;
 
-enum msgtype_t {
+enum MsgType {
     PREPARE = 0;
     PROMISE = 1;
     ACCEPT = 2;
@@ -10,61 +10,50 @@ enum msgtype_t {
     SLOT = 6;
 }
 
-enum msgack_t {
+enum MsgAck {
     YES = 0;
     NO = 1;
 }
 
-message msg_header_t {
-    required msgtype_t msgtype = 1;
-    required uint32 nid = 2;
-    required uint64 tid = 3;
+message Msg_header {
+    required MsgType msg_type = 1;
+    required string host_name = 2;
 }
 
-message roundid_t {
-    required uint32 gid = 1;
-    required uint64 sid = 2;
-    required uint64 bid = 3;
+message Round_id {
+    required uint64 slot_id = 1;
+    required uint64 ballot_id = 2;
 }
 
-message proposal_t {
-    repeated roundid_t rid = 1;
-    required uint64 tid = 2;
-    required uint32 nid = 3;
-    optional bytes value = 4;
-    optional coded_value_t cvalue = 5;
+message Proposal {
+    required uint64 type = 1;
+    required uint32 value_id = 2;
+    required string value = 3;
 }
 
-message msg_prep_t {
-    required msg_header_t header = 1;
-    required roundid_t rid = 2;
+message Msg_prepare {
+    required Msg_header msg_header = 1;
+    required Round_id round_id = 2;
 }
 
-message msg_ack_prep_t {
-    required msg_header_t header = 1;
-    required roundid_t rid = 2;
-    required msgack_t ack = 3;
-    optional proposal_t prop = 4;
+message Msg_ack_prepare {
+    required Msg_header msg_header = 1;
+    required Round_id round_id = 2;
+    required MsgAck ack = 3;
+	required uint64 max_ballot = 4;
+    optional Proposal proposal = 5;
 }
 
-message msg_accp_t {
-    required msg_header_t header = 1;
-    required roundid_t rid = 2;
-    required proposal_t prop = 3;
+message Msg_accept {
+    required Msg_header msg_header = 1;
+    required Round_id round_id = 2;
+    required Proposal proposal = 3;
 }
 
-message msg_ack_accp_t {
-    required msg_header_t header = 1;
-    required roundid_t rid = 2;
-    required msgack_t ack = 3;
-    required uint64 max_bid = 4;
-    optional proposal_t prop = 5;
-}
-
-message coded_value_t {
-    required uint32 sz = 1;
-    required uint32 k = 2;
-    required uint32 n = 3;
-    required uint32 id = 4;
-    required bytes value = 5; 
+message Msg_ack_accept {
+    required Msg_header msg_header = 1;
+    required Round_id round_id = 2;
+    required MsgAck ack = 3;
+    required uint64 max_ballot = 4;
+    optional Proposal proposal = 5;
 }
