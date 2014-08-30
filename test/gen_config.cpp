@@ -6,7 +6,7 @@
  */
 #include <fstream>
 #include <stdlib.h>
-#include <yaml.h>
+#include <yaml-cpp/yaml.h>
 #include <stdio.h>
 #include <iostream>
 #include <string>

@@ -13,7 +13,10 @@
 #include <apr_time.h>
 #include <pthread.h>
 #include <assert.h>
+
+#define __STDC_FORMAT_MACROS 1
 #include <inttypes.h>
+
 #include <apr_atomic.h>
 #include <apr_thread_proc.h>
 #include <apr_thread_pool.h>
@@ -24,7 +27,6 @@
 #define MAX_THREADS 100
 
 //This macro should work for gcc version before 4.4
-#define __STDC_FORMAT_MACROS
 // do not include from ../libmpaxos/utils/logger.h
 // it sucks, we should not include from internal library
 // if you really want to do that, put the logger into the include/mpaxos directory or this directory as some header lib

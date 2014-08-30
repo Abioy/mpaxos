@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <json/json.h>
 #include <apr_time.h>
-#include <yaml.h>
+#include <yaml-cpp/yaml.h>
 #include <string>
 #include <iostream>
 
