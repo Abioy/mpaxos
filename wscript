@@ -60,8 +60,21 @@ def configure(conf):
 
 def build(bld):
 
-    bld.stlib(source=bld.path.ant_glob("libzfec/*.cc"), target="zfec", includes="libzfec")
-    bld.shlib(source=bld.path.ant_glob("libmpaxos/rpc/*.cc libmpaxos/*.cc libmpaxos/*.cpp"), 
+    bld.stlib(source=bld.path.ant_glob("rrr/mq/*.cc "
+                                       "rrr/base/*.cc "
+                                       "rrr/misc/*.cc "
+                                       "rrr/rpc/*.cc "), 
+              target="rrr",
+              includes=". rrr", 
+              use="PTHREAD APR APR-UTIL")
+
+    bld.stlib(source=bld.path.ant_glob("libzfec/*.cc"), 
+              target="zfec", 
+              includes="libzfec")
+
+    bld.shlib(source=bld.path.ant_glob("libmpaxos/rpc/*.cc "
+                                       "libmpaxos/*.cc "
+                                       "libmpaxos/*.cpp"), 
               target="mpaxos",
               includes="include libzfec libmpaxos",
               use="APR APR-UTIL JSON PTHREAD LEVELDB PROTOBUF zfec YAML-CPP",
