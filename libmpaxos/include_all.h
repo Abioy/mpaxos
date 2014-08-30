@@ -39,6 +39,7 @@
 #include "db_helper.h"
 #include "rs_helper.h"
 #include "draft.hpp"
+#include "captain.hpp"
 
 
 #ifdef	__cplusplus

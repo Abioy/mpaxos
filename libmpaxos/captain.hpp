@@ -4,8 +4,8 @@
 // TODO: [Loli] This module is responsible for locating the correct proposer and acceptor for a certain instance (an instance is identified by roundid). Do whatever you need to do.
 
 // TODO proposer_t and acceptor_t: TBD.
-proposer_t* mpaxos_find_proposer(XXX);
-acceptor_t* mpaxos_find_acceptor(XXX);
+//proposer_t* mpaxos_find_proposer(XXX);
+//acceptor_t* mpaxos_find_acceptor(XXX);
 
 // TODO: [Loli] start this request. 
 int mpaxos_start_req(mpaxos_req_t *req);
