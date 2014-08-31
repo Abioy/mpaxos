@@ -72,50 +72,54 @@ def build(bld):
               target="zfec", 
               includes="libzfec")
 
-    bld.shlib(source=bld.path.ant_glob("libmpaxos/rpc/*.cc "
+    bld.shlib(source=bld.path.ant_glob(
                                        "libmpaxos/*.cc "
                                        "libmpaxos/*.cpp"), 
               target="mpaxos",
-              includes="include libzfec libmpaxos",
-              use="APR APR-UTIL JSON PTHREAD LEVELDB PROTOBUF zfec YAML-CPP",
+              includes="rrr include libzfec libmpaxos",
+              use="APR APR-UTIL JSON PTHREAD LEVELDB "
+                  "PROTOBUF YAML-CPP rrr zfec",
               install_path="${PREFIX}/lib")
-    bld.stlib(source=bld.path.ant_glob("libmpaxos/rpc/*.cc libmpaxos/*.cc libmpaxos/*.cpp"), 
+
+    bld.stlib(source=bld.path.ant_glob("libmpaxos/*.cc "
+                                       "libmpaxos/*.cpp"), 
               target="mpaxos", 
-              includes="include libzfec libmpaxos", 
-              use="APR APR-UTIL JSON PTHREAD LEVELDB PROTOBUF zfec YAML-CPP", 
+              includes="rrr include libzfec libmpaxos", 
+              use="APR APR-UTIL JSON PTHREAD LEVELDB "
+                  "PROTOBUF YAML-CPP rrr zfec", 
               install_path="${PREFIX}/lib")
     
     bld.program(source="test/test_check.cc", target="test_check.out", 
-                includes="include libmpaxos libzfec", 
-                use="mpaxos APR APR-UTIL CHECK zfec")
+                includes="rrr include libmpaxos libzfec", 
+                use="rrr mpaxos APR APR-UTIL CHECK zfec")
 #               install_path=False)
 
 
 
     bld.program(source="test/bench_mpaxos.cc", 
                 target="bench_mpaxos.out", 
-                includes="include", 
-                use="mpaxos APR APR-UTIL", 
+                includes="include rrr", 
+                use="rrr mpaxos APR APR-UTIL", 
                 install_path=False)
 
 #   Logs.pprint("PINK", "program")
 
     bld.program(source="test/bench_rpc.cc", 
                 target="bench_rpc.out", 
-                includes="include libmpaxos libzfec", 
-                use="mpaxos APR APR-UTIL CHECK", 
+                includes="rrr include libmpaxos libzfec", 
+                use="rrr mpaxos APR APR-UTIL CHECK", 
                 install_path=False)
 
     bld.program(source="test/test_commo.cpp", 
                 target="test_commo.out", 
-                includes="include libmpaxos libzfec", 
-                use="mpaxos APR APR-UTIL CHECK", 
+                includes="rrr include libmpaxos libzfec", 
+                use="rrr mpaxos APR APR-UTIL CHECK", 
                 install_path=False)
 
     bld.program(source="test/test_draft.cpp", 
                 target="test_draft.out", 
-                includes="include libmpaxos libzfec", 
-                use="mpaxos APR APR-UTIL CHECK", 
+                includes="rrr include libmpaxos libzfec", 
+                use="rrr mpaxos APR APR-UTIL CHECK", 
                 install_path=False)
 
     bld.install_files('${PREFIX}/include', 

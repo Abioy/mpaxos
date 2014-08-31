@@ -3,7 +3,7 @@
  * Author:loli
  * Date:2014/8/23
  */
-#include "rpc/rpc.h"
+#include "rrr.h"
 
 funid_t ADD = 1;
 

@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include "include_all.h"
+
 // TODO: [Loli] This module is responsible for locating the correct proposer and acceptor for a certain instance (an instance is identified by roundid). Do whatever you need to do.
 
 // TODO proposer_t and acceptor_t: TBD.

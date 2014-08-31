@@ -1,8 +1,11 @@
 #include <unistd.h>
+#include <string>
+
+#include "rrr.h"
+
 #include "view.hpp"
 #include "commo.hpp"
 #include "mpaxos/mpaxos.h"
-#include <string>
 #include "tools.hpp"
 //#include <sstream>
 

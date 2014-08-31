@@ -21,14 +21,15 @@
 #include <apr_thread_proc.h>
 #include <apr_atomic.h>
 
-#include "commo.hpp"
-#include "proposer.h"
-#include "mpaxos/mpaxos.h"
 #include "utils/logger.h"
 #include "utils/mtime.h"
 #include "utils/mpr_hash.h"
 #include "utils/mpr_dag.h"
-#include "rpc/rpc.h"
+#include "mq/rpc.h"
+
+#include "commo.hpp"
+#include "proposer.h"
+#include "mpaxos/mpaxos.h"
 #include "log_helper.h"
 #include "view.hpp"
 #include "async.h"
