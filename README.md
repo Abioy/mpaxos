@@ -4,7 +4,7 @@
 
 [MPaxos] is an experimental Paxos codebase for research purposes. 
 
-The code is still changing every day! Don't use it for serious matters.
+I built this project with C from scratch just for fun (and self-torture). The code is filled with bugs and todos. Never use it for serious matters.
 
 ### License
 
