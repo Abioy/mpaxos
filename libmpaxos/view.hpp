@@ -12,6 +12,13 @@ typedef struct {
     int32_t port;
 } host_info_t;
 
+class View {
+public:
+    std::set<node_id_t> nodes_;
+
+    node_id_t whoami();
+}
+
 typedef std::map<std::string, host_info_t> host_map_t;
 typedef host_map_t::iterator host_map_it_t;
 //static host_info_t *my_host_info_t;
