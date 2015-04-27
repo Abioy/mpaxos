@@ -10,50 +10,38 @@ enum MsgType {
     SLOT = 6;
 }
 
-enum MsgAck {
-    YES = 0;
-    NO = 1;
-}
-
-message Msg_header {
+message MsgHeader {
     required MsgType msg_type = 1;
-    required string host_name = 2;
+    required uint32 node_id = 2;
+    required uint64 slot_id = 3;
 }
 
-message Round_id {
-    required uint64 slot_id = 1;
+message PropValue {
+    required uint64 id = 1;
+    required string data = 2;
+}
+
+message MsgPrepare {
+    required MsgHeader msg_header = 1;
     required uint64 ballot_id = 2;
 }
 
-message Proposal {
-    required uint64 type = 1;
-    required uint32 value_id = 2;
-    required string value = 3;
+message MsgAckPrepare {
+    required MsgHeader msg_header = 1;
+    required uint64 ballot_id = 2;
+    required bool reply = 3;
+	  required uint64 max_ballot_id = 4;
+    optional PropValue max_prop_value = 5;
 }
 
-message Msg_prepare {
-    required Msg_header msg_header = 1;
-    required Round_id round_id = 2;
+message MsgAccept {
+    required MsgHeader msg_header = 1;
+    required uint64 ballot_id = 2;
+    required PropValue prop_value = 3;
 }
 
-message Msg_ack_prepare {
-    required Msg_header msg_header = 1;
-    required Round_id round_id = 2;
-    required MsgAck ack = 3;
-	required uint64 max_ballot = 4;
-    optional Proposal proposal = 5;
-}
-
-message Msg_accept {
-    required Msg_header msg_header = 1;
-    required Round_id round_id = 2;
-    required Proposal proposal = 3;
-}
-
-message Msg_ack_accept {
-    required Msg_header msg_header = 1;
-    required Round_id round_id = 2;
-    required MsgAck ack = 3;
-    required uint64 max_ballot = 4;
-    optional Proposal proposal = 5;
+message MsgAckAccept {
+    required MsgHeader msg_header = 1;
+    required uint64 ballot_id = 2;
+    required bool reply = 3;
 }

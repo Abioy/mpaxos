@@ -20,29 +20,25 @@ namespace mpaxos {
 
 namespace {
 
-const ::google::protobuf::Descriptor* Msg_header_descriptor_ = NULL;
+const ::google::protobuf::Descriptor* MsgHeader_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
-  Msg_header_reflection_ = NULL;
-const ::google::protobuf::Descriptor* Round_id_descriptor_ = NULL;
+  MsgHeader_reflection_ = NULL;
+const ::google::protobuf::Descriptor* PropValue_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
-  Round_id_reflection_ = NULL;
-const ::google::protobuf::Descriptor* Proposal_descriptor_ = NULL;
+  PropValue_reflection_ = NULL;
+const ::google::protobuf::Descriptor* MsgPrepare_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
-  Proposal_reflection_ = NULL;
-const ::google::protobuf::Descriptor* Msg_prepare_descriptor_ = NULL;
+  MsgPrepare_reflection_ = NULL;
+const ::google::protobuf::Descriptor* MsgAckPrepare_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
-  Msg_prepare_reflection_ = NULL;
-const ::google::protobuf::Descriptor* Msg_ack_prepare_descriptor_ = NULL;
+  MsgAckPrepare_reflection_ = NULL;
+const ::google::protobuf::Descriptor* MsgAccept_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
-  Msg_ack_prepare_reflection_ = NULL;
-const ::google::protobuf::Descriptor* Msg_accept_descriptor_ = NULL;
+  MsgAccept_reflection_ = NULL;
+const ::google::protobuf::Descriptor* MsgAckAccept_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
-  Msg_accept_reflection_ = NULL;
-const ::google::protobuf::Descriptor* Msg_ack_accept_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  Msg_ack_accept_reflection_ = NULL;
+  MsgAckAccept_reflection_ = NULL;
 const ::google::protobuf::EnumDescriptor* MsgType_descriptor_ = NULL;
-const ::google::protobuf::EnumDescriptor* MsgAck_descriptor_ = NULL;
 
 }  // namespace
 
@@ -53,128 +49,109 @@ void protobuf_AssignDesc_mpaxos_2eproto() {
     ::google::protobuf::DescriptorPool::generated_pool()->FindFileByName(
       "mpaxos.proto");
   GOOGLE_CHECK(file != NULL);
-  Msg_header_descriptor_ = file->message_type(0);
-  static const int Msg_header_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_header, msg_type_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_header, host_name_),
+  MsgHeader_descriptor_ = file->message_type(0);
+  static const int MsgHeader_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgHeader, msg_type_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgHeader, node_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgHeader, slot_id_),
   };
-  Msg_header_reflection_ =
+  MsgHeader_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
-      Msg_header_descriptor_,
-      Msg_header::default_instance_,
-      Msg_header_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_header, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_header, _unknown_fields_),
+      MsgHeader_descriptor_,
+      MsgHeader::default_instance_,
+      MsgHeader_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgHeader, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgHeader, _unknown_fields_),
       -1,
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(Msg_header));
-  Round_id_descriptor_ = file->message_type(1);
-  static const int Round_id_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Round_id, slot_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Round_id, ballot_id_),
+      sizeof(MsgHeader));
+  PropValue_descriptor_ = file->message_type(1);
+  static const int PropValue_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PropValue, id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PropValue, data_),
   };
-  Round_id_reflection_ =
+  PropValue_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
-      Round_id_descriptor_,
-      Round_id::default_instance_,
-      Round_id_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Round_id, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Round_id, _unknown_fields_),
+      PropValue_descriptor_,
+      PropValue::default_instance_,
+      PropValue_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PropValue, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PropValue, _unknown_fields_),
       -1,
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(Round_id));
-  Proposal_descriptor_ = file->message_type(2);
-  static const int Proposal_offsets_[3] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Proposal, type_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Proposal, value_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Proposal, value_),
+      sizeof(PropValue));
+  MsgPrepare_descriptor_ = file->message_type(2);
+  static const int MsgPrepare_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgPrepare, msg_header_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgPrepare, ballot_id_),
   };
-  Proposal_reflection_ =
+  MsgPrepare_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
-      Proposal_descriptor_,
-      Proposal::default_instance_,
-      Proposal_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Proposal, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Proposal, _unknown_fields_),
+      MsgPrepare_descriptor_,
+      MsgPrepare::default_instance_,
+      MsgPrepare_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgPrepare, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgPrepare, _unknown_fields_),
       -1,
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(Proposal));
-  Msg_prepare_descriptor_ = file->message_type(3);
-  static const int Msg_prepare_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_prepare, msg_header_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_prepare, round_id_),
+      sizeof(MsgPrepare));
+  MsgAckPrepare_descriptor_ = file->message_type(3);
+  static const int MsgAckPrepare_offsets_[5] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgAckPrepare, msg_header_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgAckPrepare, ballot_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgAckPrepare, reply_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgAckPrepare, max_ballot_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgAckPrepare, max_prop_value_),
   };
-  Msg_prepare_reflection_ =
+  MsgAckPrepare_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
-      Msg_prepare_descriptor_,
-      Msg_prepare::default_instance_,
-      Msg_prepare_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_prepare, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_prepare, _unknown_fields_),
+      MsgAckPrepare_descriptor_,
+      MsgAckPrepare::default_instance_,
+      MsgAckPrepare_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgAckPrepare, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgAckPrepare, _unknown_fields_),
       -1,
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(Msg_prepare));
-  Msg_ack_prepare_descriptor_ = file->message_type(4);
-  static const int Msg_ack_prepare_offsets_[5] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_ack_prepare, msg_header_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_ack_prepare, round_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_ack_prepare, ack_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_ack_prepare, max_ballot_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_ack_prepare, proposal_),
+      sizeof(MsgAckPrepare));
+  MsgAccept_descriptor_ = file->message_type(4);
+  static const int MsgAccept_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgAccept, msg_header_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgAccept, ballot_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgAccept, prop_value_),
   };
-  Msg_ack_prepare_reflection_ =
+  MsgAccept_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
-      Msg_ack_prepare_descriptor_,
-      Msg_ack_prepare::default_instance_,
-      Msg_ack_prepare_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_ack_prepare, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_ack_prepare, _unknown_fields_),
+      MsgAccept_descriptor_,
+      MsgAccept::default_instance_,
+      MsgAccept_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgAccept, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgAccept, _unknown_fields_),
       -1,
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(Msg_ack_prepare));
-  Msg_accept_descriptor_ = file->message_type(5);
-  static const int Msg_accept_offsets_[3] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_accept, msg_header_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_accept, round_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_accept, proposal_),
+      sizeof(MsgAccept));
+  MsgAckAccept_descriptor_ = file->message_type(5);
+  static const int MsgAckAccept_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgAckAccept, msg_header_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgAckAccept, ballot_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgAckAccept, reply_),
   };
-  Msg_accept_reflection_ =
+  MsgAckAccept_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
-      Msg_accept_descriptor_,
-      Msg_accept::default_instance_,
-      Msg_accept_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_accept, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_accept, _unknown_fields_),
+      MsgAckAccept_descriptor_,
+      MsgAckAccept::default_instance_,
+      MsgAckAccept_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgAckAccept, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MsgAckAccept, _unknown_fields_),
       -1,
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(Msg_accept));
-  Msg_ack_accept_descriptor_ = file->message_type(6);
-  static const int Msg_ack_accept_offsets_[5] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_ack_accept, msg_header_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_ack_accept, round_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_ack_accept, ack_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_ack_accept, max_ballot_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_ack_accept, proposal_),
-  };
-  Msg_ack_accept_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      Msg_ack_accept_descriptor_,
-      Msg_ack_accept::default_instance_,
-      Msg_ack_accept_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_ack_accept, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Msg_ack_accept, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(Msg_ack_accept));
+      sizeof(MsgAckAccept));
   MsgType_descriptor_ = file->enum_type(0);
-  MsgAck_descriptor_ = file->enum_type(1);
 }
 
 namespace {
@@ -188,38 +165,34 @@ inline void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    Msg_header_descriptor_, &Msg_header::default_instance());
+    MsgHeader_descriptor_, &MsgHeader::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    Round_id_descriptor_, &Round_id::default_instance());
+    PropValue_descriptor_, &PropValue::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    Proposal_descriptor_, &Proposal::default_instance());
+    MsgPrepare_descriptor_, &MsgPrepare::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    Msg_prepare_descriptor_, &Msg_prepare::default_instance());
+    MsgAckPrepare_descriptor_, &MsgAckPrepare::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    Msg_ack_prepare_descriptor_, &Msg_ack_prepare::default_instance());
+    MsgAccept_descriptor_, &MsgAccept::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    Msg_accept_descriptor_, &Msg_accept::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    Msg_ack_accept_descriptor_, &Msg_ack_accept::default_instance());
+    MsgAckAccept_descriptor_, &MsgAckAccept::default_instance());
 }
 
 }  // namespace
 
 void protobuf_ShutdownFile_mpaxos_2eproto() {
-  delete Msg_header::default_instance_;
-  delete Msg_header_reflection_;
-  delete Round_id::default_instance_;
-  delete Round_id_reflection_;
-  delete Proposal::default_instance_;
-  delete Proposal_reflection_;
-  delete Msg_prepare::default_instance_;
-  delete Msg_prepare_reflection_;
-  delete Msg_ack_prepare::default_instance_;
-  delete Msg_ack_prepare_reflection_;
-  delete Msg_accept::default_instance_;
-  delete Msg_accept_reflection_;
-  delete Msg_ack_accept::default_instance_;
-  delete Msg_ack_accept_reflection_;
+  delete MsgHeader::default_instance_;
+  delete MsgHeader_reflection_;
+  delete PropValue::default_instance_;
+  delete PropValue_reflection_;
+  delete MsgPrepare::default_instance_;
+  delete MsgPrepare_reflection_;
+  delete MsgAckPrepare::default_instance_;
+  delete MsgAckPrepare_reflection_;
+  delete MsgAccept::default_instance_;
+  delete MsgAccept_reflection_;
+  delete MsgAckAccept::default_instance_;
+  delete MsgAckAccept_reflection_;
 }
 
 void protobuf_AddDesc_mpaxos_2eproto() {
@@ -229,45 +202,37 @@ void protobuf_AddDesc_mpaxos_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\014mpaxos.proto\022\006mpaxos\"B\n\nMsg_header\022!\n\010"
-    "msg_type\030\001 \002(\0162\017.mpaxos.MsgType\022\021\n\thost_"
-    "name\030\002 \002(\t\".\n\010Round_id\022\017\n\007slot_id\030\001 \002(\004\022"
-    "\021\n\tballot_id\030\002 \002(\004\"9\n\010Proposal\022\014\n\004type\030\001"
-    " \002(\004\022\020\n\010value_id\030\002 \002(\r\022\r\n\005value\030\003 \002(\t\"Y\n"
-    "\013Msg_prepare\022&\n\nmsg_header\030\001 \002(\0132\022.mpaxo"
-    "s.Msg_header\022\"\n\010round_id\030\002 \002(\0132\020.mpaxos."
-    "Round_id\"\262\001\n\017Msg_ack_prepare\022&\n\nmsg_head"
-    "er\030\001 \002(\0132\022.mpaxos.Msg_header\022\"\n\010round_id"
-    "\030\002 \002(\0132\020.mpaxos.Round_id\022\033\n\003ack\030\003 \002(\0162\016."
-    "mpaxos.MsgAck\022\022\n\nmax_ballot\030\004 \002(\004\022\"\n\010pro"
-    "posal\030\005 \001(\0132\020.mpaxos.Proposal\"|\n\nMsg_acc"
-    "ept\022&\n\nmsg_header\030\001 \002(\0132\022.mpaxos.Msg_hea"
-    "der\022\"\n\010round_id\030\002 \002(\0132\020.mpaxos.Round_id\022"
-    "\"\n\010proposal\030\003 \002(\0132\020.mpaxos.Proposal\"\261\001\n\016"
-    "Msg_ack_accept\022&\n\nmsg_header\030\001 \002(\0132\022.mpa"
-    "xos.Msg_header\022\"\n\010round_id\030\002 \002(\0132\020.mpaxo"
-    "s.Round_id\022\033\n\003ack\030\003 \002(\0162\016.mpaxos.MsgAck\022"
-    "\022\n\nmax_ballot\030\004 \002(\004\022\"\n\010proposal\030\005 \001(\0132\020."
-    "mpaxos.Proposal*^\n\007MsgType\022\013\n\007PREPARE\020\000\022"
-    "\013\n\007PROMISE\020\001\022\n\n\006ACCEPT\020\002\022\014\n\010ACCEPTED\020\003\022\t"
-    "\n\005LEARN\020\004\022\n\n\006DECIDE\020\005\022\010\n\004SLOT\020\006*\031\n\006MsgAc"
-    "k\022\007\n\003YES\020\000\022\006\n\002NO\020\001", 898);
+    "\n\014mpaxos.proto\022\006mpaxos\"P\n\tMsgHeader\022!\n\010m"
+    "sg_type\030\001 \002(\0162\017.mpaxos.MsgType\022\017\n\007node_i"
+    "d\030\002 \002(\r\022\017\n\007slot_id\030\003 \002(\004\"%\n\tPropValue\022\n\n"
+    "\002id\030\001 \002(\004\022\014\n\004data\030\002 \002(\t\"F\n\nMsgPrepare\022%\n"
+    "\nmsg_header\030\001 \002(\0132\021.mpaxos.MsgHeader\022\021\n\t"
+    "ballot_id\030\002 \002(\004\"\232\001\n\rMsgAckPrepare\022%\n\nmsg"
+    "_header\030\001 \002(\0132\021.mpaxos.MsgHeader\022\021\n\tball"
+    "ot_id\030\002 \002(\004\022\r\n\005reply\030\003 \002(\010\022\025\n\rmax_ballot"
+    "_id\030\004 \002(\004\022)\n\016max_prop_value\030\005 \001(\0132\021.mpax"
+    "os.PropValue\"l\n\tMsgAccept\022%\n\nmsg_header\030"
+    "\001 \002(\0132\021.mpaxos.MsgHeader\022\021\n\tballot_id\030\002 "
+    "\002(\004\022%\n\nprop_value\030\003 \002(\0132\021.mpaxos.PropVal"
+    "ue\"W\n\014MsgAckAccept\022%\n\nmsg_header\030\001 \002(\0132\021"
+    ".mpaxos.MsgHeader\022\021\n\tballot_id\030\002 \002(\004\022\r\n\005"
+    "reply\030\003 \002(\010*^\n\007MsgType\022\013\n\007PREPARE\020\000\022\013\n\007P"
+    "ROMISE\020\001\022\n\n\006ACCEPT\020\002\022\014\n\010ACCEPTED\020\003\022\t\n\005LE"
+    "ARN\020\004\022\n\n\006DECIDE\020\005\022\010\n\004SLOT\020\006", 667);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "mpaxos.proto", &protobuf_RegisterTypes);
-  Msg_header::default_instance_ = new Msg_header();
-  Round_id::default_instance_ = new Round_id();
-  Proposal::default_instance_ = new Proposal();
-  Msg_prepare::default_instance_ = new Msg_prepare();
-  Msg_ack_prepare::default_instance_ = new Msg_ack_prepare();
-  Msg_accept::default_instance_ = new Msg_accept();
-  Msg_ack_accept::default_instance_ = new Msg_ack_accept();
-  Msg_header::default_instance_->InitAsDefaultInstance();
-  Round_id::default_instance_->InitAsDefaultInstance();
-  Proposal::default_instance_->InitAsDefaultInstance();
-  Msg_prepare::default_instance_->InitAsDefaultInstance();
-  Msg_ack_prepare::default_instance_->InitAsDefaultInstance();
-  Msg_accept::default_instance_->InitAsDefaultInstance();
-  Msg_ack_accept::default_instance_->InitAsDefaultInstance();
+  MsgHeader::default_instance_ = new MsgHeader();
+  PropValue::default_instance_ = new PropValue();
+  MsgPrepare::default_instance_ = new MsgPrepare();
+  MsgAckPrepare::default_instance_ = new MsgAckPrepare();
+  MsgAccept::default_instance_ = new MsgAccept();
+  MsgAckAccept::default_instance_ = new MsgAckAccept();
+  MsgHeader::default_instance_->InitAsDefaultInstance();
+  PropValue::default_instance_->InitAsDefaultInstance();
+  MsgPrepare::default_instance_->InitAsDefaultInstance();
+  MsgAckPrepare::default_instance_->InitAsDefaultInstance();
+  MsgAccept::default_instance_->InitAsDefaultInstance();
+  MsgAckAccept::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_mpaxos_2eproto);
 }
 
@@ -296,96 +261,78 @@ bool MsgType_IsValid(int value) {
   }
 }
 
-const ::google::protobuf::EnumDescriptor* MsgAck_descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return MsgAck_descriptor_;
-}
-bool MsgAck_IsValid(int value) {
-  switch(value) {
-    case 0:
-    case 1:
-      return true;
-    default:
-      return false;
-  }
-}
-
 
 // ===================================================================
 
 #ifndef _MSC_VER
-const int Msg_header::kMsgTypeFieldNumber;
-const int Msg_header::kHostNameFieldNumber;
+const int MsgHeader::kMsgTypeFieldNumber;
+const int MsgHeader::kNodeIdFieldNumber;
+const int MsgHeader::kSlotIdFieldNumber;
 #endif  // !_MSC_VER
 
-Msg_header::Msg_header()
+MsgHeader::MsgHeader()
   : ::google::protobuf::Message() {
   SharedCtor();
 }
 
-void Msg_header::InitAsDefaultInstance() {
+void MsgHeader::InitAsDefaultInstance() {
 }
 
-Msg_header::Msg_header(const Msg_header& from)
+MsgHeader::MsgHeader(const MsgHeader& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
 }
 
-void Msg_header::SharedCtor() {
+void MsgHeader::SharedCtor() {
   _cached_size_ = 0;
   msg_type_ = 0;
-  host_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  node_id_ = 0u;
+  slot_id_ = GOOGLE_ULONGLONG(0);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
-Msg_header::~Msg_header() {
+MsgHeader::~MsgHeader() {
   SharedDtor();
 }
 
-void Msg_header::SharedDtor() {
-  if (host_name_ != &::google::protobuf::internal::kEmptyString) {
-    delete host_name_;
-  }
+void MsgHeader::SharedDtor() {
   if (this != default_instance_) {
   }
 }
 
-void Msg_header::SetCachedSize(int size) const {
+void MsgHeader::SetCachedSize(int size) const {
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
 }
-const ::google::protobuf::Descriptor* Msg_header::descriptor() {
+const ::google::protobuf::Descriptor* MsgHeader::descriptor() {
   protobuf_AssignDescriptorsOnce();
-  return Msg_header_descriptor_;
+  return MsgHeader_descriptor_;
 }
 
-const Msg_header& Msg_header::default_instance() {
+const MsgHeader& MsgHeader::default_instance() {
   if (default_instance_ == NULL) protobuf_AddDesc_mpaxos_2eproto();
   return *default_instance_;
 }
 
-Msg_header* Msg_header::default_instance_ = NULL;
+MsgHeader* MsgHeader::default_instance_ = NULL;
 
-Msg_header* Msg_header::New() const {
-  return new Msg_header;
+MsgHeader* MsgHeader::New() const {
+  return new MsgHeader;
 }
 
-void Msg_header::Clear() {
+void MsgHeader::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     msg_type_ = 0;
-    if (has_host_name()) {
-      if (host_name_ != &::google::protobuf::internal::kEmptyString) {
-        host_name_->clear();
-      }
-    }
+    node_id_ = 0u;
+    slot_id_ = GOOGLE_ULONGLONG(0);
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
 
-bool Msg_header::MergePartialFromCodedStream(
+bool MsgHeader::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!(EXPRESSION)) return false
   ::google::protobuf::uint32 tag;
@@ -407,19 +354,313 @@ bool Msg_header::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(18)) goto parse_host_name;
+        if (input->ExpectTag(16)) goto parse_node_id;
         break;
       }
 
-      // required string host_name = 2;
+      // required uint32 node_id = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_node_id:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &node_id_)));
+          set_has_node_id();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(24)) goto parse_slot_id;
+        break;
+      }
+
+      // required uint64 slot_id = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_slot_id:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &slot_id_)));
+          set_has_slot_id();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void MsgHeader::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // required .mpaxos.MsgType msg_type = 1;
+  if (has_msg_type()) {
+    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+      1, this->msg_type(), output);
+  }
+
+  // required uint32 node_id = 2;
+  if (has_node_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->node_id(), output);
+  }
+
+  // required uint64 slot_id = 3;
+  if (has_slot_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->slot_id(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* MsgHeader::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required .mpaxos.MsgType msg_type = 1;
+  if (has_msg_type()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+      1, this->msg_type(), target);
+  }
+
+  // required uint32 node_id = 2;
+  if (has_node_id()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->node_id(), target);
+  }
+
+  // required uint64 slot_id = 3;
+  if (has_slot_id()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->slot_id(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int MsgHeader::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required .mpaxos.MsgType msg_type = 1;
+    if (has_msg_type()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::EnumSize(this->msg_type());
+    }
+
+    // required uint32 node_id = 2;
+    if (has_node_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->node_id());
+    }
+
+    // required uint64 slot_id = 3;
+    if (has_slot_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->slot_id());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void MsgHeader::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const MsgHeader* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const MsgHeader*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void MsgHeader::MergeFrom(const MsgHeader& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_msg_type()) {
+      set_msg_type(from.msg_type());
+    }
+    if (from.has_node_id()) {
+      set_node_id(from.node_id());
+    }
+    if (from.has_slot_id()) {
+      set_slot_id(from.slot_id());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void MsgHeader::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void MsgHeader::CopyFrom(const MsgHeader& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool MsgHeader::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
+
+  return true;
+}
+
+void MsgHeader::Swap(MsgHeader* other) {
+  if (other != this) {
+    std::swap(msg_type_, other->msg_type_);
+    std::swap(node_id_, other->node_id_);
+    std::swap(slot_id_, other->slot_id_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata MsgHeader::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = MsgHeader_descriptor_;
+  metadata.reflection = MsgHeader_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int PropValue::kIdFieldNumber;
+const int PropValue::kDataFieldNumber;
+#endif  // !_MSC_VER
+
+PropValue::PropValue()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void PropValue::InitAsDefaultInstance() {
+}
+
+PropValue::PropValue(const PropValue& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void PropValue::SharedCtor() {
+  _cached_size_ = 0;
+  id_ = GOOGLE_ULONGLONG(0);
+  data_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+PropValue::~PropValue() {
+  SharedDtor();
+}
+
+void PropValue::SharedDtor() {
+  if (data_ != &::google::protobuf::internal::kEmptyString) {
+    delete data_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void PropValue::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* PropValue::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return PropValue_descriptor_;
+}
+
+const PropValue& PropValue::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_mpaxos_2eproto();
+  return *default_instance_;
+}
+
+PropValue* PropValue::default_instance_ = NULL;
+
+PropValue* PropValue::New() const {
+  return new PropValue;
+}
+
+void PropValue::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    id_ = GOOGLE_ULONGLONG(0);
+    if (has_data()) {
+      if (data_ != &::google::protobuf::internal::kEmptyString) {
+        data_->clear();
+      }
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool PropValue::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required uint64 id = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &id_)));
+          set_has_id();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_data;
+        break;
+      }
+
+      // required string data = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_host_name:
+         parse_data:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_host_name()));
+                input, this->mutable_data()));
           ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-            this->host_name().data(), this->host_name().length(),
+            this->data().data(), this->data().length(),
             ::google::protobuf::internal::WireFormat::PARSE);
         } else {
           goto handle_uninterpreted;
@@ -444,21 +685,20 @@ bool Msg_header::MergePartialFromCodedStream(
 #undef DO_
 }
 
-void Msg_header::SerializeWithCachedSizes(
+void PropValue::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required .mpaxos.MsgType msg_type = 1;
-  if (has_msg_type()) {
-    ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      1, this->msg_type(), output);
+  // required uint64 id = 1;
+  if (has_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->id(), output);
   }
 
-  // required string host_name = 2;
-  if (has_host_name()) {
+  // required string data = 2;
+  if (has_data()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->host_name().data(), this->host_name().length(),
+      this->data().data(), this->data().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     ::google::protobuf::internal::WireFormatLite::WriteString(
-      2, this->host_name(), output);
+      2, this->data(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -467,22 +707,21 @@ void Msg_header::SerializeWithCachedSizes(
   }
 }
 
-::google::protobuf::uint8* Msg_header::SerializeWithCachedSizesToArray(
+::google::protobuf::uint8* PropValue::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required .mpaxos.MsgType msg_type = 1;
-  if (has_msg_type()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      1, this->msg_type(), target);
+  // required uint64 id = 1;
+  if (has_id()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->id(), target);
   }
 
-  // required string host_name = 2;
-  if (has_host_name()) {
+  // required string data = 2;
+  if (has_data()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->host_name().data(), this->host_name().length(),
+      this->data().data(), this->data().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        2, this->host_name(), target);
+        2, this->data(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -492,21 +731,22 @@ void Msg_header::SerializeWithCachedSizes(
   return target;
 }
 
-int Msg_header::ByteSize() const {
+int PropValue::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required .mpaxos.MsgType msg_type = 1;
-    if (has_msg_type()) {
+    // required uint64 id = 1;
+    if (has_id()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::EnumSize(this->msg_type());
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->id());
     }
 
-    // required string host_name = 2;
-    if (has_host_name()) {
+    // required string data = 2;
+    if (has_data()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->host_name());
+          this->data());
     }
 
   }
@@ -521,10 +761,10 @@ int Msg_header::ByteSize() const {
   return total_size;
 }
 
-void Msg_header::MergeFrom(const ::google::protobuf::Message& from) {
+void PropValue::MergeFrom(const ::google::protobuf::Message& from) {
   GOOGLE_CHECK_NE(&from, this);
-  const Msg_header* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const Msg_header*>(
+  const PropValue* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const PropValue*>(
       &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
@@ -533,52 +773,52 @@ void Msg_header::MergeFrom(const ::google::protobuf::Message& from) {
   }
 }
 
-void Msg_header::MergeFrom(const Msg_header& from) {
+void PropValue::MergeFrom(const PropValue& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_msg_type()) {
-      set_msg_type(from.msg_type());
+    if (from.has_id()) {
+      set_id(from.id());
     }
-    if (from.has_host_name()) {
-      set_host_name(from.host_name());
+    if (from.has_data()) {
+      set_data(from.data());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
-void Msg_header::CopyFrom(const ::google::protobuf::Message& from) {
+void PropValue::CopyFrom(const ::google::protobuf::Message& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void Msg_header::CopyFrom(const Msg_header& from) {
+void PropValue::CopyFrom(const PropValue& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool Msg_header::IsInitialized() const {
+bool PropValue::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
 
   return true;
 }
 
-void Msg_header::Swap(Msg_header* other) {
+void PropValue::Swap(PropValue* other) {
   if (other != this) {
-    std::swap(msg_type_, other->msg_type_);
-    std::swap(host_name_, other->host_name_);
+    std::swap(id_, other->id_);
+    std::swap(data_, other->data_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
   }
 }
 
-::google::protobuf::Metadata Msg_header::GetMetadata() const {
+::google::protobuf::Metadata PropValue::GetMetadata() const {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::Metadata metadata;
-  metadata.descriptor = Msg_header_descriptor_;
-  metadata.reflection = Msg_header_reflection_;
+  metadata.descriptor = PropValue_descriptor_;
+  metadata.reflection = PropValue_reflection_;
   return metadata;
 }
 
@@ -586,84 +826,86 @@ void Msg_header::Swap(Msg_header* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int Round_id::kSlotIdFieldNumber;
-const int Round_id::kBallotIdFieldNumber;
+const int MsgPrepare::kMsgHeaderFieldNumber;
+const int MsgPrepare::kBallotIdFieldNumber;
 #endif  // !_MSC_VER
 
-Round_id::Round_id()
+MsgPrepare::MsgPrepare()
   : ::google::protobuf::Message() {
   SharedCtor();
 }
 
-void Round_id::InitAsDefaultInstance() {
+void MsgPrepare::InitAsDefaultInstance() {
+  msg_header_ = const_cast< ::mpaxos::MsgHeader*>(&::mpaxos::MsgHeader::default_instance());
 }
 
-Round_id::Round_id(const Round_id& from)
+MsgPrepare::MsgPrepare(const MsgPrepare& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
 }
 
-void Round_id::SharedCtor() {
+void MsgPrepare::SharedCtor() {
   _cached_size_ = 0;
-  slot_id_ = GOOGLE_ULONGLONG(0);
+  msg_header_ = NULL;
   ballot_id_ = GOOGLE_ULONGLONG(0);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
-Round_id::~Round_id() {
+MsgPrepare::~MsgPrepare() {
   SharedDtor();
 }
 
-void Round_id::SharedDtor() {
+void MsgPrepare::SharedDtor() {
   if (this != default_instance_) {
+    delete msg_header_;
   }
 }
 
-void Round_id::SetCachedSize(int size) const {
+void MsgPrepare::SetCachedSize(int size) const {
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
 }
-const ::google::protobuf::Descriptor* Round_id::descriptor() {
+const ::google::protobuf::Descriptor* MsgPrepare::descriptor() {
   protobuf_AssignDescriptorsOnce();
-  return Round_id_descriptor_;
+  return MsgPrepare_descriptor_;
 }
 
-const Round_id& Round_id::default_instance() {
+const MsgPrepare& MsgPrepare::default_instance() {
   if (default_instance_ == NULL) protobuf_AddDesc_mpaxos_2eproto();
   return *default_instance_;
 }
 
-Round_id* Round_id::default_instance_ = NULL;
+MsgPrepare* MsgPrepare::default_instance_ = NULL;
 
-Round_id* Round_id::New() const {
-  return new Round_id;
+MsgPrepare* MsgPrepare::New() const {
+  return new MsgPrepare;
 }
 
-void Round_id::Clear() {
+void MsgPrepare::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    slot_id_ = GOOGLE_ULONGLONG(0);
+    if (has_msg_header()) {
+      if (msg_header_ != NULL) msg_header_->::mpaxos::MsgHeader::Clear();
+    }
     ballot_id_ = GOOGLE_ULONGLONG(0);
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
 
-bool Round_id::MergePartialFromCodedStream(
+bool MsgPrepare::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!(EXPRESSION)) return false
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required uint64 slot_id = 1;
+      // required .mpaxos.MsgHeader msg_header = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &slot_id_)));
-          set_has_slot_id();
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_msg_header()));
         } else {
           goto handle_uninterpreted;
         }
@@ -703,11 +945,12 @@ bool Round_id::MergePartialFromCodedStream(
 #undef DO_
 }
 
-void Round_id::SerializeWithCachedSizes(
+void MsgPrepare::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required uint64 slot_id = 1;
-  if (has_slot_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->slot_id(), output);
+  // required .mpaxos.MsgHeader msg_header = 1;
+  if (has_msg_header()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->msg_header(), output);
   }
 
   // required uint64 ballot_id = 2;
@@ -721,11 +964,13 @@ void Round_id::SerializeWithCachedSizes(
   }
 }
 
-::google::protobuf::uint8* Round_id::SerializeWithCachedSizesToArray(
+::google::protobuf::uint8* MsgPrepare::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required uint64 slot_id = 1;
-  if (has_slot_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->slot_id(), target);
+  // required .mpaxos.MsgHeader msg_header = 1;
+  if (has_msg_header()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->msg_header(), target);
   }
 
   // required uint64 ballot_id = 2;
@@ -740,15 +985,15 @@ void Round_id::SerializeWithCachedSizes(
   return target;
 }
 
-int Round_id::ByteSize() const {
+int MsgPrepare::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required uint64 slot_id = 1;
-    if (has_slot_id()) {
+    // required .mpaxos.MsgHeader msg_header = 1;
+    if (has_msg_header()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->slot_id());
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->msg_header());
     }
 
     // required uint64 ballot_id = 2;
@@ -770,10 +1015,10 @@ int Round_id::ByteSize() const {
   return total_size;
 }
 
-void Round_id::MergeFrom(const ::google::protobuf::Message& from) {
+void MsgPrepare::MergeFrom(const ::google::protobuf::Message& from) {
   GOOGLE_CHECK_NE(&from, this);
-  const Round_id* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const Round_id*>(
+  const MsgPrepare* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const MsgPrepare*>(
       &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
@@ -782,11 +1027,11 @@ void Round_id::MergeFrom(const ::google::protobuf::Message& from) {
   }
 }
 
-void Round_id::MergeFrom(const Round_id& from) {
+void MsgPrepare::MergeFrom(const MsgPrepare& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_slot_id()) {
-      set_slot_id(from.slot_id());
+    if (from.has_msg_header()) {
+      mutable_msg_header()->::mpaxos::MsgHeader::MergeFrom(from.msg_header());
     }
     if (from.has_ballot_id()) {
       set_ballot_id(from.ballot_id());
@@ -795,27 +1040,30 @@ void Round_id::MergeFrom(const Round_id& from) {
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
-void Round_id::CopyFrom(const ::google::protobuf::Message& from) {
+void MsgPrepare::CopyFrom(const ::google::protobuf::Message& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void Round_id::CopyFrom(const Round_id& from) {
+void MsgPrepare::CopyFrom(const MsgPrepare& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool Round_id::IsInitialized() const {
+bool MsgPrepare::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
 
+  if (has_msg_header()) {
+    if (!this->msg_header().IsInitialized()) return false;
+  }
   return true;
 }
 
-void Round_id::Swap(Round_id* other) {
+void MsgPrepare::Swap(MsgPrepare* other) {
   if (other != this) {
-    std::swap(slot_id_, other->slot_id_);
+    std::swap(msg_header_, other->msg_header_);
     std::swap(ballot_id_, other->ballot_id_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
@@ -823,11 +1071,11 @@ void Round_id::Swap(Round_id* other) {
   }
 }
 
-::google::protobuf::Metadata Round_id::GetMetadata() const {
+::google::protobuf::Metadata MsgPrepare::GetMetadata() const {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::Metadata metadata;
-  metadata.descriptor = Round_id_descriptor_;
-  metadata.reflection = Round_id_reflection_;
+  metadata.descriptor = MsgPrepare_descriptor_;
+  metadata.reflection = MsgPrepare_reflection_;
   return metadata;
 }
 
@@ -835,739 +1083,161 @@ void Round_id::Swap(Round_id* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int Proposal::kTypeFieldNumber;
-const int Proposal::kValueIdFieldNumber;
-const int Proposal::kValueFieldNumber;
+const int MsgAckPrepare::kMsgHeaderFieldNumber;
+const int MsgAckPrepare::kBallotIdFieldNumber;
+const int MsgAckPrepare::kReplyFieldNumber;
+const int MsgAckPrepare::kMaxBallotIdFieldNumber;
+const int MsgAckPrepare::kMaxPropValueFieldNumber;
 #endif  // !_MSC_VER
 
-Proposal::Proposal()
+MsgAckPrepare::MsgAckPrepare()
   : ::google::protobuf::Message() {
   SharedCtor();
 }
 
-void Proposal::InitAsDefaultInstance() {
+void MsgAckPrepare::InitAsDefaultInstance() {
+  msg_header_ = const_cast< ::mpaxos::MsgHeader*>(&::mpaxos::MsgHeader::default_instance());
+  max_prop_value_ = const_cast< ::mpaxos::PropValue*>(&::mpaxos::PropValue::default_instance());
 }
 
-Proposal::Proposal(const Proposal& from)
+MsgAckPrepare::MsgAckPrepare(const MsgAckPrepare& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
 }
 
-void Proposal::SharedCtor() {
+void MsgAckPrepare::SharedCtor() {
   _cached_size_ = 0;
-  type_ = GOOGLE_ULONGLONG(0);
-  value_id_ = 0u;
-  value_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  msg_header_ = NULL;
+  ballot_id_ = GOOGLE_ULONGLONG(0);
+  reply_ = false;
+  max_ballot_id_ = GOOGLE_ULONGLONG(0);
+  max_prop_value_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
-Proposal::~Proposal() {
+MsgAckPrepare::~MsgAckPrepare() {
   SharedDtor();
 }
 
-void Proposal::SharedDtor() {
-  if (value_ != &::google::protobuf::internal::kEmptyString) {
-    delete value_;
-  }
+void MsgAckPrepare::SharedDtor() {
   if (this != default_instance_) {
+    delete msg_header_;
+    delete max_prop_value_;
   }
 }
 
-void Proposal::SetCachedSize(int size) const {
+void MsgAckPrepare::SetCachedSize(int size) const {
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
 }
-const ::google::protobuf::Descriptor* Proposal::descriptor() {
+const ::google::protobuf::Descriptor* MsgAckPrepare::descriptor() {
   protobuf_AssignDescriptorsOnce();
-  return Proposal_descriptor_;
+  return MsgAckPrepare_descriptor_;
 }
 
-const Proposal& Proposal::default_instance() {
+const MsgAckPrepare& MsgAckPrepare::default_instance() {
   if (default_instance_ == NULL) protobuf_AddDesc_mpaxos_2eproto();
   return *default_instance_;
 }
 
-Proposal* Proposal::default_instance_ = NULL;
+MsgAckPrepare* MsgAckPrepare::default_instance_ = NULL;
 
-Proposal* Proposal::New() const {
-  return new Proposal;
+MsgAckPrepare* MsgAckPrepare::New() const {
+  return new MsgAckPrepare;
 }
 
-void Proposal::Clear() {
+void MsgAckPrepare::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    type_ = GOOGLE_ULONGLONG(0);
-    value_id_ = 0u;
-    if (has_value()) {
-      if (value_ != &::google::protobuf::internal::kEmptyString) {
-        value_->clear();
-      }
+    if (has_msg_header()) {
+      if (msg_header_ != NULL) msg_header_->::mpaxos::MsgHeader::Clear();
+    }
+    ballot_id_ = GOOGLE_ULONGLONG(0);
+    reply_ = false;
+    max_ballot_id_ = GOOGLE_ULONGLONG(0);
+    if (has_max_prop_value()) {
+      if (max_prop_value_ != NULL) max_prop_value_->::mpaxos::PropValue::Clear();
     }
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
 
-bool Proposal::MergePartialFromCodedStream(
+bool MsgAckPrepare::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!(EXPRESSION)) return false
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required uint64 type = 1;
+      // required .mpaxos.MsgHeader msg_header = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_msg_header()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_ballot_id;
+        break;
+      }
+
+      // required uint64 ballot_id = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_ballot_id:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &type_)));
-          set_has_type();
+                 input, &ballot_id_)));
+          set_has_ballot_id();
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(16)) goto parse_value_id;
+        if (input->ExpectTag(24)) goto parse_reply;
         break;
       }
 
-      // required uint32 value_id = 2;
-      case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-         parse_value_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &value_id_)));
-          set_has_value_id();
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(26)) goto parse_value;
-        break;
-      }
-
-      // required string value = 3;
-      case 3: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_value:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_value()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-            this->value().data(), this->value().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectAtEnd()) return true;
-        break;
-      }
-
-      default: {
-      handle_uninterpreted:
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          return true;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-  return true;
-#undef DO_
-}
-
-void Proposal::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // required uint64 type = 1;
-  if (has_type()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->type(), output);
-  }
-
-  // required uint32 value_id = 2;
-  if (has_value_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->value_id(), output);
-  }
-
-  // required string value = 3;
-  if (has_value()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->value().data(), this->value().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
-      3, this->value(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-}
-
-::google::protobuf::uint8* Proposal::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // required uint64 type = 1;
-  if (has_type()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->type(), target);
-  }
-
-  // required uint32 value_id = 2;
-  if (has_value_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->value_id(), target);
-  }
-
-  // required string value = 3;
-  if (has_value()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->value().data(), this->value().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        3, this->value(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  return target;
-}
-
-int Proposal::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required uint64 type = 1;
-    if (has_type()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->type());
-    }
-
-    // required uint32 value_id = 2;
-    if (has_value_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->value_id());
-    }
-
-    // required string value = 3;
-    if (has_value()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->value());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void Proposal::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const Proposal* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const Proposal*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void Proposal::MergeFrom(const Proposal& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_type()) {
-      set_type(from.type());
-    }
-    if (from.has_value_id()) {
-      set_value_id(from.value_id());
-    }
-    if (from.has_value()) {
-      set_value(from.value());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void Proposal::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void Proposal::CopyFrom(const Proposal& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool Proposal::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
-
-  return true;
-}
-
-void Proposal::Swap(Proposal* other) {
-  if (other != this) {
-    std::swap(type_, other->type_);
-    std::swap(value_id_, other->value_id_);
-    std::swap(value_, other->value_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
-}
-
-::google::protobuf::Metadata Proposal::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = Proposal_descriptor_;
-  metadata.reflection = Proposal_reflection_;
-  return metadata;
-}
-
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int Msg_prepare::kMsgHeaderFieldNumber;
-const int Msg_prepare::kRoundIdFieldNumber;
-#endif  // !_MSC_VER
-
-Msg_prepare::Msg_prepare()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-}
-
-void Msg_prepare::InitAsDefaultInstance() {
-  msg_header_ = const_cast< ::mpaxos::Msg_header*>(&::mpaxos::Msg_header::default_instance());
-  round_id_ = const_cast< ::mpaxos::Round_id*>(&::mpaxos::Round_id::default_instance());
-}
-
-Msg_prepare::Msg_prepare(const Msg_prepare& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-}
-
-void Msg_prepare::SharedCtor() {
-  _cached_size_ = 0;
-  msg_header_ = NULL;
-  round_id_ = NULL;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-Msg_prepare::~Msg_prepare() {
-  SharedDtor();
-}
-
-void Msg_prepare::SharedDtor() {
-  if (this != default_instance_) {
-    delete msg_header_;
-    delete round_id_;
-  }
-}
-
-void Msg_prepare::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* Msg_prepare::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return Msg_prepare_descriptor_;
-}
-
-const Msg_prepare& Msg_prepare::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_mpaxos_2eproto();
-  return *default_instance_;
-}
-
-Msg_prepare* Msg_prepare::default_instance_ = NULL;
-
-Msg_prepare* Msg_prepare::New() const {
-  return new Msg_prepare;
-}
-
-void Msg_prepare::Clear() {
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (has_msg_header()) {
-      if (msg_header_ != NULL) msg_header_->::mpaxos::Msg_header::Clear();
-    }
-    if (has_round_id()) {
-      if (round_id_ != NULL) round_id_->::mpaxos::Round_id::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool Msg_prepare::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
-  ::google::protobuf::uint32 tag;
-  while ((tag = input->ReadTag()) != 0) {
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required .mpaxos.Msg_header msg_header = 1;
-      case 1: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_msg_header()));
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(18)) goto parse_round_id;
-        break;
-      }
-
-      // required .mpaxos.Round_id round_id = 2;
-      case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_round_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_round_id()));
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectAtEnd()) return true;
-        break;
-      }
-
-      default: {
-      handle_uninterpreted:
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          return true;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-  return true;
-#undef DO_
-}
-
-void Msg_prepare::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // required .mpaxos.Msg_header msg_header = 1;
-  if (has_msg_header()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->msg_header(), output);
-  }
-
-  // required .mpaxos.Round_id round_id = 2;
-  if (has_round_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->round_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-}
-
-::google::protobuf::uint8* Msg_prepare::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // required .mpaxos.Msg_header msg_header = 1;
-  if (has_msg_header()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->msg_header(), target);
-  }
-
-  // required .mpaxos.Round_id round_id = 2;
-  if (has_round_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->round_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  return target;
-}
-
-int Msg_prepare::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required .mpaxos.Msg_header msg_header = 1;
-    if (has_msg_header()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->msg_header());
-    }
-
-    // required .mpaxos.Round_id round_id = 2;
-    if (has_round_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->round_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void Msg_prepare::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const Msg_prepare* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const Msg_prepare*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void Msg_prepare::MergeFrom(const Msg_prepare& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_msg_header()) {
-      mutable_msg_header()->::mpaxos::Msg_header::MergeFrom(from.msg_header());
-    }
-    if (from.has_round_id()) {
-      mutable_round_id()->::mpaxos::Round_id::MergeFrom(from.round_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void Msg_prepare::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void Msg_prepare::CopyFrom(const Msg_prepare& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool Msg_prepare::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
-
-  if (has_msg_header()) {
-    if (!this->msg_header().IsInitialized()) return false;
-  }
-  if (has_round_id()) {
-    if (!this->round_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
-void Msg_prepare::Swap(Msg_prepare* other) {
-  if (other != this) {
-    std::swap(msg_header_, other->msg_header_);
-    std::swap(round_id_, other->round_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
-}
-
-::google::protobuf::Metadata Msg_prepare::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = Msg_prepare_descriptor_;
-  metadata.reflection = Msg_prepare_reflection_;
-  return metadata;
-}
-
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int Msg_ack_prepare::kMsgHeaderFieldNumber;
-const int Msg_ack_prepare::kRoundIdFieldNumber;
-const int Msg_ack_prepare::kAckFieldNumber;
-const int Msg_ack_prepare::kMaxBallotFieldNumber;
-const int Msg_ack_prepare::kProposalFieldNumber;
-#endif  // !_MSC_VER
-
-Msg_ack_prepare::Msg_ack_prepare()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-}
-
-void Msg_ack_prepare::InitAsDefaultInstance() {
-  msg_header_ = const_cast< ::mpaxos::Msg_header*>(&::mpaxos::Msg_header::default_instance());
-  round_id_ = const_cast< ::mpaxos::Round_id*>(&::mpaxos::Round_id::default_instance());
-  proposal_ = const_cast< ::mpaxos::Proposal*>(&::mpaxos::Proposal::default_instance());
-}
-
-Msg_ack_prepare::Msg_ack_prepare(const Msg_ack_prepare& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-}
-
-void Msg_ack_prepare::SharedCtor() {
-  _cached_size_ = 0;
-  msg_header_ = NULL;
-  round_id_ = NULL;
-  ack_ = 0;
-  max_ballot_ = GOOGLE_ULONGLONG(0);
-  proposal_ = NULL;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-Msg_ack_prepare::~Msg_ack_prepare() {
-  SharedDtor();
-}
-
-void Msg_ack_prepare::SharedDtor() {
-  if (this != default_instance_) {
-    delete msg_header_;
-    delete round_id_;
-    delete proposal_;
-  }
-}
-
-void Msg_ack_prepare::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* Msg_ack_prepare::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return Msg_ack_prepare_descriptor_;
-}
-
-const Msg_ack_prepare& Msg_ack_prepare::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_mpaxos_2eproto();
-  return *default_instance_;
-}
-
-Msg_ack_prepare* Msg_ack_prepare::default_instance_ = NULL;
-
-Msg_ack_prepare* Msg_ack_prepare::New() const {
-  return new Msg_ack_prepare;
-}
-
-void Msg_ack_prepare::Clear() {
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (has_msg_header()) {
-      if (msg_header_ != NULL) msg_header_->::mpaxos::Msg_header::Clear();
-    }
-    if (has_round_id()) {
-      if (round_id_ != NULL) round_id_->::mpaxos::Round_id::Clear();
-    }
-    ack_ = 0;
-    max_ballot_ = GOOGLE_ULONGLONG(0);
-    if (has_proposal()) {
-      if (proposal_ != NULL) proposal_->::mpaxos::Proposal::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool Msg_ack_prepare::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
-  ::google::protobuf::uint32 tag;
-  while ((tag = input->ReadTag()) != 0) {
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required .mpaxos.Msg_header msg_header = 1;
-      case 1: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_msg_header()));
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(18)) goto parse_round_id;
-        break;
-      }
-
-      // required .mpaxos.Round_id round_id = 2;
-      case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_round_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_round_id()));
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(24)) goto parse_ack;
-        break;
-      }
-
-      // required .mpaxos.MsgAck ack = 3;
+      // required bool reply = 3;
       case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-         parse_ack:
-          int value;
+         parse_reply:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
-                 input, &value)));
-          if (::mpaxos::MsgAck_IsValid(value)) {
-            set_ack(static_cast< ::mpaxos::MsgAck >(value));
-          } else {
-            mutable_unknown_fields()->AddVarint(3, value);
-          }
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &reply_)));
+          set_has_reply();
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(32)) goto parse_max_ballot;
+        if (input->ExpectTag(32)) goto parse_max_ballot_id;
         break;
       }
 
-      // required uint64 max_ballot = 4;
+      // required uint64 max_ballot_id = 4;
       case 4: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-         parse_max_ballot:
+         parse_max_ballot_id:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &max_ballot_)));
-          set_has_max_ballot();
+                 input, &max_ballot_id_)));
+          set_has_max_ballot_id();
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(42)) goto parse_proposal;
+        if (input->ExpectTag(42)) goto parse_max_prop_value;
         break;
       }
 
-      // optional .mpaxos.Proposal proposal = 5;
+      // optional .mpaxos.PropValue max_prop_value = 5;
       case 5: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_proposal:
+         parse_max_prop_value:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_proposal()));
+               input, mutable_max_prop_value()));
         } else {
           goto handle_uninterpreted;
         }
@@ -1591,35 +1261,33 @@ bool Msg_ack_prepare::MergePartialFromCodedStream(
 #undef DO_
 }
 
-void Msg_ack_prepare::SerializeWithCachedSizes(
+void MsgAckPrepare::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required .mpaxos.Msg_header msg_header = 1;
+  // required .mpaxos.MsgHeader msg_header = 1;
   if (has_msg_header()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       1, this->msg_header(), output);
   }
 
-  // required .mpaxos.Round_id round_id = 2;
-  if (has_round_id()) {
+  // required uint64 ballot_id = 2;
+  if (has_ballot_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->ballot_id(), output);
+  }
+
+  // required bool reply = 3;
+  if (has_reply()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(3, this->reply(), output);
+  }
+
+  // required uint64 max_ballot_id = 4;
+  if (has_max_ballot_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(4, this->max_ballot_id(), output);
+  }
+
+  // optional .mpaxos.PropValue max_prop_value = 5;
+  if (has_max_prop_value()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->round_id(), output);
-  }
-
-  // required .mpaxos.MsgAck ack = 3;
-  if (has_ack()) {
-    ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      3, this->ack(), output);
-  }
-
-  // required uint64 max_ballot = 4;
-  if (has_max_ballot()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(4, this->max_ballot(), output);
-  }
-
-  // optional .mpaxos.Proposal proposal = 5;
-  if (has_proposal()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, this->proposal(), output);
+      5, this->max_prop_value(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -1628,38 +1296,35 @@ void Msg_ack_prepare::SerializeWithCachedSizes(
   }
 }
 
-::google::protobuf::uint8* Msg_ack_prepare::SerializeWithCachedSizesToArray(
+::google::protobuf::uint8* MsgAckPrepare::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required .mpaxos.Msg_header msg_header = 1;
+  // required .mpaxos.MsgHeader msg_header = 1;
   if (has_msg_header()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         1, this->msg_header(), target);
   }
 
-  // required .mpaxos.Round_id round_id = 2;
-  if (has_round_id()) {
+  // required uint64 ballot_id = 2;
+  if (has_ballot_id()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->ballot_id(), target);
+  }
+
+  // required bool reply = 3;
+  if (has_reply()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(3, this->reply(), target);
+  }
+
+  // required uint64 max_ballot_id = 4;
+  if (has_max_ballot_id()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(4, this->max_ballot_id(), target);
+  }
+
+  // optional .mpaxos.PropValue max_prop_value = 5;
+  if (has_max_prop_value()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        2, this->round_id(), target);
-  }
-
-  // required .mpaxos.MsgAck ack = 3;
-  if (has_ack()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      3, this->ack(), target);
-  }
-
-  // required uint64 max_ballot = 4;
-  if (has_max_ballot()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(4, this->max_ballot(), target);
-  }
-
-  // optional .mpaxos.Proposal proposal = 5;
-  if (has_proposal()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        5, this->proposal(), target);
+        5, this->max_prop_value(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1669,42 +1334,41 @@ void Msg_ack_prepare::SerializeWithCachedSizes(
   return target;
 }
 
-int Msg_ack_prepare::ByteSize() const {
+int MsgAckPrepare::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required .mpaxos.Msg_header msg_header = 1;
+    // required .mpaxos.MsgHeader msg_header = 1;
     if (has_msg_header()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->msg_header());
     }
 
-    // required .mpaxos.Round_id round_id = 2;
-    if (has_round_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->round_id());
-    }
-
-    // required .mpaxos.MsgAck ack = 3;
-    if (has_ack()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::EnumSize(this->ack());
-    }
-
-    // required uint64 max_ballot = 4;
-    if (has_max_ballot()) {
+    // required uint64 ballot_id = 2;
+    if (has_ballot_id()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->max_ballot());
+          this->ballot_id());
     }
 
-    // optional .mpaxos.Proposal proposal = 5;
-    if (has_proposal()) {
+    // required bool reply = 3;
+    if (has_reply()) {
+      total_size += 1 + 1;
+    }
+
+    // required uint64 max_ballot_id = 4;
+    if (has_max_ballot_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->max_ballot_id());
+    }
+
+    // optional .mpaxos.PropValue max_prop_value = 5;
+    if (has_max_prop_value()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->proposal());
+          this->max_prop_value());
     }
 
   }
@@ -1719,10 +1383,10 @@ int Msg_ack_prepare::ByteSize() const {
   return total_size;
 }
 
-void Msg_ack_prepare::MergeFrom(const ::google::protobuf::Message& from) {
+void MsgAckPrepare::MergeFrom(const ::google::protobuf::Message& from) {
   GOOGLE_CHECK_NE(&from, this);
-  const Msg_ack_prepare* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const Msg_ack_prepare*>(
+  const MsgAckPrepare* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const MsgAckPrepare*>(
       &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
@@ -1731,73 +1395,70 @@ void Msg_ack_prepare::MergeFrom(const ::google::protobuf::Message& from) {
   }
 }
 
-void Msg_ack_prepare::MergeFrom(const Msg_ack_prepare& from) {
+void MsgAckPrepare::MergeFrom(const MsgAckPrepare& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_msg_header()) {
-      mutable_msg_header()->::mpaxos::Msg_header::MergeFrom(from.msg_header());
+      mutable_msg_header()->::mpaxos::MsgHeader::MergeFrom(from.msg_header());
     }
-    if (from.has_round_id()) {
-      mutable_round_id()->::mpaxos::Round_id::MergeFrom(from.round_id());
+    if (from.has_ballot_id()) {
+      set_ballot_id(from.ballot_id());
     }
-    if (from.has_ack()) {
-      set_ack(from.ack());
+    if (from.has_reply()) {
+      set_reply(from.reply());
     }
-    if (from.has_max_ballot()) {
-      set_max_ballot(from.max_ballot());
+    if (from.has_max_ballot_id()) {
+      set_max_ballot_id(from.max_ballot_id());
     }
-    if (from.has_proposal()) {
-      mutable_proposal()->::mpaxos::Proposal::MergeFrom(from.proposal());
+    if (from.has_max_prop_value()) {
+      mutable_max_prop_value()->::mpaxos::PropValue::MergeFrom(from.max_prop_value());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
-void Msg_ack_prepare::CopyFrom(const ::google::protobuf::Message& from) {
+void MsgAckPrepare::CopyFrom(const ::google::protobuf::Message& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void Msg_ack_prepare::CopyFrom(const Msg_ack_prepare& from) {
+void MsgAckPrepare::CopyFrom(const MsgAckPrepare& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool Msg_ack_prepare::IsInitialized() const {
+bool MsgAckPrepare::IsInitialized() const {
   if ((_has_bits_[0] & 0x0000000f) != 0x0000000f) return false;
 
   if (has_msg_header()) {
     if (!this->msg_header().IsInitialized()) return false;
   }
-  if (has_round_id()) {
-    if (!this->round_id().IsInitialized()) return false;
-  }
-  if (has_proposal()) {
-    if (!this->proposal().IsInitialized()) return false;
+  if (has_max_prop_value()) {
+    if (!this->max_prop_value().IsInitialized()) return false;
   }
   return true;
 }
 
-void Msg_ack_prepare::Swap(Msg_ack_prepare* other) {
+void MsgAckPrepare::Swap(MsgAckPrepare* other) {
   if (other != this) {
     std::swap(msg_header_, other->msg_header_);
-    std::swap(round_id_, other->round_id_);
-    std::swap(ack_, other->ack_);
-    std::swap(max_ballot_, other->max_ballot_);
-    std::swap(proposal_, other->proposal_);
+    std::swap(ballot_id_, other->ballot_id_);
+    std::swap(reply_, other->reply_);
+    std::swap(max_ballot_id_, other->max_ballot_id_);
+    std::swap(max_prop_value_, other->max_prop_value_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
   }
 }
 
-::google::protobuf::Metadata Msg_ack_prepare::GetMetadata() const {
+::google::protobuf::Metadata MsgAckPrepare::GetMetadata() const {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::Metadata metadata;
-  metadata.descriptor = Msg_ack_prepare_descriptor_;
-  metadata.reflection = Msg_ack_prepare_reflection_;
+  metadata.descriptor = MsgAckPrepare_descriptor_;
+  metadata.reflection = MsgAckPrepare_reflection_;
   return metadata;
 }
 
@@ -1805,92 +1466,88 @@ void Msg_ack_prepare::Swap(Msg_ack_prepare* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int Msg_accept::kMsgHeaderFieldNumber;
-const int Msg_accept::kRoundIdFieldNumber;
-const int Msg_accept::kProposalFieldNumber;
+const int MsgAccept::kMsgHeaderFieldNumber;
+const int MsgAccept::kBallotIdFieldNumber;
+const int MsgAccept::kPropValueFieldNumber;
 #endif  // !_MSC_VER
 
-Msg_accept::Msg_accept()
+MsgAccept::MsgAccept()
   : ::google::protobuf::Message() {
   SharedCtor();
 }
 
-void Msg_accept::InitAsDefaultInstance() {
-  msg_header_ = const_cast< ::mpaxos::Msg_header*>(&::mpaxos::Msg_header::default_instance());
-  round_id_ = const_cast< ::mpaxos::Round_id*>(&::mpaxos::Round_id::default_instance());
-  proposal_ = const_cast< ::mpaxos::Proposal*>(&::mpaxos::Proposal::default_instance());
+void MsgAccept::InitAsDefaultInstance() {
+  msg_header_ = const_cast< ::mpaxos::MsgHeader*>(&::mpaxos::MsgHeader::default_instance());
+  prop_value_ = const_cast< ::mpaxos::PropValue*>(&::mpaxos::PropValue::default_instance());
 }
 
-Msg_accept::Msg_accept(const Msg_accept& from)
+MsgAccept::MsgAccept(const MsgAccept& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
 }
 
-void Msg_accept::SharedCtor() {
+void MsgAccept::SharedCtor() {
   _cached_size_ = 0;
   msg_header_ = NULL;
-  round_id_ = NULL;
-  proposal_ = NULL;
+  ballot_id_ = GOOGLE_ULONGLONG(0);
+  prop_value_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
-Msg_accept::~Msg_accept() {
+MsgAccept::~MsgAccept() {
   SharedDtor();
 }
 
-void Msg_accept::SharedDtor() {
+void MsgAccept::SharedDtor() {
   if (this != default_instance_) {
     delete msg_header_;
-    delete round_id_;
-    delete proposal_;
+    delete prop_value_;
   }
 }
 
-void Msg_accept::SetCachedSize(int size) const {
+void MsgAccept::SetCachedSize(int size) const {
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
 }
-const ::google::protobuf::Descriptor* Msg_accept::descriptor() {
+const ::google::protobuf::Descriptor* MsgAccept::descriptor() {
   protobuf_AssignDescriptorsOnce();
-  return Msg_accept_descriptor_;
+  return MsgAccept_descriptor_;
 }
 
-const Msg_accept& Msg_accept::default_instance() {
+const MsgAccept& MsgAccept::default_instance() {
   if (default_instance_ == NULL) protobuf_AddDesc_mpaxos_2eproto();
   return *default_instance_;
 }
 
-Msg_accept* Msg_accept::default_instance_ = NULL;
+MsgAccept* MsgAccept::default_instance_ = NULL;
 
-Msg_accept* Msg_accept::New() const {
-  return new Msg_accept;
+MsgAccept* MsgAccept::New() const {
+  return new MsgAccept;
 }
 
-void Msg_accept::Clear() {
+void MsgAccept::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (has_msg_header()) {
-      if (msg_header_ != NULL) msg_header_->::mpaxos::Msg_header::Clear();
+      if (msg_header_ != NULL) msg_header_->::mpaxos::MsgHeader::Clear();
     }
-    if (has_round_id()) {
-      if (round_id_ != NULL) round_id_->::mpaxos::Round_id::Clear();
-    }
-    if (has_proposal()) {
-      if (proposal_ != NULL) proposal_->::mpaxos::Proposal::Clear();
+    ballot_id_ = GOOGLE_ULONGLONG(0);
+    if (has_prop_value()) {
+      if (prop_value_ != NULL) prop_value_->::mpaxos::PropValue::Clear();
     }
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
 
-bool Msg_accept::MergePartialFromCodedStream(
+bool MsgAccept::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!(EXPRESSION)) return false
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required .mpaxos.Msg_header msg_header = 1;
+      // required .mpaxos.MsgHeader msg_header = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -1899,31 +1556,33 @@ bool Msg_accept::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(18)) goto parse_round_id;
+        if (input->ExpectTag(16)) goto parse_ballot_id;
         break;
       }
 
-      // required .mpaxos.Round_id round_id = 2;
+      // required uint64 ballot_id = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_round_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_round_id()));
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_ballot_id:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &ballot_id_)));
+          set_has_ballot_id();
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(26)) goto parse_proposal;
+        if (input->ExpectTag(26)) goto parse_prop_value;
         break;
       }
 
-      // required .mpaxos.Proposal proposal = 3;
+      // required .mpaxos.PropValue prop_value = 3;
       case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_proposal:
+         parse_prop_value:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_proposal()));
+               input, mutable_prop_value()));
         } else {
           goto handle_uninterpreted;
         }
@@ -1947,24 +1606,23 @@ bool Msg_accept::MergePartialFromCodedStream(
 #undef DO_
 }
 
-void Msg_accept::SerializeWithCachedSizes(
+void MsgAccept::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required .mpaxos.Msg_header msg_header = 1;
+  // required .mpaxos.MsgHeader msg_header = 1;
   if (has_msg_header()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       1, this->msg_header(), output);
   }
 
-  // required .mpaxos.Round_id round_id = 2;
-  if (has_round_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->round_id(), output);
+  // required uint64 ballot_id = 2;
+  if (has_ballot_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->ballot_id(), output);
   }
 
-  // required .mpaxos.Proposal proposal = 3;
-  if (has_proposal()) {
+  // required .mpaxos.PropValue prop_value = 3;
+  if (has_prop_value()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, this->proposal(), output);
+      3, this->prop_value(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -1973,27 +1631,25 @@ void Msg_accept::SerializeWithCachedSizes(
   }
 }
 
-::google::protobuf::uint8* Msg_accept::SerializeWithCachedSizesToArray(
+::google::protobuf::uint8* MsgAccept::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required .mpaxos.Msg_header msg_header = 1;
+  // required .mpaxos.MsgHeader msg_header = 1;
   if (has_msg_header()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         1, this->msg_header(), target);
   }
 
-  // required .mpaxos.Round_id round_id = 2;
-  if (has_round_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->round_id(), target);
+  // required uint64 ballot_id = 2;
+  if (has_ballot_id()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->ballot_id(), target);
   }
 
-  // required .mpaxos.Proposal proposal = 3;
-  if (has_proposal()) {
+  // required .mpaxos.PropValue prop_value = 3;
+  if (has_prop_value()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        3, this->proposal(), target);
+        3, this->prop_value(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -2003,29 +1659,29 @@ void Msg_accept::SerializeWithCachedSizes(
   return target;
 }
 
-int Msg_accept::ByteSize() const {
+int MsgAccept::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required .mpaxos.Msg_header msg_header = 1;
+    // required .mpaxos.MsgHeader msg_header = 1;
     if (has_msg_header()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->msg_header());
     }
 
-    // required .mpaxos.Round_id round_id = 2;
-    if (has_round_id()) {
+    // required uint64 ballot_id = 2;
+    if (has_ballot_id()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->round_id());
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->ballot_id());
     }
 
-    // required .mpaxos.Proposal proposal = 3;
-    if (has_proposal()) {
+    // required .mpaxos.PropValue prop_value = 3;
+    if (has_prop_value()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->proposal());
+          this->prop_value());
     }
 
   }
@@ -2040,10 +1696,10 @@ int Msg_accept::ByteSize() const {
   return total_size;
 }
 
-void Msg_accept::MergeFrom(const ::google::protobuf::Message& from) {
+void MsgAccept::MergeFrom(const ::google::protobuf::Message& from) {
   GOOGLE_CHECK_NE(&from, this);
-  const Msg_accept* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const Msg_accept*>(
+  const MsgAccept* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const MsgAccept*>(
       &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
@@ -2052,65 +1708,62 @@ void Msg_accept::MergeFrom(const ::google::protobuf::Message& from) {
   }
 }
 
-void Msg_accept::MergeFrom(const Msg_accept& from) {
+void MsgAccept::MergeFrom(const MsgAccept& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_msg_header()) {
-      mutable_msg_header()->::mpaxos::Msg_header::MergeFrom(from.msg_header());
+      mutable_msg_header()->::mpaxos::MsgHeader::MergeFrom(from.msg_header());
     }
-    if (from.has_round_id()) {
-      mutable_round_id()->::mpaxos::Round_id::MergeFrom(from.round_id());
+    if (from.has_ballot_id()) {
+      set_ballot_id(from.ballot_id());
     }
-    if (from.has_proposal()) {
-      mutable_proposal()->::mpaxos::Proposal::MergeFrom(from.proposal());
+    if (from.has_prop_value()) {
+      mutable_prop_value()->::mpaxos::PropValue::MergeFrom(from.prop_value());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
-void Msg_accept::CopyFrom(const ::google::protobuf::Message& from) {
+void MsgAccept::CopyFrom(const ::google::protobuf::Message& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void Msg_accept::CopyFrom(const Msg_accept& from) {
+void MsgAccept::CopyFrom(const MsgAccept& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool Msg_accept::IsInitialized() const {
+bool MsgAccept::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
 
   if (has_msg_header()) {
     if (!this->msg_header().IsInitialized()) return false;
   }
-  if (has_round_id()) {
-    if (!this->round_id().IsInitialized()) return false;
-  }
-  if (has_proposal()) {
-    if (!this->proposal().IsInitialized()) return false;
+  if (has_prop_value()) {
+    if (!this->prop_value().IsInitialized()) return false;
   }
   return true;
 }
 
-void Msg_accept::Swap(Msg_accept* other) {
+void MsgAccept::Swap(MsgAccept* other) {
   if (other != this) {
     std::swap(msg_header_, other->msg_header_);
-    std::swap(round_id_, other->round_id_);
-    std::swap(proposal_, other->proposal_);
+    std::swap(ballot_id_, other->ballot_id_);
+    std::swap(prop_value_, other->prop_value_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
   }
 }
 
-::google::protobuf::Metadata Msg_accept::GetMetadata() const {
+::google::protobuf::Metadata MsgAccept::GetMetadata() const {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::Metadata metadata;
-  metadata.descriptor = Msg_accept_descriptor_;
-  metadata.reflection = Msg_accept_reflection_;
+  metadata.descriptor = MsgAccept_descriptor_;
+  metadata.reflection = MsgAccept_reflection_;
   return metadata;
 }
 
@@ -2118,98 +1771,84 @@ void Msg_accept::Swap(Msg_accept* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int Msg_ack_accept::kMsgHeaderFieldNumber;
-const int Msg_ack_accept::kRoundIdFieldNumber;
-const int Msg_ack_accept::kAckFieldNumber;
-const int Msg_ack_accept::kMaxBallotFieldNumber;
-const int Msg_ack_accept::kProposalFieldNumber;
+const int MsgAckAccept::kMsgHeaderFieldNumber;
+const int MsgAckAccept::kBallotIdFieldNumber;
+const int MsgAckAccept::kReplyFieldNumber;
 #endif  // !_MSC_VER
 
-Msg_ack_accept::Msg_ack_accept()
+MsgAckAccept::MsgAckAccept()
   : ::google::protobuf::Message() {
   SharedCtor();
 }
 
-void Msg_ack_accept::InitAsDefaultInstance() {
-  msg_header_ = const_cast< ::mpaxos::Msg_header*>(&::mpaxos::Msg_header::default_instance());
-  round_id_ = const_cast< ::mpaxos::Round_id*>(&::mpaxos::Round_id::default_instance());
-  proposal_ = const_cast< ::mpaxos::Proposal*>(&::mpaxos::Proposal::default_instance());
+void MsgAckAccept::InitAsDefaultInstance() {
+  msg_header_ = const_cast< ::mpaxos::MsgHeader*>(&::mpaxos::MsgHeader::default_instance());
 }
 
-Msg_ack_accept::Msg_ack_accept(const Msg_ack_accept& from)
+MsgAckAccept::MsgAckAccept(const MsgAckAccept& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
 }
 
-void Msg_ack_accept::SharedCtor() {
+void MsgAckAccept::SharedCtor() {
   _cached_size_ = 0;
   msg_header_ = NULL;
-  round_id_ = NULL;
-  ack_ = 0;
-  max_ballot_ = GOOGLE_ULONGLONG(0);
-  proposal_ = NULL;
+  ballot_id_ = GOOGLE_ULONGLONG(0);
+  reply_ = false;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
-Msg_ack_accept::~Msg_ack_accept() {
+MsgAckAccept::~MsgAckAccept() {
   SharedDtor();
 }
 
-void Msg_ack_accept::SharedDtor() {
+void MsgAckAccept::SharedDtor() {
   if (this != default_instance_) {
     delete msg_header_;
-    delete round_id_;
-    delete proposal_;
   }
 }
 
-void Msg_ack_accept::SetCachedSize(int size) const {
+void MsgAckAccept::SetCachedSize(int size) const {
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
 }
-const ::google::protobuf::Descriptor* Msg_ack_accept::descriptor() {
+const ::google::protobuf::Descriptor* MsgAckAccept::descriptor() {
   protobuf_AssignDescriptorsOnce();
-  return Msg_ack_accept_descriptor_;
+  return MsgAckAccept_descriptor_;
 }
 
-const Msg_ack_accept& Msg_ack_accept::default_instance() {
+const MsgAckAccept& MsgAckAccept::default_instance() {
   if (default_instance_ == NULL) protobuf_AddDesc_mpaxos_2eproto();
   return *default_instance_;
 }
 
-Msg_ack_accept* Msg_ack_accept::default_instance_ = NULL;
+MsgAckAccept* MsgAckAccept::default_instance_ = NULL;
 
-Msg_ack_accept* Msg_ack_accept::New() const {
-  return new Msg_ack_accept;
+MsgAckAccept* MsgAckAccept::New() const {
+  return new MsgAckAccept;
 }
 
-void Msg_ack_accept::Clear() {
+void MsgAckAccept::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (has_msg_header()) {
-      if (msg_header_ != NULL) msg_header_->::mpaxos::Msg_header::Clear();
+      if (msg_header_ != NULL) msg_header_->::mpaxos::MsgHeader::Clear();
     }
-    if (has_round_id()) {
-      if (round_id_ != NULL) round_id_->::mpaxos::Round_id::Clear();
-    }
-    ack_ = 0;
-    max_ballot_ = GOOGLE_ULONGLONG(0);
-    if (has_proposal()) {
-      if (proposal_ != NULL) proposal_->::mpaxos::Proposal::Clear();
-    }
+    ballot_id_ = GOOGLE_ULONGLONG(0);
+    reply_ = false;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
 
-bool Msg_ack_accept::MergePartialFromCodedStream(
+bool MsgAckAccept::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!(EXPRESSION)) return false
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required .mpaxos.Msg_header msg_header = 1;
+      // required .mpaxos.MsgHeader msg_header = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -2218,68 +1857,35 @@ bool Msg_ack_accept::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(18)) goto parse_round_id;
+        if (input->ExpectTag(16)) goto parse_ballot_id;
         break;
       }
 
-      // required .mpaxos.Round_id round_id = 2;
+      // required uint64 ballot_id = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_round_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_round_id()));
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_ballot_id:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &ballot_id_)));
+          set_has_ballot_id();
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(24)) goto parse_ack;
+        if (input->ExpectTag(24)) goto parse_reply;
         break;
       }
 
-      // required .mpaxos.MsgAck ack = 3;
+      // required bool reply = 3;
       case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-         parse_ack:
-          int value;
+         parse_reply:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
-                 input, &value)));
-          if (::mpaxos::MsgAck_IsValid(value)) {
-            set_ack(static_cast< ::mpaxos::MsgAck >(value));
-          } else {
-            mutable_unknown_fields()->AddVarint(3, value);
-          }
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(32)) goto parse_max_ballot;
-        break;
-      }
-
-      // required uint64 max_ballot = 4;
-      case 4: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-         parse_max_ballot:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &max_ballot_)));
-          set_has_max_ballot();
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(42)) goto parse_proposal;
-        break;
-      }
-
-      // optional .mpaxos.Proposal proposal = 5;
-      case 5: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_proposal:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_proposal()));
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &reply_)));
+          set_has_reply();
         } else {
           goto handle_uninterpreted;
         }
@@ -2303,35 +1909,22 @@ bool Msg_ack_accept::MergePartialFromCodedStream(
 #undef DO_
 }
 
-void Msg_ack_accept::SerializeWithCachedSizes(
+void MsgAckAccept::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required .mpaxos.Msg_header msg_header = 1;
+  // required .mpaxos.MsgHeader msg_header = 1;
   if (has_msg_header()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       1, this->msg_header(), output);
   }
 
-  // required .mpaxos.Round_id round_id = 2;
-  if (has_round_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->round_id(), output);
+  // required uint64 ballot_id = 2;
+  if (has_ballot_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->ballot_id(), output);
   }
 
-  // required .mpaxos.MsgAck ack = 3;
-  if (has_ack()) {
-    ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      3, this->ack(), output);
-  }
-
-  // required uint64 max_ballot = 4;
-  if (has_max_ballot()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(4, this->max_ballot(), output);
-  }
-
-  // optional .mpaxos.Proposal proposal = 5;
-  if (has_proposal()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, this->proposal(), output);
+  // required bool reply = 3;
+  if (has_reply()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(3, this->reply(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -2340,38 +1933,23 @@ void Msg_ack_accept::SerializeWithCachedSizes(
   }
 }
 
-::google::protobuf::uint8* Msg_ack_accept::SerializeWithCachedSizesToArray(
+::google::protobuf::uint8* MsgAckAccept::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required .mpaxos.Msg_header msg_header = 1;
+  // required .mpaxos.MsgHeader msg_header = 1;
   if (has_msg_header()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         1, this->msg_header(), target);
   }
 
-  // required .mpaxos.Round_id round_id = 2;
-  if (has_round_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->round_id(), target);
+  // required uint64 ballot_id = 2;
+  if (has_ballot_id()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->ballot_id(), target);
   }
 
-  // required .mpaxos.MsgAck ack = 3;
-  if (has_ack()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      3, this->ack(), target);
-  }
-
-  // required uint64 max_ballot = 4;
-  if (has_max_ballot()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(4, this->max_ballot(), target);
-  }
-
-  // optional .mpaxos.Proposal proposal = 5;
-  if (has_proposal()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        5, this->proposal(), target);
+  // required bool reply = 3;
+  if (has_reply()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(3, this->reply(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -2381,42 +1959,27 @@ void Msg_ack_accept::SerializeWithCachedSizes(
   return target;
 }
 
-int Msg_ack_accept::ByteSize() const {
+int MsgAckAccept::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required .mpaxos.Msg_header msg_header = 1;
+    // required .mpaxos.MsgHeader msg_header = 1;
     if (has_msg_header()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->msg_header());
     }
 
-    // required .mpaxos.Round_id round_id = 2;
-    if (has_round_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->round_id());
-    }
-
-    // required .mpaxos.MsgAck ack = 3;
-    if (has_ack()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::EnumSize(this->ack());
-    }
-
-    // required uint64 max_ballot = 4;
-    if (has_max_ballot()) {
+    // required uint64 ballot_id = 2;
+    if (has_ballot_id()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->max_ballot());
+          this->ballot_id());
     }
 
-    // optional .mpaxos.Proposal proposal = 5;
-    if (has_proposal()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->proposal());
+    // required bool reply = 3;
+    if (has_reply()) {
+      total_size += 1 + 1;
     }
 
   }
@@ -2431,10 +1994,10 @@ int Msg_ack_accept::ByteSize() const {
   return total_size;
 }
 
-void Msg_ack_accept::MergeFrom(const ::google::protobuf::Message& from) {
+void MsgAckAccept::MergeFrom(const ::google::protobuf::Message& from) {
   GOOGLE_CHECK_NE(&from, this);
-  const Msg_ack_accept* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const Msg_ack_accept*>(
+  const MsgAckAccept* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const MsgAckAccept*>(
       &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
@@ -2443,73 +2006,59 @@ void Msg_ack_accept::MergeFrom(const ::google::protobuf::Message& from) {
   }
 }
 
-void Msg_ack_accept::MergeFrom(const Msg_ack_accept& from) {
+void MsgAckAccept::MergeFrom(const MsgAckAccept& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_msg_header()) {
-      mutable_msg_header()->::mpaxos::Msg_header::MergeFrom(from.msg_header());
+      mutable_msg_header()->::mpaxos::MsgHeader::MergeFrom(from.msg_header());
     }
-    if (from.has_round_id()) {
-      mutable_round_id()->::mpaxos::Round_id::MergeFrom(from.round_id());
+    if (from.has_ballot_id()) {
+      set_ballot_id(from.ballot_id());
     }
-    if (from.has_ack()) {
-      set_ack(from.ack());
-    }
-    if (from.has_max_ballot()) {
-      set_max_ballot(from.max_ballot());
-    }
-    if (from.has_proposal()) {
-      mutable_proposal()->::mpaxos::Proposal::MergeFrom(from.proposal());
+    if (from.has_reply()) {
+      set_reply(from.reply());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
-void Msg_ack_accept::CopyFrom(const ::google::protobuf::Message& from) {
+void MsgAckAccept::CopyFrom(const ::google::protobuf::Message& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void Msg_ack_accept::CopyFrom(const Msg_ack_accept& from) {
+void MsgAckAccept::CopyFrom(const MsgAckAccept& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool Msg_ack_accept::IsInitialized() const {
-  if ((_has_bits_[0] & 0x0000000f) != 0x0000000f) return false;
+bool MsgAckAccept::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
 
   if (has_msg_header()) {
     if (!this->msg_header().IsInitialized()) return false;
   }
-  if (has_round_id()) {
-    if (!this->round_id().IsInitialized()) return false;
-  }
-  if (has_proposal()) {
-    if (!this->proposal().IsInitialized()) return false;
-  }
   return true;
 }
 
-void Msg_ack_accept::Swap(Msg_ack_accept* other) {
+void MsgAckAccept::Swap(MsgAckAccept* other) {
   if (other != this) {
     std::swap(msg_header_, other->msg_header_);
-    std::swap(round_id_, other->round_id_);
-    std::swap(ack_, other->ack_);
-    std::swap(max_ballot_, other->max_ballot_);
-    std::swap(proposal_, other->proposal_);
+    std::swap(ballot_id_, other->ballot_id_);
+    std::swap(reply_, other->reply_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
   }
 }
 
-::google::protobuf::Metadata Msg_ack_accept::GetMetadata() const {
+::google::protobuf::Metadata MsgAckAccept::GetMetadata() const {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::Metadata metadata;
-  metadata.descriptor = Msg_ack_accept_descriptor_;
-  metadata.reflection = Msg_ack_accept_reflection_;
+  metadata.descriptor = MsgAckAccept_descriptor_;
+  metadata.reflection = MsgAckAccept_reflection_;
   return metadata;
 }
 

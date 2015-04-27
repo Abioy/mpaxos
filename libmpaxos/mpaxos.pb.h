@@ -34,13 +34,12 @@ void  protobuf_AddDesc_mpaxos_2eproto();
 void protobuf_AssignDesc_mpaxos_2eproto();
 void protobuf_ShutdownFile_mpaxos_2eproto();
 
-class Msg_header;
-class Round_id;
-class Proposal;
-class Msg_prepare;
-class Msg_ack_prepare;
-class Msg_accept;
-class Msg_ack_accept;
+class MsgHeader;
+class PropValue;
+class MsgPrepare;
+class MsgAckPrepare;
+class MsgAccept;
+class MsgAckAccept;
 
 enum MsgType {
   PREPARE = 0,
@@ -66,35 +65,16 @@ inline bool MsgType_Parse(
   return ::google::protobuf::internal::ParseNamedEnum<MsgType>(
     MsgType_descriptor(), name, value);
 }
-enum MsgAck {
-  YES = 0,
-  NO = 1
-};
-bool MsgAck_IsValid(int value);
-const MsgAck MsgAck_MIN = YES;
-const MsgAck MsgAck_MAX = NO;
-const int MsgAck_ARRAYSIZE = MsgAck_MAX + 1;
-
-const ::google::protobuf::EnumDescriptor* MsgAck_descriptor();
-inline const ::std::string& MsgAck_Name(MsgAck value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    MsgAck_descriptor(), value);
-}
-inline bool MsgAck_Parse(
-    const ::std::string& name, MsgAck* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<MsgAck>(
-    MsgAck_descriptor(), name, value);
-}
 // ===================================================================
 
-class Msg_header : public ::google::protobuf::Message {
+class MsgHeader : public ::google::protobuf::Message {
  public:
-  Msg_header();
-  virtual ~Msg_header();
+  MsgHeader();
+  virtual ~MsgHeader();
 
-  Msg_header(const Msg_header& from);
+  MsgHeader(const MsgHeader& from);
 
-  inline Msg_header& operator=(const Msg_header& from) {
+  inline MsgHeader& operator=(const MsgHeader& from) {
     CopyFrom(from);
     return *this;
   }
@@ -108,17 +88,17 @@ class Msg_header : public ::google::protobuf::Message {
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
-  static const Msg_header& default_instance();
+  static const MsgHeader& default_instance();
 
-  void Swap(Msg_header* other);
+  void Swap(MsgHeader* other);
 
   // implements Message ----------------------------------------------
 
-  Msg_header* New() const;
+  MsgHeader* New() const;
   void CopyFrom(const ::google::protobuf::Message& from);
   void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const Msg_header& from);
-  void MergeFrom(const Msg_header& from);
+  void CopyFrom(const MsgHeader& from);
+  void MergeFrom(const MsgHeader& from);
   void Clear();
   bool IsInitialized() const;
 
@@ -148,50 +128,55 @@ class Msg_header : public ::google::protobuf::Message {
   inline ::mpaxos::MsgType msg_type() const;
   inline void set_msg_type(::mpaxos::MsgType value);
 
-  // required string host_name = 2;
-  inline bool has_host_name() const;
-  inline void clear_host_name();
-  static const int kHostNameFieldNumber = 2;
-  inline const ::std::string& host_name() const;
-  inline void set_host_name(const ::std::string& value);
-  inline void set_host_name(const char* value);
-  inline void set_host_name(const char* value, size_t size);
-  inline ::std::string* mutable_host_name();
-  inline ::std::string* release_host_name();
-  inline void set_allocated_host_name(::std::string* host_name);
+  // required uint32 node_id = 2;
+  inline bool has_node_id() const;
+  inline void clear_node_id();
+  static const int kNodeIdFieldNumber = 2;
+  inline ::google::protobuf::uint32 node_id() const;
+  inline void set_node_id(::google::protobuf::uint32 value);
 
-  // @@protoc_insertion_point(class_scope:mpaxos.Msg_header)
+  // required uint64 slot_id = 3;
+  inline bool has_slot_id() const;
+  inline void clear_slot_id();
+  static const int kSlotIdFieldNumber = 3;
+  inline ::google::protobuf::uint64 slot_id() const;
+  inline void set_slot_id(::google::protobuf::uint64 value);
+
+  // @@protoc_insertion_point(class_scope:mpaxos.MsgHeader)
  private:
   inline void set_has_msg_type();
   inline void clear_has_msg_type();
-  inline void set_has_host_name();
-  inline void clear_has_host_name();
+  inline void set_has_node_id();
+  inline void clear_has_node_id();
+  inline void set_has_slot_id();
+  inline void clear_has_slot_id();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::std::string* host_name_;
   int msg_type_;
+  ::google::protobuf::uint32 node_id_;
+  ::google::protobuf::uint64 slot_id_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
 
   friend void  protobuf_AddDesc_mpaxos_2eproto();
   friend void protobuf_AssignDesc_mpaxos_2eproto();
   friend void protobuf_ShutdownFile_mpaxos_2eproto();
 
   void InitAsDefaultInstance();
-  static Msg_header* default_instance_;
+  static MsgHeader* default_instance_;
 };
 // -------------------------------------------------------------------
 
-class Round_id : public ::google::protobuf::Message {
+class PropValue : public ::google::protobuf::Message {
  public:
-  Round_id();
-  virtual ~Round_id();
+  PropValue();
+  virtual ~PropValue();
 
-  Round_id(const Round_id& from);
+  PropValue(const PropValue& from);
 
-  inline Round_id& operator=(const Round_id& from) {
+  inline PropValue& operator=(const PropValue& from) {
     CopyFrom(from);
     return *this;
   }
@@ -205,17 +190,17 @@ class Round_id : public ::google::protobuf::Message {
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
-  static const Round_id& default_instance();
+  static const PropValue& default_instance();
 
-  void Swap(Round_id* other);
+  void Swap(PropValue* other);
 
   // implements Message ----------------------------------------------
 
-  Round_id* New() const;
+  PropValue* New() const;
   void CopyFrom(const ::google::protobuf::Message& from);
   void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const Round_id& from);
-  void MergeFrom(const Round_id& from);
+  void CopyFrom(const PropValue& from);
+  void MergeFrom(const PropValue& from);
   void Clear();
   bool IsInitialized() const;
 
@@ -238,12 +223,111 @@ class Round_id : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required uint64 slot_id = 1;
-  inline bool has_slot_id() const;
-  inline void clear_slot_id();
-  static const int kSlotIdFieldNumber = 1;
-  inline ::google::protobuf::uint64 slot_id() const;
-  inline void set_slot_id(::google::protobuf::uint64 value);
+  // required uint64 id = 1;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 1;
+  inline ::google::protobuf::uint64 id() const;
+  inline void set_id(::google::protobuf::uint64 value);
+
+  // required string data = 2;
+  inline bool has_data() const;
+  inline void clear_data();
+  static const int kDataFieldNumber = 2;
+  inline const ::std::string& data() const;
+  inline void set_data(const ::std::string& value);
+  inline void set_data(const char* value);
+  inline void set_data(const char* value, size_t size);
+  inline ::std::string* mutable_data();
+  inline ::std::string* release_data();
+  inline void set_allocated_data(::std::string* data);
+
+  // @@protoc_insertion_point(class_scope:mpaxos.PropValue)
+ private:
+  inline void set_has_id();
+  inline void clear_has_id();
+  inline void set_has_data();
+  inline void clear_has_data();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint64 id_;
+  ::std::string* data_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+
+  friend void  protobuf_AddDesc_mpaxos_2eproto();
+  friend void protobuf_AssignDesc_mpaxos_2eproto();
+  friend void protobuf_ShutdownFile_mpaxos_2eproto();
+
+  void InitAsDefaultInstance();
+  static PropValue* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class MsgPrepare : public ::google::protobuf::Message {
+ public:
+  MsgPrepare();
+  virtual ~MsgPrepare();
+
+  MsgPrepare(const MsgPrepare& from);
+
+  inline MsgPrepare& operator=(const MsgPrepare& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const MsgPrepare& default_instance();
+
+  void Swap(MsgPrepare* other);
+
+  // implements Message ----------------------------------------------
+
+  MsgPrepare* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const MsgPrepare& from);
+  void MergeFrom(const MsgPrepare& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required .mpaxos.MsgHeader msg_header = 1;
+  inline bool has_msg_header() const;
+  inline void clear_msg_header();
+  static const int kMsgHeaderFieldNumber = 1;
+  inline const ::mpaxos::MsgHeader& msg_header() const;
+  inline ::mpaxos::MsgHeader* mutable_msg_header();
+  inline ::mpaxos::MsgHeader* release_msg_header();
+  inline void set_allocated_msg_header(::mpaxos::MsgHeader* msg_header);
 
   // required uint64 ballot_id = 2;
   inline bool has_ballot_id() const;
@@ -252,16 +336,16 @@ class Round_id : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 ballot_id() const;
   inline void set_ballot_id(::google::protobuf::uint64 value);
 
-  // @@protoc_insertion_point(class_scope:mpaxos.Round_id)
+  // @@protoc_insertion_point(class_scope:mpaxos.MsgPrepare)
  private:
-  inline void set_has_slot_id();
-  inline void clear_has_slot_id();
+  inline void set_has_msg_header();
+  inline void clear_has_msg_header();
   inline void set_has_ballot_id();
   inline void clear_has_ballot_id();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::google::protobuf::uint64 slot_id_;
+  ::mpaxos::MsgHeader* msg_header_;
   ::google::protobuf::uint64 ballot_id_;
 
   mutable int _cached_size_;
@@ -272,18 +356,18 @@ class Round_id : public ::google::protobuf::Message {
   friend void protobuf_ShutdownFile_mpaxos_2eproto();
 
   void InitAsDefaultInstance();
-  static Round_id* default_instance_;
+  static MsgPrepare* default_instance_;
 };
 // -------------------------------------------------------------------
 
-class Proposal : public ::google::protobuf::Message {
+class MsgAckPrepare : public ::google::protobuf::Message {
  public:
-  Proposal();
-  virtual ~Proposal();
+  MsgAckPrepare();
+  virtual ~MsgAckPrepare();
 
-  Proposal(const Proposal& from);
+  MsgAckPrepare(const MsgAckPrepare& from);
 
-  inline Proposal& operator=(const Proposal& from) {
+  inline MsgAckPrepare& operator=(const MsgAckPrepare& from) {
     CopyFrom(from);
     return *this;
   }
@@ -297,17 +381,17 @@ class Proposal : public ::google::protobuf::Message {
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
-  static const Proposal& default_instance();
+  static const MsgAckPrepare& default_instance();
 
-  void Swap(Proposal* other);
+  void Swap(MsgAckPrepare* other);
 
   // implements Message ----------------------------------------------
 
-  Proposal* New() const;
+  MsgAckPrepare* New() const;
   void CopyFrom(const ::google::protobuf::Message& from);
   void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const Proposal& from);
-  void MergeFrom(const Proposal& from);
+  void CopyFrom(const MsgAckPrepare& from);
+  void MergeFrom(const MsgAckPrepare& from);
   void Clear();
   bool IsInitialized() const;
 
@@ -330,270 +414,65 @@ class Proposal : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required uint64 type = 1;
-  inline bool has_type() const;
-  inline void clear_type();
-  static const int kTypeFieldNumber = 1;
-  inline ::google::protobuf::uint64 type() const;
-  inline void set_type(::google::protobuf::uint64 value);
-
-  // required uint32 value_id = 2;
-  inline bool has_value_id() const;
-  inline void clear_value_id();
-  static const int kValueIdFieldNumber = 2;
-  inline ::google::protobuf::uint32 value_id() const;
-  inline void set_value_id(::google::protobuf::uint32 value);
-
-  // required string value = 3;
-  inline bool has_value() const;
-  inline void clear_value();
-  static const int kValueFieldNumber = 3;
-  inline const ::std::string& value() const;
-  inline void set_value(const ::std::string& value);
-  inline void set_value(const char* value);
-  inline void set_value(const char* value, size_t size);
-  inline ::std::string* mutable_value();
-  inline ::std::string* release_value();
-  inline void set_allocated_value(::std::string* value);
-
-  // @@protoc_insertion_point(class_scope:mpaxos.Proposal)
- private:
-  inline void set_has_type();
-  inline void clear_has_type();
-  inline void set_has_value_id();
-  inline void clear_has_value_id();
-  inline void set_has_value();
-  inline void clear_has_value();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint64 type_;
-  ::std::string* value_;
-  ::google::protobuf::uint32 value_id_;
-
-  mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
-
-  friend void  protobuf_AddDesc_mpaxos_2eproto();
-  friend void protobuf_AssignDesc_mpaxos_2eproto();
-  friend void protobuf_ShutdownFile_mpaxos_2eproto();
-
-  void InitAsDefaultInstance();
-  static Proposal* default_instance_;
-};
-// -------------------------------------------------------------------
-
-class Msg_prepare : public ::google::protobuf::Message {
- public:
-  Msg_prepare();
-  virtual ~Msg_prepare();
-
-  Msg_prepare(const Msg_prepare& from);
-
-  inline Msg_prepare& operator=(const Msg_prepare& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const Msg_prepare& default_instance();
-
-  void Swap(Msg_prepare* other);
-
-  // implements Message ----------------------------------------------
-
-  Msg_prepare* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const Msg_prepare& from);
-  void MergeFrom(const Msg_prepare& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // required .mpaxos.Msg_header msg_header = 1;
+  // required .mpaxos.MsgHeader msg_header = 1;
   inline bool has_msg_header() const;
   inline void clear_msg_header();
   static const int kMsgHeaderFieldNumber = 1;
-  inline const ::mpaxos::Msg_header& msg_header() const;
-  inline ::mpaxos::Msg_header* mutable_msg_header();
-  inline ::mpaxos::Msg_header* release_msg_header();
-  inline void set_allocated_msg_header(::mpaxos::Msg_header* msg_header);
+  inline const ::mpaxos::MsgHeader& msg_header() const;
+  inline ::mpaxos::MsgHeader* mutable_msg_header();
+  inline ::mpaxos::MsgHeader* release_msg_header();
+  inline void set_allocated_msg_header(::mpaxos::MsgHeader* msg_header);
 
-  // required .mpaxos.Round_id round_id = 2;
-  inline bool has_round_id() const;
-  inline void clear_round_id();
-  static const int kRoundIdFieldNumber = 2;
-  inline const ::mpaxos::Round_id& round_id() const;
-  inline ::mpaxos::Round_id* mutable_round_id();
-  inline ::mpaxos::Round_id* release_round_id();
-  inline void set_allocated_round_id(::mpaxos::Round_id* round_id);
+  // required uint64 ballot_id = 2;
+  inline bool has_ballot_id() const;
+  inline void clear_ballot_id();
+  static const int kBallotIdFieldNumber = 2;
+  inline ::google::protobuf::uint64 ballot_id() const;
+  inline void set_ballot_id(::google::protobuf::uint64 value);
 
-  // @@protoc_insertion_point(class_scope:mpaxos.Msg_prepare)
+  // required bool reply = 3;
+  inline bool has_reply() const;
+  inline void clear_reply();
+  static const int kReplyFieldNumber = 3;
+  inline bool reply() const;
+  inline void set_reply(bool value);
+
+  // required uint64 max_ballot_id = 4;
+  inline bool has_max_ballot_id() const;
+  inline void clear_max_ballot_id();
+  static const int kMaxBallotIdFieldNumber = 4;
+  inline ::google::protobuf::uint64 max_ballot_id() const;
+  inline void set_max_ballot_id(::google::protobuf::uint64 value);
+
+  // optional .mpaxos.PropValue max_prop_value = 5;
+  inline bool has_max_prop_value() const;
+  inline void clear_max_prop_value();
+  static const int kMaxPropValueFieldNumber = 5;
+  inline const ::mpaxos::PropValue& max_prop_value() const;
+  inline ::mpaxos::PropValue* mutable_max_prop_value();
+  inline ::mpaxos::PropValue* release_max_prop_value();
+  inline void set_allocated_max_prop_value(::mpaxos::PropValue* max_prop_value);
+
+  // @@protoc_insertion_point(class_scope:mpaxos.MsgAckPrepare)
  private:
   inline void set_has_msg_header();
   inline void clear_has_msg_header();
-  inline void set_has_round_id();
-  inline void clear_has_round_id();
+  inline void set_has_ballot_id();
+  inline void clear_has_ballot_id();
+  inline void set_has_reply();
+  inline void clear_has_reply();
+  inline void set_has_max_ballot_id();
+  inline void clear_has_max_ballot_id();
+  inline void set_has_max_prop_value();
+  inline void clear_has_max_prop_value();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::mpaxos::Msg_header* msg_header_;
-  ::mpaxos::Round_id* round_id_;
-
-  mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
-
-  friend void  protobuf_AddDesc_mpaxos_2eproto();
-  friend void protobuf_AssignDesc_mpaxos_2eproto();
-  friend void protobuf_ShutdownFile_mpaxos_2eproto();
-
-  void InitAsDefaultInstance();
-  static Msg_prepare* default_instance_;
-};
-// -------------------------------------------------------------------
-
-class Msg_ack_prepare : public ::google::protobuf::Message {
- public:
-  Msg_ack_prepare();
-  virtual ~Msg_ack_prepare();
-
-  Msg_ack_prepare(const Msg_ack_prepare& from);
-
-  inline Msg_ack_prepare& operator=(const Msg_ack_prepare& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const Msg_ack_prepare& default_instance();
-
-  void Swap(Msg_ack_prepare* other);
-
-  // implements Message ----------------------------------------------
-
-  Msg_ack_prepare* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const Msg_ack_prepare& from);
-  void MergeFrom(const Msg_ack_prepare& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // required .mpaxos.Msg_header msg_header = 1;
-  inline bool has_msg_header() const;
-  inline void clear_msg_header();
-  static const int kMsgHeaderFieldNumber = 1;
-  inline const ::mpaxos::Msg_header& msg_header() const;
-  inline ::mpaxos::Msg_header* mutable_msg_header();
-  inline ::mpaxos::Msg_header* release_msg_header();
-  inline void set_allocated_msg_header(::mpaxos::Msg_header* msg_header);
-
-  // required .mpaxos.Round_id round_id = 2;
-  inline bool has_round_id() const;
-  inline void clear_round_id();
-  static const int kRoundIdFieldNumber = 2;
-  inline const ::mpaxos::Round_id& round_id() const;
-  inline ::mpaxos::Round_id* mutable_round_id();
-  inline ::mpaxos::Round_id* release_round_id();
-  inline void set_allocated_round_id(::mpaxos::Round_id* round_id);
-
-  // required .mpaxos.MsgAck ack = 3;
-  inline bool has_ack() const;
-  inline void clear_ack();
-  static const int kAckFieldNumber = 3;
-  inline ::mpaxos::MsgAck ack() const;
-  inline void set_ack(::mpaxos::MsgAck value);
-
-  // required uint64 max_ballot = 4;
-  inline bool has_max_ballot() const;
-  inline void clear_max_ballot();
-  static const int kMaxBallotFieldNumber = 4;
-  inline ::google::protobuf::uint64 max_ballot() const;
-  inline void set_max_ballot(::google::protobuf::uint64 value);
-
-  // optional .mpaxos.Proposal proposal = 5;
-  inline bool has_proposal() const;
-  inline void clear_proposal();
-  static const int kProposalFieldNumber = 5;
-  inline const ::mpaxos::Proposal& proposal() const;
-  inline ::mpaxos::Proposal* mutable_proposal();
-  inline ::mpaxos::Proposal* release_proposal();
-  inline void set_allocated_proposal(::mpaxos::Proposal* proposal);
-
-  // @@protoc_insertion_point(class_scope:mpaxos.Msg_ack_prepare)
- private:
-  inline void set_has_msg_header();
-  inline void clear_has_msg_header();
-  inline void set_has_round_id();
-  inline void clear_has_round_id();
-  inline void set_has_ack();
-  inline void clear_has_ack();
-  inline void set_has_max_ballot();
-  inline void clear_has_max_ballot();
-  inline void set_has_proposal();
-  inline void clear_has_proposal();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::mpaxos::Msg_header* msg_header_;
-  ::mpaxos::Round_id* round_id_;
-  ::google::protobuf::uint64 max_ballot_;
-  ::mpaxos::Proposal* proposal_;
-  int ack_;
+  ::mpaxos::MsgHeader* msg_header_;
+  ::google::protobuf::uint64 ballot_id_;
+  ::google::protobuf::uint64 max_ballot_id_;
+  ::mpaxos::PropValue* max_prop_value_;
+  bool reply_;
 
   mutable int _cached_size_;
   ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
@@ -603,18 +482,18 @@ class Msg_ack_prepare : public ::google::protobuf::Message {
   friend void protobuf_ShutdownFile_mpaxos_2eproto();
 
   void InitAsDefaultInstance();
-  static Msg_ack_prepare* default_instance_;
+  static MsgAckPrepare* default_instance_;
 };
 // -------------------------------------------------------------------
 
-class Msg_accept : public ::google::protobuf::Message {
+class MsgAccept : public ::google::protobuf::Message {
  public:
-  Msg_accept();
-  virtual ~Msg_accept();
+  MsgAccept();
+  virtual ~MsgAccept();
 
-  Msg_accept(const Msg_accept& from);
+  MsgAccept(const MsgAccept& from);
 
-  inline Msg_accept& operator=(const Msg_accept& from) {
+  inline MsgAccept& operator=(const MsgAccept& from) {
     CopyFrom(from);
     return *this;
   }
@@ -628,17 +507,17 @@ class Msg_accept : public ::google::protobuf::Message {
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
-  static const Msg_accept& default_instance();
+  static const MsgAccept& default_instance();
 
-  void Swap(Msg_accept* other);
+  void Swap(MsgAccept* other);
 
   // implements Message ----------------------------------------------
 
-  Msg_accept* New() const;
+  MsgAccept* New() const;
   void CopyFrom(const ::google::protobuf::Message& from);
   void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const Msg_accept& from);
-  void MergeFrom(const Msg_accept& from);
+  void CopyFrom(const MsgAccept& from);
+  void MergeFrom(const MsgAccept& from);
   void Clear();
   bool IsInitialized() const;
 
@@ -661,47 +540,45 @@ class Msg_accept : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required .mpaxos.Msg_header msg_header = 1;
+  // required .mpaxos.MsgHeader msg_header = 1;
   inline bool has_msg_header() const;
   inline void clear_msg_header();
   static const int kMsgHeaderFieldNumber = 1;
-  inline const ::mpaxos::Msg_header& msg_header() const;
-  inline ::mpaxos::Msg_header* mutable_msg_header();
-  inline ::mpaxos::Msg_header* release_msg_header();
-  inline void set_allocated_msg_header(::mpaxos::Msg_header* msg_header);
+  inline const ::mpaxos::MsgHeader& msg_header() const;
+  inline ::mpaxos::MsgHeader* mutable_msg_header();
+  inline ::mpaxos::MsgHeader* release_msg_header();
+  inline void set_allocated_msg_header(::mpaxos::MsgHeader* msg_header);
 
-  // required .mpaxos.Round_id round_id = 2;
-  inline bool has_round_id() const;
-  inline void clear_round_id();
-  static const int kRoundIdFieldNumber = 2;
-  inline const ::mpaxos::Round_id& round_id() const;
-  inline ::mpaxos::Round_id* mutable_round_id();
-  inline ::mpaxos::Round_id* release_round_id();
-  inline void set_allocated_round_id(::mpaxos::Round_id* round_id);
+  // required uint64 ballot_id = 2;
+  inline bool has_ballot_id() const;
+  inline void clear_ballot_id();
+  static const int kBallotIdFieldNumber = 2;
+  inline ::google::protobuf::uint64 ballot_id() const;
+  inline void set_ballot_id(::google::protobuf::uint64 value);
 
-  // required .mpaxos.Proposal proposal = 3;
-  inline bool has_proposal() const;
-  inline void clear_proposal();
-  static const int kProposalFieldNumber = 3;
-  inline const ::mpaxos::Proposal& proposal() const;
-  inline ::mpaxos::Proposal* mutable_proposal();
-  inline ::mpaxos::Proposal* release_proposal();
-  inline void set_allocated_proposal(::mpaxos::Proposal* proposal);
+  // required .mpaxos.PropValue prop_value = 3;
+  inline bool has_prop_value() const;
+  inline void clear_prop_value();
+  static const int kPropValueFieldNumber = 3;
+  inline const ::mpaxos::PropValue& prop_value() const;
+  inline ::mpaxos::PropValue* mutable_prop_value();
+  inline ::mpaxos::PropValue* release_prop_value();
+  inline void set_allocated_prop_value(::mpaxos::PropValue* prop_value);
 
-  // @@protoc_insertion_point(class_scope:mpaxos.Msg_accept)
+  // @@protoc_insertion_point(class_scope:mpaxos.MsgAccept)
  private:
   inline void set_has_msg_header();
   inline void clear_has_msg_header();
-  inline void set_has_round_id();
-  inline void clear_has_round_id();
-  inline void set_has_proposal();
-  inline void clear_has_proposal();
+  inline void set_has_ballot_id();
+  inline void clear_has_ballot_id();
+  inline void set_has_prop_value();
+  inline void clear_has_prop_value();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::mpaxos::Msg_header* msg_header_;
-  ::mpaxos::Round_id* round_id_;
-  ::mpaxos::Proposal* proposal_;
+  ::mpaxos::MsgHeader* msg_header_;
+  ::google::protobuf::uint64 ballot_id_;
+  ::mpaxos::PropValue* prop_value_;
 
   mutable int _cached_size_;
   ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
@@ -711,18 +588,18 @@ class Msg_accept : public ::google::protobuf::Message {
   friend void protobuf_ShutdownFile_mpaxos_2eproto();
 
   void InitAsDefaultInstance();
-  static Msg_accept* default_instance_;
+  static MsgAccept* default_instance_;
 };
 // -------------------------------------------------------------------
 
-class Msg_ack_accept : public ::google::protobuf::Message {
+class MsgAckAccept : public ::google::protobuf::Message {
  public:
-  Msg_ack_accept();
-  virtual ~Msg_ack_accept();
+  MsgAckAccept();
+  virtual ~MsgAckAccept();
 
-  Msg_ack_accept(const Msg_ack_accept& from);
+  MsgAckAccept(const MsgAckAccept& from);
 
-  inline Msg_ack_accept& operator=(const Msg_ack_accept& from) {
+  inline MsgAckAccept& operator=(const MsgAckAccept& from) {
     CopyFrom(from);
     return *this;
   }
@@ -736,17 +613,17 @@ class Msg_ack_accept : public ::google::protobuf::Message {
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
-  static const Msg_ack_accept& default_instance();
+  static const MsgAckAccept& default_instance();
 
-  void Swap(Msg_ack_accept* other);
+  void Swap(MsgAckAccept* other);
 
   // implements Message ----------------------------------------------
 
-  Msg_ack_accept* New() const;
+  MsgAckAccept* New() const;
   void CopyFrom(const ::google::protobuf::Message& from);
   void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const Msg_ack_accept& from);
-  void MergeFrom(const Msg_ack_accept& from);
+  void CopyFrom(const MsgAckAccept& from);
+  void MergeFrom(const MsgAckAccept& from);
   void Clear();
   bool IsInitialized() const;
 
@@ -769,377 +646,321 @@ class Msg_ack_accept : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required .mpaxos.Msg_header msg_header = 1;
+  // required .mpaxos.MsgHeader msg_header = 1;
   inline bool has_msg_header() const;
   inline void clear_msg_header();
   static const int kMsgHeaderFieldNumber = 1;
-  inline const ::mpaxos::Msg_header& msg_header() const;
-  inline ::mpaxos::Msg_header* mutable_msg_header();
-  inline ::mpaxos::Msg_header* release_msg_header();
-  inline void set_allocated_msg_header(::mpaxos::Msg_header* msg_header);
+  inline const ::mpaxos::MsgHeader& msg_header() const;
+  inline ::mpaxos::MsgHeader* mutable_msg_header();
+  inline ::mpaxos::MsgHeader* release_msg_header();
+  inline void set_allocated_msg_header(::mpaxos::MsgHeader* msg_header);
 
-  // required .mpaxos.Round_id round_id = 2;
-  inline bool has_round_id() const;
-  inline void clear_round_id();
-  static const int kRoundIdFieldNumber = 2;
-  inline const ::mpaxos::Round_id& round_id() const;
-  inline ::mpaxos::Round_id* mutable_round_id();
-  inline ::mpaxos::Round_id* release_round_id();
-  inline void set_allocated_round_id(::mpaxos::Round_id* round_id);
+  // required uint64 ballot_id = 2;
+  inline bool has_ballot_id() const;
+  inline void clear_ballot_id();
+  static const int kBallotIdFieldNumber = 2;
+  inline ::google::protobuf::uint64 ballot_id() const;
+  inline void set_ballot_id(::google::protobuf::uint64 value);
 
-  // required .mpaxos.MsgAck ack = 3;
-  inline bool has_ack() const;
-  inline void clear_ack();
-  static const int kAckFieldNumber = 3;
-  inline ::mpaxos::MsgAck ack() const;
-  inline void set_ack(::mpaxos::MsgAck value);
+  // required bool reply = 3;
+  inline bool has_reply() const;
+  inline void clear_reply();
+  static const int kReplyFieldNumber = 3;
+  inline bool reply() const;
+  inline void set_reply(bool value);
 
-  // required uint64 max_ballot = 4;
-  inline bool has_max_ballot() const;
-  inline void clear_max_ballot();
-  static const int kMaxBallotFieldNumber = 4;
-  inline ::google::protobuf::uint64 max_ballot() const;
-  inline void set_max_ballot(::google::protobuf::uint64 value);
-
-  // optional .mpaxos.Proposal proposal = 5;
-  inline bool has_proposal() const;
-  inline void clear_proposal();
-  static const int kProposalFieldNumber = 5;
-  inline const ::mpaxos::Proposal& proposal() const;
-  inline ::mpaxos::Proposal* mutable_proposal();
-  inline ::mpaxos::Proposal* release_proposal();
-  inline void set_allocated_proposal(::mpaxos::Proposal* proposal);
-
-  // @@protoc_insertion_point(class_scope:mpaxos.Msg_ack_accept)
+  // @@protoc_insertion_point(class_scope:mpaxos.MsgAckAccept)
  private:
   inline void set_has_msg_header();
   inline void clear_has_msg_header();
-  inline void set_has_round_id();
-  inline void clear_has_round_id();
-  inline void set_has_ack();
-  inline void clear_has_ack();
-  inline void set_has_max_ballot();
-  inline void clear_has_max_ballot();
-  inline void set_has_proposal();
-  inline void clear_has_proposal();
+  inline void set_has_ballot_id();
+  inline void clear_has_ballot_id();
+  inline void set_has_reply();
+  inline void clear_has_reply();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::mpaxos::Msg_header* msg_header_;
-  ::mpaxos::Round_id* round_id_;
-  ::google::protobuf::uint64 max_ballot_;
-  ::mpaxos::Proposal* proposal_;
-  int ack_;
+  ::mpaxos::MsgHeader* msg_header_;
+  ::google::protobuf::uint64 ballot_id_;
+  bool reply_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
 
   friend void  protobuf_AddDesc_mpaxos_2eproto();
   friend void protobuf_AssignDesc_mpaxos_2eproto();
   friend void protobuf_ShutdownFile_mpaxos_2eproto();
 
   void InitAsDefaultInstance();
-  static Msg_ack_accept* default_instance_;
+  static MsgAckAccept* default_instance_;
 };
 // ===================================================================
 
 
 // ===================================================================
 
-// Msg_header
+// MsgHeader
 
 // required .mpaxos.MsgType msg_type = 1;
-inline bool Msg_header::has_msg_type() const {
+inline bool MsgHeader::has_msg_type() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void Msg_header::set_has_msg_type() {
+inline void MsgHeader::set_has_msg_type() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void Msg_header::clear_has_msg_type() {
+inline void MsgHeader::clear_has_msg_type() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void Msg_header::clear_msg_type() {
+inline void MsgHeader::clear_msg_type() {
   msg_type_ = 0;
   clear_has_msg_type();
 }
-inline ::mpaxos::MsgType Msg_header::msg_type() const {
+inline ::mpaxos::MsgType MsgHeader::msg_type() const {
   return static_cast< ::mpaxos::MsgType >(msg_type_);
 }
-inline void Msg_header::set_msg_type(::mpaxos::MsgType value) {
+inline void MsgHeader::set_msg_type(::mpaxos::MsgType value) {
   assert(::mpaxos::MsgType_IsValid(value));
   set_has_msg_type();
   msg_type_ = value;
 }
 
-// required string host_name = 2;
-inline bool Msg_header::has_host_name() const {
+// required uint32 node_id = 2;
+inline bool MsgHeader::has_node_id() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void Msg_header::set_has_host_name() {
+inline void MsgHeader::set_has_node_id() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void Msg_header::clear_has_host_name() {
+inline void MsgHeader::clear_has_node_id() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void Msg_header::clear_host_name() {
-  if (host_name_ != &::google::protobuf::internal::kEmptyString) {
-    host_name_->clear();
+inline void MsgHeader::clear_node_id() {
+  node_id_ = 0u;
+  clear_has_node_id();
+}
+inline ::google::protobuf::uint32 MsgHeader::node_id() const {
+  return node_id_;
+}
+inline void MsgHeader::set_node_id(::google::protobuf::uint32 value) {
+  set_has_node_id();
+  node_id_ = value;
+}
+
+// required uint64 slot_id = 3;
+inline bool MsgHeader::has_slot_id() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void MsgHeader::set_has_slot_id() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void MsgHeader::clear_has_slot_id() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void MsgHeader::clear_slot_id() {
+  slot_id_ = GOOGLE_ULONGLONG(0);
+  clear_has_slot_id();
+}
+inline ::google::protobuf::uint64 MsgHeader::slot_id() const {
+  return slot_id_;
+}
+inline void MsgHeader::set_slot_id(::google::protobuf::uint64 value) {
+  set_has_slot_id();
+  slot_id_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// PropValue
+
+// required uint64 id = 1;
+inline bool PropValue::has_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void PropValue::set_has_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void PropValue::clear_has_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void PropValue::clear_id() {
+  id_ = GOOGLE_ULONGLONG(0);
+  clear_has_id();
+}
+inline ::google::protobuf::uint64 PropValue::id() const {
+  return id_;
+}
+inline void PropValue::set_id(::google::protobuf::uint64 value) {
+  set_has_id();
+  id_ = value;
+}
+
+// required string data = 2;
+inline bool PropValue::has_data() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void PropValue::set_has_data() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void PropValue::clear_has_data() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void PropValue::clear_data() {
+  if (data_ != &::google::protobuf::internal::kEmptyString) {
+    data_->clear();
   }
-  clear_has_host_name();
+  clear_has_data();
 }
-inline const ::std::string& Msg_header::host_name() const {
-  return *host_name_;
+inline const ::std::string& PropValue::data() const {
+  return *data_;
 }
-inline void Msg_header::set_host_name(const ::std::string& value) {
-  set_has_host_name();
-  if (host_name_ == &::google::protobuf::internal::kEmptyString) {
-    host_name_ = new ::std::string;
+inline void PropValue::set_data(const ::std::string& value) {
+  set_has_data();
+  if (data_ == &::google::protobuf::internal::kEmptyString) {
+    data_ = new ::std::string;
   }
-  host_name_->assign(value);
+  data_->assign(value);
 }
-inline void Msg_header::set_host_name(const char* value) {
-  set_has_host_name();
-  if (host_name_ == &::google::protobuf::internal::kEmptyString) {
-    host_name_ = new ::std::string;
+inline void PropValue::set_data(const char* value) {
+  set_has_data();
+  if (data_ == &::google::protobuf::internal::kEmptyString) {
+    data_ = new ::std::string;
   }
-  host_name_->assign(value);
+  data_->assign(value);
 }
-inline void Msg_header::set_host_name(const char* value, size_t size) {
-  set_has_host_name();
-  if (host_name_ == &::google::protobuf::internal::kEmptyString) {
-    host_name_ = new ::std::string;
+inline void PropValue::set_data(const char* value, size_t size) {
+  set_has_data();
+  if (data_ == &::google::protobuf::internal::kEmptyString) {
+    data_ = new ::std::string;
   }
-  host_name_->assign(reinterpret_cast<const char*>(value), size);
+  data_->assign(reinterpret_cast<const char*>(value), size);
 }
-inline ::std::string* Msg_header::mutable_host_name() {
-  set_has_host_name();
-  if (host_name_ == &::google::protobuf::internal::kEmptyString) {
-    host_name_ = new ::std::string;
+inline ::std::string* PropValue::mutable_data() {
+  set_has_data();
+  if (data_ == &::google::protobuf::internal::kEmptyString) {
+    data_ = new ::std::string;
   }
-  return host_name_;
+  return data_;
 }
-inline ::std::string* Msg_header::release_host_name() {
-  clear_has_host_name();
-  if (host_name_ == &::google::protobuf::internal::kEmptyString) {
+inline ::std::string* PropValue::release_data() {
+  clear_has_data();
+  if (data_ == &::google::protobuf::internal::kEmptyString) {
     return NULL;
   } else {
-    ::std::string* temp = host_name_;
-    host_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    ::std::string* temp = data_;
+    data_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
     return temp;
   }
 }
-inline void Msg_header::set_allocated_host_name(::std::string* host_name) {
-  if (host_name_ != &::google::protobuf::internal::kEmptyString) {
-    delete host_name_;
+inline void PropValue::set_allocated_data(::std::string* data) {
+  if (data_ != &::google::protobuf::internal::kEmptyString) {
+    delete data_;
   }
-  if (host_name) {
-    set_has_host_name();
-    host_name_ = host_name;
+  if (data) {
+    set_has_data();
+    data_ = data;
   } else {
-    clear_has_host_name();
-    host_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    clear_has_data();
+    data_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   }
 }
 
 // -------------------------------------------------------------------
 
-// Round_id
+// MsgPrepare
 
-// required uint64 slot_id = 1;
-inline bool Round_id::has_slot_id() const {
+// required .mpaxos.MsgHeader msg_header = 1;
+inline bool MsgPrepare::has_msg_header() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void Round_id::set_has_slot_id() {
+inline void MsgPrepare::set_has_msg_header() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void Round_id::clear_has_slot_id() {
+inline void MsgPrepare::clear_has_msg_header() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void Round_id::clear_slot_id() {
-  slot_id_ = GOOGLE_ULONGLONG(0);
-  clear_has_slot_id();
+inline void MsgPrepare::clear_msg_header() {
+  if (msg_header_ != NULL) msg_header_->::mpaxos::MsgHeader::Clear();
+  clear_has_msg_header();
 }
-inline ::google::protobuf::uint64 Round_id::slot_id() const {
-  return slot_id_;
+inline const ::mpaxos::MsgHeader& MsgPrepare::msg_header() const {
+  return msg_header_ != NULL ? *msg_header_ : *default_instance_->msg_header_;
 }
-inline void Round_id::set_slot_id(::google::protobuf::uint64 value) {
-  set_has_slot_id();
-  slot_id_ = value;
+inline ::mpaxos::MsgHeader* MsgPrepare::mutable_msg_header() {
+  set_has_msg_header();
+  if (msg_header_ == NULL) msg_header_ = new ::mpaxos::MsgHeader;
+  return msg_header_;
+}
+inline ::mpaxos::MsgHeader* MsgPrepare::release_msg_header() {
+  clear_has_msg_header();
+  ::mpaxos::MsgHeader* temp = msg_header_;
+  msg_header_ = NULL;
+  return temp;
+}
+inline void MsgPrepare::set_allocated_msg_header(::mpaxos::MsgHeader* msg_header) {
+  delete msg_header_;
+  msg_header_ = msg_header;
+  if (msg_header) {
+    set_has_msg_header();
+  } else {
+    clear_has_msg_header();
+  }
 }
 
 // required uint64 ballot_id = 2;
-inline bool Round_id::has_ballot_id() const {
+inline bool MsgPrepare::has_ballot_id() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void Round_id::set_has_ballot_id() {
+inline void MsgPrepare::set_has_ballot_id() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void Round_id::clear_has_ballot_id() {
+inline void MsgPrepare::clear_has_ballot_id() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void Round_id::clear_ballot_id() {
+inline void MsgPrepare::clear_ballot_id() {
   ballot_id_ = GOOGLE_ULONGLONG(0);
   clear_has_ballot_id();
 }
-inline ::google::protobuf::uint64 Round_id::ballot_id() const {
+inline ::google::protobuf::uint64 MsgPrepare::ballot_id() const {
   return ballot_id_;
 }
-inline void Round_id::set_ballot_id(::google::protobuf::uint64 value) {
+inline void MsgPrepare::set_ballot_id(::google::protobuf::uint64 value) {
   set_has_ballot_id();
   ballot_id_ = value;
 }
 
 // -------------------------------------------------------------------
 
-// Proposal
+// MsgAckPrepare
 
-// required uint64 type = 1;
-inline bool Proposal::has_type() const {
+// required .mpaxos.MsgHeader msg_header = 1;
+inline bool MsgAckPrepare::has_msg_header() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void Proposal::set_has_type() {
+inline void MsgAckPrepare::set_has_msg_header() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void Proposal::clear_has_type() {
+inline void MsgAckPrepare::clear_has_msg_header() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void Proposal::clear_type() {
-  type_ = GOOGLE_ULONGLONG(0);
-  clear_has_type();
-}
-inline ::google::protobuf::uint64 Proposal::type() const {
-  return type_;
-}
-inline void Proposal::set_type(::google::protobuf::uint64 value) {
-  set_has_type();
-  type_ = value;
-}
-
-// required uint32 value_id = 2;
-inline bool Proposal::has_value_id() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void Proposal::set_has_value_id() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void Proposal::clear_has_value_id() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void Proposal::clear_value_id() {
-  value_id_ = 0u;
-  clear_has_value_id();
-}
-inline ::google::protobuf::uint32 Proposal::value_id() const {
-  return value_id_;
-}
-inline void Proposal::set_value_id(::google::protobuf::uint32 value) {
-  set_has_value_id();
-  value_id_ = value;
-}
-
-// required string value = 3;
-inline bool Proposal::has_value() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void Proposal::set_has_value() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void Proposal::clear_has_value() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void Proposal::clear_value() {
-  if (value_ != &::google::protobuf::internal::kEmptyString) {
-    value_->clear();
-  }
-  clear_has_value();
-}
-inline const ::std::string& Proposal::value() const {
-  return *value_;
-}
-inline void Proposal::set_value(const ::std::string& value) {
-  set_has_value();
-  if (value_ == &::google::protobuf::internal::kEmptyString) {
-    value_ = new ::std::string;
-  }
-  value_->assign(value);
-}
-inline void Proposal::set_value(const char* value) {
-  set_has_value();
-  if (value_ == &::google::protobuf::internal::kEmptyString) {
-    value_ = new ::std::string;
-  }
-  value_->assign(value);
-}
-inline void Proposal::set_value(const char* value, size_t size) {
-  set_has_value();
-  if (value_ == &::google::protobuf::internal::kEmptyString) {
-    value_ = new ::std::string;
-  }
-  value_->assign(reinterpret_cast<const char*>(value), size);
-}
-inline ::std::string* Proposal::mutable_value() {
-  set_has_value();
-  if (value_ == &::google::protobuf::internal::kEmptyString) {
-    value_ = new ::std::string;
-  }
-  return value_;
-}
-inline ::std::string* Proposal::release_value() {
-  clear_has_value();
-  if (value_ == &::google::protobuf::internal::kEmptyString) {
-    return NULL;
-  } else {
-    ::std::string* temp = value_;
-    value_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-    return temp;
-  }
-}
-inline void Proposal::set_allocated_value(::std::string* value) {
-  if (value_ != &::google::protobuf::internal::kEmptyString) {
-    delete value_;
-  }
-  if (value) {
-    set_has_value();
-    value_ = value;
-  } else {
-    clear_has_value();
-    value_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  }
-}
-
-// -------------------------------------------------------------------
-
-// Msg_prepare
-
-// required .mpaxos.Msg_header msg_header = 1;
-inline bool Msg_prepare::has_msg_header() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void Msg_prepare::set_has_msg_header() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void Msg_prepare::clear_has_msg_header() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void Msg_prepare::clear_msg_header() {
-  if (msg_header_ != NULL) msg_header_->::mpaxos::Msg_header::Clear();
+inline void MsgAckPrepare::clear_msg_header() {
+  if (msg_header_ != NULL) msg_header_->::mpaxos::MsgHeader::Clear();
   clear_has_msg_header();
 }
-inline const ::mpaxos::Msg_header& Msg_prepare::msg_header() const {
+inline const ::mpaxos::MsgHeader& MsgAckPrepare::msg_header() const {
   return msg_header_ != NULL ? *msg_header_ : *default_instance_->msg_header_;
 }
-inline ::mpaxos::Msg_header* Msg_prepare::mutable_msg_header() {
+inline ::mpaxos::MsgHeader* MsgAckPrepare::mutable_msg_header() {
   set_has_msg_header();
-  if (msg_header_ == NULL) msg_header_ = new ::mpaxos::Msg_header;
+  if (msg_header_ == NULL) msg_header_ = new ::mpaxos::MsgHeader;
   return msg_header_;
 }
-inline ::mpaxos::Msg_header* Msg_prepare::release_msg_header() {
+inline ::mpaxos::MsgHeader* MsgAckPrepare::release_msg_header() {
   clear_has_msg_header();
-  ::mpaxos::Msg_header* temp = msg_header_;
+  ::mpaxos::MsgHeader* temp = msg_header_;
   msg_header_ = NULL;
   return temp;
 }
-inline void Msg_prepare::set_allocated_msg_header(::mpaxos::Msg_header* msg_header) {
+inline void MsgAckPrepare::set_allocated_msg_header(::mpaxos::MsgHeader* msg_header) {
   delete msg_header_;
   msg_header_ = msg_header;
   if (msg_header) {
@@ -1149,240 +970,143 @@ inline void Msg_prepare::set_allocated_msg_header(::mpaxos::Msg_header* msg_head
   }
 }
 
-// required .mpaxos.Round_id round_id = 2;
-inline bool Msg_prepare::has_round_id() const {
+// required uint64 ballot_id = 2;
+inline bool MsgAckPrepare::has_ballot_id() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void Msg_prepare::set_has_round_id() {
+inline void MsgAckPrepare::set_has_ballot_id() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void Msg_prepare::clear_has_round_id() {
+inline void MsgAckPrepare::clear_has_ballot_id() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void Msg_prepare::clear_round_id() {
-  if (round_id_ != NULL) round_id_->::mpaxos::Round_id::Clear();
-  clear_has_round_id();
+inline void MsgAckPrepare::clear_ballot_id() {
+  ballot_id_ = GOOGLE_ULONGLONG(0);
+  clear_has_ballot_id();
 }
-inline const ::mpaxos::Round_id& Msg_prepare::round_id() const {
-  return round_id_ != NULL ? *round_id_ : *default_instance_->round_id_;
+inline ::google::protobuf::uint64 MsgAckPrepare::ballot_id() const {
+  return ballot_id_;
 }
-inline ::mpaxos::Round_id* Msg_prepare::mutable_round_id() {
-  set_has_round_id();
-  if (round_id_ == NULL) round_id_ = new ::mpaxos::Round_id;
-  return round_id_;
-}
-inline ::mpaxos::Round_id* Msg_prepare::release_round_id() {
-  clear_has_round_id();
-  ::mpaxos::Round_id* temp = round_id_;
-  round_id_ = NULL;
-  return temp;
-}
-inline void Msg_prepare::set_allocated_round_id(::mpaxos::Round_id* round_id) {
-  delete round_id_;
-  round_id_ = round_id;
-  if (round_id) {
-    set_has_round_id();
-  } else {
-    clear_has_round_id();
-  }
+inline void MsgAckPrepare::set_ballot_id(::google::protobuf::uint64 value) {
+  set_has_ballot_id();
+  ballot_id_ = value;
 }
 
-// -------------------------------------------------------------------
-
-// Msg_ack_prepare
-
-// required .mpaxos.Msg_header msg_header = 1;
-inline bool Msg_ack_prepare::has_msg_header() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void Msg_ack_prepare::set_has_msg_header() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void Msg_ack_prepare::clear_has_msg_header() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void Msg_ack_prepare::clear_msg_header() {
-  if (msg_header_ != NULL) msg_header_->::mpaxos::Msg_header::Clear();
-  clear_has_msg_header();
-}
-inline const ::mpaxos::Msg_header& Msg_ack_prepare::msg_header() const {
-  return msg_header_ != NULL ? *msg_header_ : *default_instance_->msg_header_;
-}
-inline ::mpaxos::Msg_header* Msg_ack_prepare::mutable_msg_header() {
-  set_has_msg_header();
-  if (msg_header_ == NULL) msg_header_ = new ::mpaxos::Msg_header;
-  return msg_header_;
-}
-inline ::mpaxos::Msg_header* Msg_ack_prepare::release_msg_header() {
-  clear_has_msg_header();
-  ::mpaxos::Msg_header* temp = msg_header_;
-  msg_header_ = NULL;
-  return temp;
-}
-inline void Msg_ack_prepare::set_allocated_msg_header(::mpaxos::Msg_header* msg_header) {
-  delete msg_header_;
-  msg_header_ = msg_header;
-  if (msg_header) {
-    set_has_msg_header();
-  } else {
-    clear_has_msg_header();
-  }
-}
-
-// required .mpaxos.Round_id round_id = 2;
-inline bool Msg_ack_prepare::has_round_id() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void Msg_ack_prepare::set_has_round_id() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void Msg_ack_prepare::clear_has_round_id() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void Msg_ack_prepare::clear_round_id() {
-  if (round_id_ != NULL) round_id_->::mpaxos::Round_id::Clear();
-  clear_has_round_id();
-}
-inline const ::mpaxos::Round_id& Msg_ack_prepare::round_id() const {
-  return round_id_ != NULL ? *round_id_ : *default_instance_->round_id_;
-}
-inline ::mpaxos::Round_id* Msg_ack_prepare::mutable_round_id() {
-  set_has_round_id();
-  if (round_id_ == NULL) round_id_ = new ::mpaxos::Round_id;
-  return round_id_;
-}
-inline ::mpaxos::Round_id* Msg_ack_prepare::release_round_id() {
-  clear_has_round_id();
-  ::mpaxos::Round_id* temp = round_id_;
-  round_id_ = NULL;
-  return temp;
-}
-inline void Msg_ack_prepare::set_allocated_round_id(::mpaxos::Round_id* round_id) {
-  delete round_id_;
-  round_id_ = round_id;
-  if (round_id) {
-    set_has_round_id();
-  } else {
-    clear_has_round_id();
-  }
-}
-
-// required .mpaxos.MsgAck ack = 3;
-inline bool Msg_ack_prepare::has_ack() const {
+// required bool reply = 3;
+inline bool MsgAckPrepare::has_reply() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
-inline void Msg_ack_prepare::set_has_ack() {
+inline void MsgAckPrepare::set_has_reply() {
   _has_bits_[0] |= 0x00000004u;
 }
-inline void Msg_ack_prepare::clear_has_ack() {
+inline void MsgAckPrepare::clear_has_reply() {
   _has_bits_[0] &= ~0x00000004u;
 }
-inline void Msg_ack_prepare::clear_ack() {
-  ack_ = 0;
-  clear_has_ack();
+inline void MsgAckPrepare::clear_reply() {
+  reply_ = false;
+  clear_has_reply();
 }
-inline ::mpaxos::MsgAck Msg_ack_prepare::ack() const {
-  return static_cast< ::mpaxos::MsgAck >(ack_);
+inline bool MsgAckPrepare::reply() const {
+  return reply_;
 }
-inline void Msg_ack_prepare::set_ack(::mpaxos::MsgAck value) {
-  assert(::mpaxos::MsgAck_IsValid(value));
-  set_has_ack();
-  ack_ = value;
+inline void MsgAckPrepare::set_reply(bool value) {
+  set_has_reply();
+  reply_ = value;
 }
 
-// required uint64 max_ballot = 4;
-inline bool Msg_ack_prepare::has_max_ballot() const {
+// required uint64 max_ballot_id = 4;
+inline bool MsgAckPrepare::has_max_ballot_id() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }
-inline void Msg_ack_prepare::set_has_max_ballot() {
+inline void MsgAckPrepare::set_has_max_ballot_id() {
   _has_bits_[0] |= 0x00000008u;
 }
-inline void Msg_ack_prepare::clear_has_max_ballot() {
+inline void MsgAckPrepare::clear_has_max_ballot_id() {
   _has_bits_[0] &= ~0x00000008u;
 }
-inline void Msg_ack_prepare::clear_max_ballot() {
-  max_ballot_ = GOOGLE_ULONGLONG(0);
-  clear_has_max_ballot();
+inline void MsgAckPrepare::clear_max_ballot_id() {
+  max_ballot_id_ = GOOGLE_ULONGLONG(0);
+  clear_has_max_ballot_id();
 }
-inline ::google::protobuf::uint64 Msg_ack_prepare::max_ballot() const {
-  return max_ballot_;
+inline ::google::protobuf::uint64 MsgAckPrepare::max_ballot_id() const {
+  return max_ballot_id_;
 }
-inline void Msg_ack_prepare::set_max_ballot(::google::protobuf::uint64 value) {
-  set_has_max_ballot();
-  max_ballot_ = value;
+inline void MsgAckPrepare::set_max_ballot_id(::google::protobuf::uint64 value) {
+  set_has_max_ballot_id();
+  max_ballot_id_ = value;
 }
 
-// optional .mpaxos.Proposal proposal = 5;
-inline bool Msg_ack_prepare::has_proposal() const {
+// optional .mpaxos.PropValue max_prop_value = 5;
+inline bool MsgAckPrepare::has_max_prop_value() const {
   return (_has_bits_[0] & 0x00000010u) != 0;
 }
-inline void Msg_ack_prepare::set_has_proposal() {
+inline void MsgAckPrepare::set_has_max_prop_value() {
   _has_bits_[0] |= 0x00000010u;
 }
-inline void Msg_ack_prepare::clear_has_proposal() {
+inline void MsgAckPrepare::clear_has_max_prop_value() {
   _has_bits_[0] &= ~0x00000010u;
 }
-inline void Msg_ack_prepare::clear_proposal() {
-  if (proposal_ != NULL) proposal_->::mpaxos::Proposal::Clear();
-  clear_has_proposal();
+inline void MsgAckPrepare::clear_max_prop_value() {
+  if (max_prop_value_ != NULL) max_prop_value_->::mpaxos::PropValue::Clear();
+  clear_has_max_prop_value();
 }
-inline const ::mpaxos::Proposal& Msg_ack_prepare::proposal() const {
-  return proposal_ != NULL ? *proposal_ : *default_instance_->proposal_;
+inline const ::mpaxos::PropValue& MsgAckPrepare::max_prop_value() const {
+  return max_prop_value_ != NULL ? *max_prop_value_ : *default_instance_->max_prop_value_;
 }
-inline ::mpaxos::Proposal* Msg_ack_prepare::mutable_proposal() {
-  set_has_proposal();
-  if (proposal_ == NULL) proposal_ = new ::mpaxos::Proposal;
-  return proposal_;
+inline ::mpaxos::PropValue* MsgAckPrepare::mutable_max_prop_value() {
+  set_has_max_prop_value();
+  if (max_prop_value_ == NULL) max_prop_value_ = new ::mpaxos::PropValue;
+  return max_prop_value_;
 }
-inline ::mpaxos::Proposal* Msg_ack_prepare::release_proposal() {
-  clear_has_proposal();
-  ::mpaxos::Proposal* temp = proposal_;
-  proposal_ = NULL;
+inline ::mpaxos::PropValue* MsgAckPrepare::release_max_prop_value() {
+  clear_has_max_prop_value();
+  ::mpaxos::PropValue* temp = max_prop_value_;
+  max_prop_value_ = NULL;
   return temp;
 }
-inline void Msg_ack_prepare::set_allocated_proposal(::mpaxos::Proposal* proposal) {
-  delete proposal_;
-  proposal_ = proposal;
-  if (proposal) {
-    set_has_proposal();
+inline void MsgAckPrepare::set_allocated_max_prop_value(::mpaxos::PropValue* max_prop_value) {
+  delete max_prop_value_;
+  max_prop_value_ = max_prop_value;
+  if (max_prop_value) {
+    set_has_max_prop_value();
   } else {
-    clear_has_proposal();
+    clear_has_max_prop_value();
   }
 }
 
 // -------------------------------------------------------------------
 
-// Msg_accept
+// MsgAccept
 
-// required .mpaxos.Msg_header msg_header = 1;
-inline bool Msg_accept::has_msg_header() const {
+// required .mpaxos.MsgHeader msg_header = 1;
+inline bool MsgAccept::has_msg_header() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void Msg_accept::set_has_msg_header() {
+inline void MsgAccept::set_has_msg_header() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void Msg_accept::clear_has_msg_header() {
+inline void MsgAccept::clear_has_msg_header() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void Msg_accept::clear_msg_header() {
-  if (msg_header_ != NULL) msg_header_->::mpaxos::Msg_header::Clear();
+inline void MsgAccept::clear_msg_header() {
+  if (msg_header_ != NULL) msg_header_->::mpaxos::MsgHeader::Clear();
   clear_has_msg_header();
 }
-inline const ::mpaxos::Msg_header& Msg_accept::msg_header() const {
+inline const ::mpaxos::MsgHeader& MsgAccept::msg_header() const {
   return msg_header_ != NULL ? *msg_header_ : *default_instance_->msg_header_;
 }
-inline ::mpaxos::Msg_header* Msg_accept::mutable_msg_header() {
+inline ::mpaxos::MsgHeader* MsgAccept::mutable_msg_header() {
   set_has_msg_header();
-  if (msg_header_ == NULL) msg_header_ = new ::mpaxos::Msg_header;
+  if (msg_header_ == NULL) msg_header_ = new ::mpaxos::MsgHeader;
   return msg_header_;
 }
-inline ::mpaxos::Msg_header* Msg_accept::release_msg_header() {
+inline ::mpaxos::MsgHeader* MsgAccept::release_msg_header() {
   clear_has_msg_header();
-  ::mpaxos::Msg_header* temp = msg_header_;
+  ::mpaxos::MsgHeader* temp = msg_header_;
   msg_header_ = NULL;
   return temp;
 }
-inline void Msg_accept::set_allocated_msg_header(::mpaxos::Msg_header* msg_header) {
+inline void MsgAccept::set_allocated_msg_header(::mpaxos::MsgHeader* msg_header) {
   delete msg_header_;
   msg_header_ = msg_header;
   if (msg_header) {
@@ -1392,115 +1116,99 @@ inline void Msg_accept::set_allocated_msg_header(::mpaxos::Msg_header* msg_heade
   }
 }
 
-// required .mpaxos.Round_id round_id = 2;
-inline bool Msg_accept::has_round_id() const {
+// required uint64 ballot_id = 2;
+inline bool MsgAccept::has_ballot_id() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void Msg_accept::set_has_round_id() {
+inline void MsgAccept::set_has_ballot_id() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void Msg_accept::clear_has_round_id() {
+inline void MsgAccept::clear_has_ballot_id() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void Msg_accept::clear_round_id() {
-  if (round_id_ != NULL) round_id_->::mpaxos::Round_id::Clear();
-  clear_has_round_id();
+inline void MsgAccept::clear_ballot_id() {
+  ballot_id_ = GOOGLE_ULONGLONG(0);
+  clear_has_ballot_id();
 }
-inline const ::mpaxos::Round_id& Msg_accept::round_id() const {
-  return round_id_ != NULL ? *round_id_ : *default_instance_->round_id_;
+inline ::google::protobuf::uint64 MsgAccept::ballot_id() const {
+  return ballot_id_;
 }
-inline ::mpaxos::Round_id* Msg_accept::mutable_round_id() {
-  set_has_round_id();
-  if (round_id_ == NULL) round_id_ = new ::mpaxos::Round_id;
-  return round_id_;
-}
-inline ::mpaxos::Round_id* Msg_accept::release_round_id() {
-  clear_has_round_id();
-  ::mpaxos::Round_id* temp = round_id_;
-  round_id_ = NULL;
-  return temp;
-}
-inline void Msg_accept::set_allocated_round_id(::mpaxos::Round_id* round_id) {
-  delete round_id_;
-  round_id_ = round_id;
-  if (round_id) {
-    set_has_round_id();
-  } else {
-    clear_has_round_id();
-  }
+inline void MsgAccept::set_ballot_id(::google::protobuf::uint64 value) {
+  set_has_ballot_id();
+  ballot_id_ = value;
 }
 
-// required .mpaxos.Proposal proposal = 3;
-inline bool Msg_accept::has_proposal() const {
+// required .mpaxos.PropValue prop_value = 3;
+inline bool MsgAccept::has_prop_value() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
-inline void Msg_accept::set_has_proposal() {
+inline void MsgAccept::set_has_prop_value() {
   _has_bits_[0] |= 0x00000004u;
 }
-inline void Msg_accept::clear_has_proposal() {
+inline void MsgAccept::clear_has_prop_value() {
   _has_bits_[0] &= ~0x00000004u;
 }
-inline void Msg_accept::clear_proposal() {
-  if (proposal_ != NULL) proposal_->::mpaxos::Proposal::Clear();
-  clear_has_proposal();
+inline void MsgAccept::clear_prop_value() {
+  if (prop_value_ != NULL) prop_value_->::mpaxos::PropValue::Clear();
+  clear_has_prop_value();
 }
-inline const ::mpaxos::Proposal& Msg_accept::proposal() const {
-  return proposal_ != NULL ? *proposal_ : *default_instance_->proposal_;
+inline const ::mpaxos::PropValue& MsgAccept::prop_value() const {
+  return prop_value_ != NULL ? *prop_value_ : *default_instance_->prop_value_;
 }
-inline ::mpaxos::Proposal* Msg_accept::mutable_proposal() {
-  set_has_proposal();
-  if (proposal_ == NULL) proposal_ = new ::mpaxos::Proposal;
-  return proposal_;
+inline ::mpaxos::PropValue* MsgAccept::mutable_prop_value() {
+  set_has_prop_value();
+  if (prop_value_ == NULL) prop_value_ = new ::mpaxos::PropValue;
+  return prop_value_;
 }
-inline ::mpaxos::Proposal* Msg_accept::release_proposal() {
-  clear_has_proposal();
-  ::mpaxos::Proposal* temp = proposal_;
-  proposal_ = NULL;
+inline ::mpaxos::PropValue* MsgAccept::release_prop_value() {
+  clear_has_prop_value();
+  ::mpaxos::PropValue* temp = prop_value_;
+  prop_value_ = NULL;
   return temp;
 }
-inline void Msg_accept::set_allocated_proposal(::mpaxos::Proposal* proposal) {
-  delete proposal_;
-  proposal_ = proposal;
-  if (proposal) {
-    set_has_proposal();
+inline void MsgAccept::set_allocated_prop_value(::mpaxos::PropValue* prop_value) {
+  delete prop_value_;
+  prop_value_ = prop_value;
+  if (prop_value) {
+    set_has_prop_value();
   } else {
-    clear_has_proposal();
+    clear_has_prop_value();
   }
 }
 
 // -------------------------------------------------------------------
 
-// Msg_ack_accept
+// MsgAckAccept
 
-// required .mpaxos.Msg_header msg_header = 1;
-inline bool Msg_ack_accept::has_msg_header() const {
+// required .mpaxos.MsgHeader msg_header = 1;
+inline bool MsgAckAccept::has_msg_header() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void Msg_ack_accept::set_has_msg_header() {
+inline void MsgAckAccept::set_has_msg_header() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void Msg_ack_accept::clear_has_msg_header() {
+inline void MsgAckAccept::clear_has_msg_header() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void Msg_ack_accept::clear_msg_header() {
-  if (msg_header_ != NULL) msg_header_->::mpaxos::Msg_header::Clear();
+inline void MsgAckAccept::clear_msg_header() {
+  if (msg_header_ != NULL) msg_header_->::mpaxos::MsgHeader::Clear();
   clear_has_msg_header();
 }
-inline const ::mpaxos::Msg_header& Msg_ack_accept::msg_header() const {
+inline const ::mpaxos::MsgHeader& MsgAckAccept::msg_header() const {
   return msg_header_ != NULL ? *msg_header_ : *default_instance_->msg_header_;
 }
-inline ::mpaxos::Msg_header* Msg_ack_accept::mutable_msg_header() {
+inline ::mpaxos::MsgHeader* MsgAckAccept::mutable_msg_header() {
   set_has_msg_header();
-  if (msg_header_ == NULL) msg_header_ = new ::mpaxos::Msg_header;
+  if (msg_header_ == NULL) msg_header_ = new ::mpaxos::MsgHeader;
   return msg_header_;
 }
-inline ::mpaxos::Msg_header* Msg_ack_accept::release_msg_header() {
+inline ::mpaxos::MsgHeader* MsgAckAccept::release_msg_header() {
   clear_has_msg_header();
-  ::mpaxos::Msg_header* temp = msg_header_;
+  ::mpaxos::MsgHeader* temp = msg_header_;
   msg_header_ = NULL;
   return temp;
 }
-inline void Msg_ack_accept::set_allocated_msg_header(::mpaxos::Msg_header* msg_header) {
+inline void MsgAckAccept::set_allocated_msg_header(::mpaxos::MsgHeader* msg_header) {
   delete msg_header_;
   msg_header_ = msg_header;
   if (msg_header) {
@@ -1510,125 +1218,48 @@ inline void Msg_ack_accept::set_allocated_msg_header(::mpaxos::Msg_header* msg_h
   }
 }
 
-// required .mpaxos.Round_id round_id = 2;
-inline bool Msg_ack_accept::has_round_id() const {
+// required uint64 ballot_id = 2;
+inline bool MsgAckAccept::has_ballot_id() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void Msg_ack_accept::set_has_round_id() {
+inline void MsgAckAccept::set_has_ballot_id() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void Msg_ack_accept::clear_has_round_id() {
+inline void MsgAckAccept::clear_has_ballot_id() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void Msg_ack_accept::clear_round_id() {
-  if (round_id_ != NULL) round_id_->::mpaxos::Round_id::Clear();
-  clear_has_round_id();
+inline void MsgAckAccept::clear_ballot_id() {
+  ballot_id_ = GOOGLE_ULONGLONG(0);
+  clear_has_ballot_id();
 }
-inline const ::mpaxos::Round_id& Msg_ack_accept::round_id() const {
-  return round_id_ != NULL ? *round_id_ : *default_instance_->round_id_;
+inline ::google::protobuf::uint64 MsgAckAccept::ballot_id() const {
+  return ballot_id_;
 }
-inline ::mpaxos::Round_id* Msg_ack_accept::mutable_round_id() {
-  set_has_round_id();
-  if (round_id_ == NULL) round_id_ = new ::mpaxos::Round_id;
-  return round_id_;
-}
-inline ::mpaxos::Round_id* Msg_ack_accept::release_round_id() {
-  clear_has_round_id();
-  ::mpaxos::Round_id* temp = round_id_;
-  round_id_ = NULL;
-  return temp;
-}
-inline void Msg_ack_accept::set_allocated_round_id(::mpaxos::Round_id* round_id) {
-  delete round_id_;
-  round_id_ = round_id;
-  if (round_id) {
-    set_has_round_id();
-  } else {
-    clear_has_round_id();
-  }
+inline void MsgAckAccept::set_ballot_id(::google::protobuf::uint64 value) {
+  set_has_ballot_id();
+  ballot_id_ = value;
 }
 
-// required .mpaxos.MsgAck ack = 3;
-inline bool Msg_ack_accept::has_ack() const {
+// required bool reply = 3;
+inline bool MsgAckAccept::has_reply() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
-inline void Msg_ack_accept::set_has_ack() {
+inline void MsgAckAccept::set_has_reply() {
   _has_bits_[0] |= 0x00000004u;
 }
-inline void Msg_ack_accept::clear_has_ack() {
+inline void MsgAckAccept::clear_has_reply() {
   _has_bits_[0] &= ~0x00000004u;
 }
-inline void Msg_ack_accept::clear_ack() {
-  ack_ = 0;
-  clear_has_ack();
+inline void MsgAckAccept::clear_reply() {
+  reply_ = false;
+  clear_has_reply();
 }
-inline ::mpaxos::MsgAck Msg_ack_accept::ack() const {
-  return static_cast< ::mpaxos::MsgAck >(ack_);
+inline bool MsgAckAccept::reply() const {
+  return reply_;
 }
-inline void Msg_ack_accept::set_ack(::mpaxos::MsgAck value) {
-  assert(::mpaxos::MsgAck_IsValid(value));
-  set_has_ack();
-  ack_ = value;
-}
-
-// required uint64 max_ballot = 4;
-inline bool Msg_ack_accept::has_max_ballot() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
-}
-inline void Msg_ack_accept::set_has_max_ballot() {
-  _has_bits_[0] |= 0x00000008u;
-}
-inline void Msg_ack_accept::clear_has_max_ballot() {
-  _has_bits_[0] &= ~0x00000008u;
-}
-inline void Msg_ack_accept::clear_max_ballot() {
-  max_ballot_ = GOOGLE_ULONGLONG(0);
-  clear_has_max_ballot();
-}
-inline ::google::protobuf::uint64 Msg_ack_accept::max_ballot() const {
-  return max_ballot_;
-}
-inline void Msg_ack_accept::set_max_ballot(::google::protobuf::uint64 value) {
-  set_has_max_ballot();
-  max_ballot_ = value;
-}
-
-// optional .mpaxos.Proposal proposal = 5;
-inline bool Msg_ack_accept::has_proposal() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
-}
-inline void Msg_ack_accept::set_has_proposal() {
-  _has_bits_[0] |= 0x00000010u;
-}
-inline void Msg_ack_accept::clear_has_proposal() {
-  _has_bits_[0] &= ~0x00000010u;
-}
-inline void Msg_ack_accept::clear_proposal() {
-  if (proposal_ != NULL) proposal_->::mpaxos::Proposal::Clear();
-  clear_has_proposal();
-}
-inline const ::mpaxos::Proposal& Msg_ack_accept::proposal() const {
-  return proposal_ != NULL ? *proposal_ : *default_instance_->proposal_;
-}
-inline ::mpaxos::Proposal* Msg_ack_accept::mutable_proposal() {
-  set_has_proposal();
-  if (proposal_ == NULL) proposal_ = new ::mpaxos::Proposal;
-  return proposal_;
-}
-inline ::mpaxos::Proposal* Msg_ack_accept::release_proposal() {
-  clear_has_proposal();
-  ::mpaxos::Proposal* temp = proposal_;
-  proposal_ = NULL;
-  return temp;
-}
-inline void Msg_ack_accept::set_allocated_proposal(::mpaxos::Proposal* proposal) {
-  delete proposal_;
-  proposal_ = proposal;
-  if (proposal) {
-    set_has_proposal();
-  } else {
-    clear_has_proposal();
-  }
+inline void MsgAckAccept::set_reply(bool value) {
+  set_has_reply();
+  reply_ = value;
 }
 
 
@@ -1643,10 +1274,6 @@ namespace protobuf {
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::mpaxos::MsgType>() {
   return ::mpaxos::MsgType_descriptor();
-}
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::mpaxos::MsgAck>() {
-  return ::mpaxos::MsgAck_descriptor();
 }
 
 }  // namespace google
