@@ -1,9 +1,11 @@
 /*
  * proposer.h
  *
- *  Created on: Jan 2, 2013
- *      Author: Shuai Mu
+ * Created on: Jan 2, 2013
+ *    Author: Shuai Mu
  *
+ * proposer.hpp
+ *    Author: Lijing Wang
  */
 
 // TODO (loli) rename this to proposer.hpp, and make this compilable, and implement this Proposer class 

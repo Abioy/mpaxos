@@ -1,47 +1,47 @@
 package mpaxos;
 
 enum MsgType {
-    PREPARE = 0;
-    PROMISE = 1;
-    ACCEPT = 2;
-    ACCEPTED = 3;
-    LEARN = 4;
-    DECIDE = 5;
-    SLOT = 6;
+  PREPARE = 0;
+  PROMISE = 1;
+  ACCEPT = 2;
+  ACCEPTED = 3;
+  LEARN = 4;
+  DECIDE = 5;
+  SLOT = 6;
 }
 
 message MsgHeader {
-    required MsgType msg_type = 1;
-    required uint32 node_id = 2;
-    required uint64 slot_id = 3;
+  required MsgType msg_type = 1;
+  required uint32 node_id = 2;
+  required uint64 slot_id = 3;
 }
 
 message PropValue {
-    required uint64 id = 1;
-    required string data = 2;
+  required uint64 id = 1;
+  required string data = 2;
 }
 
 message MsgPrepare {
-    required MsgHeader msg_header = 1;
-    required uint64 ballot_id = 2;
+  required MsgHeader msg_header = 1;
+  required uint64 ballot_id = 2;
 }
 
 message MsgAckPrepare {
-    required MsgHeader msg_header = 1;
-    required uint64 ballot_id = 2;
-    required bool reply = 3;
-	  required uint64 max_ballot_id = 4;
-    optional PropValue max_prop_value = 5;
+  required MsgHeader msg_header = 1;
+  required uint64 ballot_id = 2;
+  required bool reply = 3;
+  required uint64 max_ballot_id = 4;
+  optional PropValue max_prop_value = 5;
 }
 
 message MsgAccept {
-    required MsgHeader msg_header = 1;
-    required uint64 ballot_id = 2;
-    required PropValue prop_value = 3;
+  required MsgHeader msg_header = 1;
+  required uint64 ballot_id = 2;
+  required PropValue prop_value = 3;
 }
 
 message MsgAckAccept {
-    required MsgHeader msg_header = 1;
-    required uint64 ballot_id = 2;
-    required bool reply = 3;
+  required MsgHeader msg_header = 1;
+  required uint64 ballot_id = 2;
+  required bool reply = 3;
 }
