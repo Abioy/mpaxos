@@ -1,6 +1,6 @@
 /*
  * proposer.hpp
- *    Author: Lijing Wang
+ * Author: Lijing Wang
  */
 
 #pragma once
@@ -8,12 +8,22 @@
 #include "mpaxos.pb.h"
 //#include <cstdint>
 #include <set>
+#include <iostream>
+#include <thread>
+#include <mutex>
 namespace mpaxos {
 
 //typedef uint16_t node_id_t;
 //typedef uint64_t slot_id_t;
 //typedef uint64_t ballot_id_t;
 //typedef uint64_t value_id_t;
+enum AckPrepareType {
+  DROP = 0,
+  NOT_ENOUGH = 1,
+  CONTINUE = 2,
+  RESTART = 3,
+  CHOOSE = 4
+};
 
 using node_id_t = uint16_t;
 using slot_id_t = uint64_t;
@@ -23,9 +33,12 @@ using value_id_t = uint64_t;
 class View {
  public:
 //  View(set<node_id_t> &nodes);
-  View();
+  View(node_id_t node_id);
   std::set<node_id_t> * get_nodes();
+  node_id_t whoami();
+ private:
   std::set<node_id_t> nodes_;
+  node_id_t node_id_;
 };
 
 class Proposer {
@@ -36,14 +49,23 @@ class Proposer {
   ~Proposer();
 
   // start proposing, send prepare requests to at least a majority of acceptors.
-  void msg_prepare();
+  MsgPrepare *msg_prepare();
 
   // choose a higher ballot id, retry the prepare phase.
   // clean the map for the ack of prepare and accept
-  void restart_msg_prepare();
+  MsgPrepare *restart_msg_prepare();
 
   // start accepting, send accept requests to acceptors who responsed.
-  void msg_accept();
+  MsgAccept *msg_accept();
+
+//  // Temp return msg_ack_prepare_ to captain
+//  std::map<node_id_t, MsgAckPrepare *> *get_ack_prepare();
+//
+//  // Temp return msg_ack_accept_ to captain
+//  std::map<node_id_t, MsgAckAccept *> *get_ack_accept();
+
+  // Temp return curr_value_ to captain
+  PropValue *get_curr_value();
 
   /**
    * handle acks to the prepare requests.
@@ -53,14 +75,14 @@ class Proposer {
    * if a majority of no, 
    * restart with a higher ballot 
    */ 
-  void handle_msg_promise(MsgAckPrepare *);
+  int handle_msg_promise(MsgAckPrepare *);
 
   /**
    * handle acks to the accept reqeusts;
    * if a majority of yes, the value is successfully chosen. 
    * if a majority of no, restart the first phase with a higher ballot.
    */
-  void handle_msg_accepted(MsgAckAccept *);   
+  int handle_msg_accepted(MsgAckAccept *); 
 
   /**
    * ballot_id_t should be a 64-bit uint, high 48bit is self incremental counter,
@@ -68,6 +90,7 @@ class Proposer {
    */ 
   ballot_id_t gen_next_ballot() ;
 
+ private:
   View *view_; 
 
   // the value that client wants me to commit
@@ -95,5 +118,9 @@ class Proposer {
   // the ack from all nodes to the cuurent accept. 
   // remember to clean for every next ballot!!!
   std::map<node_id_t, MsgAckAccept *> msg_ack_accept_;
+
+  // lock to maintain thread_safe, now one proposer share one lock ADDED by lijing
+  std::mutex prepare_mutex_;
+  std::mutex accept_mutex_;
 };
 }  // namespace mpaxos
