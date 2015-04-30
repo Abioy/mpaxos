@@ -30,6 +30,7 @@ If you want more documents from research guys... Seriously?
  - [msmummy](https://github.com/msmummy)
  - [zTrix](https://github.com/zTrix)
  - [zorksylar](https://github.com/zorksylar)
+ - [PhdLoLi](https://github.com/PhdLoLi)
   
 
 [MPaxos]:https://github.com/msmummy/mpaxos
