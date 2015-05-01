@@ -55,10 +55,10 @@ def configure(conf):
 
 def build(bld):
 
-    bld.stlib(source=bld.path.ant_glob(['libmpaxos/proposer.cpp', 'libmpaxos/mpaxos.proto']), 
+    bld.stlib(source=bld.path.ant_glob(['libmpaxos/proposer.cpp','libmpaxos/acceptor.cpp', 'libmpaxos/mpaxos.proto']), 
               target="mpaxos",
               includes="libmpaxos",
-              use="PROTOBUF YAML-CPP ZMQ pthread",
+              use="PROTOBUF pthread",
               install_path="${PREFIX}/lib")
 
     bld.program(source=['test/test_proposer.cpp'], 

@@ -5,6 +5,7 @@
  */
 
 #include "proposer.hpp"
+#include "acceptor.hpp"
 namespace mpaxos {
 int main(int argc, char** argv) {
   // init Proposer
@@ -15,8 +16,9 @@ int main(int argc, char** argv) {
   value.set_data("Hello World!");
   Proposer prop(view, value);  
   // Phase I Propser call prepare
-  MsgPrepare *msg_pre = prop.msg_prepare();
   std::cout << "Started Phase I" << std::endl;
+  MsgPrepare *msg_pre = prop.msg_prepare();
+  std::cout << "ballot_id_ " << msg_pre->ballot_id() <<std::endl;
 
   // Phase I Propsergot msg_pre and send to all acceptors
   for (it = nodes_set->begin(); it != nodes_set->end(); it++) {
@@ -25,25 +27,16 @@ int main(int argc, char** argv) {
   
   // listen to all acceptors got ack in different threads
   // fake acceptors here
-  // prepare msg_header
-  MsgHeader *msg_header_pre = new MsgHeader();
-  msg_header_pre->set_msg_type(MsgType::PROMISE);
-  msg_header_pre->set_node_id(view.whoami());
-  msg_header_pre->set_slot_id(0);
-  // prepare the msg_ack_prepare
-  MsgAckPrepare *msg_ack_pre = new MsgAckPrepare();
-  msg_ack_pre->set_allocated_msg_header(msg_header_pre);
-  msg_ack_pre->set_ballot_id(1);
-  msg_ack_pre->set_reply(true);
-  msg_ack_pre->set_max_ballot_id(0);
-
+  Acceptor acc(view);
+  MsgAckPrepare *msg_ack_pre = acc.handle_msg_prepare(msg_pre); 
+  MsgAccept *msg_acc = NULL;
   switch (prop.handle_msg_promise(msg_ack_pre)) {
     case DROP: break;
     case NOT_ENOUGH: break;
     case CONTINUE: {
       // Send to all acceptors in view
       std::cout << "Continue to Phase II" << std::endl;
-      MsgAccept *msg_acc = prop.msg_accept();
+      msg_acc = prop.msg_accept();
       for (it = nodes_set->begin(); it != nodes_set->end(); it++) {
         // send msg_accpect
       }
@@ -56,16 +49,9 @@ int main(int argc, char** argv) {
       }
     }
   }
-  // prepare msg_header
-  MsgHeader *msg_header_acc = new MsgHeader();
-  msg_header_acc->set_msg_type(MsgType::ACCEPTED);
-  msg_header_acc->set_node_id(view.whoami());
-  msg_header_acc->set_slot_id(0);
-  // prepare the msg_ack_accept
-  MsgAckAccept *msg_ack_acc = new MsgAckAccept();
-  msg_ack_acc->set_allocated_msg_header(msg_header_acc);
-  msg_ack_acc->set_ballot_id(1);
-  msg_ack_acc->set_reply(true);
+  //Not Good to avoid error
+  if (!msg_acc) return -1;
+  MsgAckAccept *msg_ack_acc = acc.handle_msg_accept(msg_acc);
   // handle_msg_accepted
   switch (prop.handle_msg_accepted(msg_ack_acc)) {
     case DROP: break;

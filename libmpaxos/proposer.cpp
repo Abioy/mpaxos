@@ -23,12 +23,10 @@ namespace mpaxos {
   Proposer::Proposer(View &view, PropValue &value) 
 //                     std::function<void>(PropValue &value) &callback) 
     : view_(&view), init_value_(&value),// callback_(callback),
-      curr_ballot_(0), curr_value_(new PropValue(value)),
+      curr_ballot_(0), curr_value_(NULL),
       max_ballot_(0), max_value_(NULL) {
     // init id of init_value_
     init_value_->set_id(0);
-    // init id of curr_value_
-    curr_value_->set_id(0);
   }
 
   Proposer::Proposer() : max_ballot_(0), max_value_(NULL) {
@@ -48,7 +46,9 @@ namespace mpaxos {
     // prepare the msg_prepare
     msg_pre->set_allocated_msg_header(msg_header);
     // gen_next_ballot will increase the curr_value_
+//    gen_next_ballot();
     msg_pre->set_ballot_id(gen_next_ballot());
+    std::cout << "Proposer -- Phase I : msg_prepare ballot_id " << curr_ballot_ << std::endl; 
     return msg_pre;
   }
 
@@ -75,16 +75,6 @@ namespace mpaxos {
     return msg_acc;      
   }
 
-//  // Temp return msg_ack_prepare_ to captain
-//  std::map<node_id_t, MsgAckPrepare *> *Proposer::get_ack_prepare() {
-//    return msg_ack_prepare_;
-//  }
-
-//  // Temp return msg_ack_accept_ to captain
-//  std::map<node_id_t, MsgAckAccept *> *Proposer::get_ack_accept() {
-//    return msg_ack_accept_;
-//  }
-
   // Temp return curr_value_ to captain
   PropValue *Proposer::get_curr_value() {
     return curr_value_;
@@ -101,13 +91,18 @@ namespace mpaxos {
   int Proposer::handle_msg_promise(MsgAckPrepare *msg_ack_pre) {
     std::lock_guard<std::mutex> lock(prepare_mutex_);
     //DROP Out of Date & Already enter Phase II
-    if (msg_ack_pre->ballot_id() < curr_ballot_ || curr_value_) return DROP; 
+    if (msg_ack_pre->ballot_id() < curr_ballot_ || curr_value_) {
+      std::cout << "DROP!" << std::endl;
+      return DROP; 
+    }
     node_id_t node_id = (uint16_t)msg_ack_pre->msg_header().node_id();
     std::cout << "Inside handle_msg_promise node_id: " << node_id << std::endl;
     msg_ack_prepare_[node_id] = msg_ack_pre;
     // NOT_ENOUGH
-    if (msg_ack_prepare_.size() <= view_->get_nodes()->size() / 2) 
+    if (msg_ack_prepare_.size() <= view_->get_nodes()->size() / 2) {
+      std::cout << "NOT_ENOUGH!" << std::endl;
       return NOT_ENOUGH; 
+    }
     int true_counter = 0;
     std::map<node_id_t, MsgAckPrepare *>::iterator it;
     for (it = msg_ack_prepare_.begin(); it != msg_ack_prepare_.end(); it++) {
@@ -122,9 +117,12 @@ namespace mpaxos {
     if (true_counter > view_->get_nodes()->size() / 2) {
       // CONTINUE
       curr_value_ = max_value_ == NULL ? init_value_ : max_value_;
+      std::cout << "CONTINUE!" << std::endl;
       return CONTINUE;
-    } else // RESTART 
+    } else {// RESTART 
+      std::cout << "RESTART!" << std::endl;
       return RESTART;
+    }
   }
 
   /**
@@ -161,7 +159,9 @@ namespace mpaxos {
    * low 16bit is the node id.
    */ 
   ballot_id_t Proposer::gen_next_ballot() {
-    curr_ballot_ = (curr_ballot_ >> 16 + 1 ) << 16 + view_->whoami();
+    std::cout << "Before gen_next_ballot curr_ballot_ " << curr_ballot_ << std::endl;
+    curr_ballot_ = ((curr_ballot_ >> 16) + 1 ) << 16 + view_->whoami();
+    std::cout << "After gen_next_ballot curr_ballot_ " << curr_ballot_ << std::endl;
     return curr_ballot_;
   }
 }

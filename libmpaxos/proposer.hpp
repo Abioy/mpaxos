@@ -6,8 +6,8 @@
 #pragma once
 
 #include "mpaxos.pb.h"
+#include "internal_types.hpp"
 //#include <cstdint>
-#include <set>
 #include <iostream>
 #include <thread>
 #include <mutex>
@@ -17,34 +17,11 @@ namespace mpaxos {
 //typedef uint64_t slot_id_t;
 //typedef uint64_t ballot_id_t;
 //typedef uint64_t value_id_t;
-enum AckPrepareType {
-  DROP = 0,
-  NOT_ENOUGH = 1,
-  CONTINUE = 2,
-  RESTART = 3,
-  CHOOSE = 4
-};
 
-using node_id_t = uint16_t;
-using slot_id_t = uint64_t;
-using ballot_id_t = uint64_t;
-using value_id_t = uint64_t;
-
-class View {
- public:
-//  View(set<node_id_t> &nodes);
-  View(node_id_t node_id);
-  std::set<node_id_t> * get_nodes();
-  node_id_t whoami();
- private:
-  std::set<node_id_t> nodes_;
-  node_id_t node_id_;
-};
 
 class Proposer {
  public:
   Proposer();
-//  Proposer(View &view, PropValue &value, std::function<void>(PropValue &value) &callback); 
   Proposer(View &view, PropValue &value); 
   ~Proposer();
 
@@ -68,19 +45,21 @@ class Proposer {
   PropValue *get_curr_value();
 
   /**
-   * handle acks to the prepare requests.
+   * handle acks to the prepare requests:
    * if a majority of yes, decide use which value to do the accept requests.
    *   with a majority of empty, use the initial value I have. 
    *   with some already accepted value, choose one with the highest ballot
    * if a majority of no, 
-   * restart with a higher ballot 
+   *   restart with a higher ballot.
+   * return the status 
    */ 
   int handle_msg_promise(MsgAckPrepare *);
 
   /**
-   * handle acks to the accept reqeusts;
+   * handle acks to the accept reqeusts:
    * if a majority of yes, the value is successfully chosen. 
    * if a majority of no, restart the first phase with a higher ballot.
+   * return the status 
    */
   int handle_msg_accepted(MsgAckAccept *); 
 
@@ -93,16 +72,16 @@ class Proposer {
  private:
   View *view_; 
 
-  // the value that client wants me to commit
+  // the value that client wants me to commit.
   PropValue *init_value_; 
 
-  // the ballot I am currently using
+  // the ballot I am currently using.
   ballot_id_t curr_ballot_; 
   
-  // the value I am currently proposing
+  // the value I am currently proposing.
   PropValue *curr_value_;  
   
-  // the max ballot I have ever seen, initialy 0;
+  // the max ballot I have ever seen, initialy 0.
   ballot_id_t max_ballot_;  
 
   // the max PropValue I have ever seen, initialy null.
@@ -119,7 +98,7 @@ class Proposer {
   // remember to clean for every next ballot!!!
   std::map<node_id_t, MsgAckAccept *> msg_ack_accept_;
 
-  // lock to maintain thread_safe, now one proposer share one lock ADDED by lijing
+  // lock to maintain thread_safe, now one proposer share one lock ADDED by Lijing
   std::mutex prepare_mutex_;
   std::mutex accept_mutex_;
 };
