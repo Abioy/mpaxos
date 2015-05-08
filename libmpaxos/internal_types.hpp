@@ -1,6 +1,11 @@
 #pragma once
 #include <set>
 #include <cstdint>
+#include <queue>
+#include "mpaxos.pb.h"
+#include <iostream>
+#include <thread>
+#include <mutex>
 
 namespace mpaxos {
 enum AckType {

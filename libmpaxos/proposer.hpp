@@ -5,12 +5,8 @@
 
 #pragma once
 
-#include "mpaxos.pb.h"
 #include "internal_types.hpp"
-//#include <cstdint>
-#include <iostream>
-#include <thread>
-#include <mutex>
+
 namespace mpaxos {
 
 //typedef uint16_t node_id_t;
@@ -42,7 +38,7 @@ class Proposer {
 //  std::map<node_id_t, MsgAckAccept *> *get_ack_accept();
 
   // Temp return curr_value_ to captain
-  PropValue *get_curr_value();
+  PropValue *get_chosen_value();
 
   /**
    * handle acks to the prepare requests:

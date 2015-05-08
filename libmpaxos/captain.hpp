@@ -1,28 +1,48 @@
+/**
+ * captain.hpp
+ * Author: Lijing Wang
+ * Date: 5/5/2015
+ */
 
 #pragma once
+#include "proposer.hpp"
+#include "acceptor.hpp"
+//#include "include_all.h"
+namespace mpaxos {
+// TODO [Loli] This module is responsible for locating the correct proposer and
+// acceptor for a certain instance (an instance is identified by slot_id). 
+class Commo;
+class Captain {
+ public:
+  Captain(View &);
+  ~Captain();
+  /** 
+   * client commits one value to captain
+   */
+  void commit_value(std::string);
+  /**
+   * captain starts a new paxos instance 
+   */
+  void new_slot();
+  /**
+   * set commo_handler 
+   */
+  void set_commo(Commo *); 
+  /**
+   * handle message from commo, all kinds of message
+   */
+  void handle_msg(google::protobuf::Message *, MsgType);
 
-#include "include_all.h"
-
-// TODO: [Loli] This module is responsible for locating the correct proposer and acceptor for a certain instance (an instance is identified by roundid). Do whatever you need to do.
-
-// TODO proposer_t and acceptor_t: TBD.
-//proposer_t* mpaxos_find_proposer(XXX);
-//acceptor_t* mpaxos_find_acceptor(XXX);
-
-// TODO: [Loli] start this request. 
-int mpaxos_start_req(mpaxos_req_t *req);
-
-// TODO: [Loli] this is committed successfully,
-// notify the draft by mpaxos_retire.
-int mpaxos_req_done(mpaxos_req_t *req);
-
-// TODO: [Loli] commit failed, to retry.
-int mpaxos_req_failed(mpaxos_req_t *req);
-
-
-// TODO: [Loli] unmarshal the message, and dispatch
-// to the correct proposer/acceptor to handle.
-// refer to the commo.ccp -> on_accept, on_promise 
-int mpaxos_msg_dispatch(rpc_state* state);
-
-
+ private:
+  View *view_;
+  std::map<slot_id_t, Acceptor *> acceptors_;
+  std::map<slot_id_t, PropValue *> chosen_values_;
+  std::queue<std::string> tocommit_values_;
+  // max chosen instance/slot id 
+  slot_id_t max_chosen_; 
+  PropValue *curr_value_;  
+  Proposer *curr_proposer_;
+  Commo *commo_;
+  std::mutex mutex_;
+};
+} //  namespace mpaxos

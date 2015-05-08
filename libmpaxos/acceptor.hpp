@@ -7,10 +7,7 @@
 
 #pragma once
 #include "internal_types.hpp"
-#include "mpaxos.pb.h"
-#include <iostream>
-#include <thread>
-#include <mutex>
+
 namespace mpaxos {
 //typedef struct {
 //    apr_pool_t *mp;
@@ -44,6 +41,7 @@ class Acceptor {
    * return MsgAckAccept *
    */
   MsgAckAccept *handle_msg_accept(MsgAccept *);
+
  private:
   View *view_;
   // the max proposed ballot id I have ever seen, initial 0. 

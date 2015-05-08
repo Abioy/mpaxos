@@ -28,7 +28,7 @@ MsgAckPrepare *Acceptor::handle_msg_prepare(MsgPrepare *msg_pre) {
   MsgHeader *msg_header = new MsgHeader();
   msg_header->set_msg_type(MsgType::PROMISE);
   msg_header->set_node_id(view_->whoami());
-  msg_header->set_slot_id(0);
+  msg_header->set_slot_id(msg_pre->msg_header().slot_id());
   // prepare the msg_ack_prepare
   MsgAckPrepare *msg_ack_pre = new MsgAckPrepare();
   msg_ack_pre->set_allocated_msg_header(msg_header);
@@ -60,7 +60,7 @@ MsgAckAccept *Acceptor::handle_msg_accept(MsgAccept *msg_acc) {
   MsgHeader *msg_header = new MsgHeader();
   msg_header->set_msg_type(MsgType::ACCEPTED);
   msg_header->set_node_id(view_->whoami());
-  msg_header->set_slot_id(0);
+  msg_header->set_slot_id(msg_acc->msg_header().slot_id());
   // prepare the msg_ack_accept
   MsgAckAccept *msg_ack_acc = new MsgAckAccept();
   msg_ack_acc->set_allocated_msg_header(msg_header);
