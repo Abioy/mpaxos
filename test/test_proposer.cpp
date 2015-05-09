@@ -28,7 +28,8 @@ int main(int argc, char** argv) {
   
   // listen to all acceptors got ack in different threads
   // fake acceptors here
-  Acceptor acc(view);
+  View view2(0);
+  Acceptor acc(view2);
   MsgAckPrepare *msg_ack_pre = acc.handle_msg_prepare(msg_pre); 
   MsgAccept *msg_acc = NULL;
   switch (prop.handle_msg_promise(msg_ack_pre)) {

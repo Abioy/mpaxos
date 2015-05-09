@@ -1,3 +1,9 @@
+/*
+ * view.hpp
+ *
+ * Created on: May 08, 2015
+ * Author: Lijing 
+ */
 
 #pragma once
 #include "internal_types.hpp"
@@ -10,6 +16,7 @@ class View {
   View(node_id_t node_id);
   std::set<node_id_t> * get_nodes();
   node_id_t whoami();
+
  private:
   std::set<node_id_t> nodes_;
   node_id_t node_id_;

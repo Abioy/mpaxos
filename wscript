@@ -38,9 +38,6 @@ def configure(conf):
 #    _enable_static(conf)    #static
     _enable_cxx11(conf)
 
-    conf.check_cxx(lib = 'pthread', uselib_store = 'PTHREAD')
-#    conf.env.LIB_PTHREAD = 'pthread'
-#    conf.check_cfg(atleast_pkgconfig_version='0.0.0') 
 #    conf.check_cfg(package='apr-1', uselib_store='APR', args=pargs)
 #    conf.check_cfg(package='apr-util-1', uselib_store='APR-UTIL', args=pargs)
 #    conf.check_cfg(package='json', uselib_store='JSON', args=pargs)
@@ -98,8 +95,9 @@ def _enable_debug(conf):
         conf.env.append_value("CXXFLAGS", "-Wall -Wno-unused -pthread -O0 -g -rdynamic -fno-omit-frame-pointer -fno-strict-aliasing".split())
         conf.env.append_value("LINKFLAGS", "-Wall -Wno-unused -O0 -g -rdynamic -fno-omit-frame-pointer".split())
     else:
-        conf.env.append_value("CFLAGS", "-Wall -O2 -pthread -DNDEBUG".split())
-        conf.env.append_value("CXXFLAGS", "-Wall -O2 -pthread -DNDEBUG".split())
+        conf.env.append_value("CFLAGS", "-Wall -O2 -pthread".split())
+        conf.env.append_value("CXXFLAGS", "-Wall -O2 -pthread".split())
+#        conf.env.append_value("LINKFLAGS", "-Wall -O2 -pthread".split())
 
     if os.getenv("CLANG") == "1":
         Logs.pprint("PINK", "Use clang as compiler")

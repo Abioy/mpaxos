@@ -6,8 +6,9 @@
 #pragma once
 
 #include "view.hpp"
-#include <mutex>
 #include <map>
+#include <mutex>
+
 namespace mpaxos {
 
 class Proposer {

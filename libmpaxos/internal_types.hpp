@@ -1,5 +1,9 @@
 #pragma once
 #include <cstdint>
+#include "mpaxos.pb.h"
+//#include <thread>
+//#include <mutex>
+
 namespace mpaxos {
 enum AckType {
   DROP = 0,
@@ -13,5 +17,4 @@ using node_id_t = uint16_t;
 using slot_id_t = uint64_t;
 using ballot_id_t = uint64_t;
 using value_id_t = uint64_t;
-
 }  // namespace mpaxos

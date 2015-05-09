@@ -1,8 +1,9 @@
-/**
- * change this to support only easy group node relationships. 
- * all nodes belong to all groups. you don't have to create groups.
+/*
+ * view.hpp
+ *
+ * Created on: May 08, 2015
+ * Author: Lijing 
  */
-
 #include "view.hpp"
 namespace mpaxos {
 View::View(node_id_t node_id) : node_id_(node_id) {
