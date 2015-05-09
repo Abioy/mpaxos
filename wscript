@@ -46,6 +46,7 @@ def configure(conf):
 #    conf.check_cfg(package='check', uselib_store='CHECK', args=pargs)
 #    conf.check_cfg(package='yaml-cpp', uselib_store='YAML-CPP', args=pargs)
 
+    conf.env.LIB_PTHREAD = 'pthread'
     conf.env.PREFIX = "/usr"
     conf.env.LIBDIR = "/usr/lib"
     conf.env.INCLUDEDIR = "/usr/include"
