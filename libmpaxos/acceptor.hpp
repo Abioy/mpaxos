@@ -6,7 +6,8 @@
  */
 
 #pragma once
-#include "internal_types.hpp"
+#include "view.hpp"
+#include <mutex>
 
 namespace mpaxos {
 //typedef struct {
@@ -16,7 +17,6 @@ namespace mpaxos {
 //    apr_array_header_t *arr_prop;
 //    apr_thread_mutex_t *mx;
 //} accp_info_t;
-
 class Acceptor {
  public:
   Acceptor(View &view);

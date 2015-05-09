@@ -6,6 +6,7 @@
 
 #include "proposer.hpp"
 #include "acceptor.hpp"
+#include <iostream>
 namespace mpaxos {
 int main(int argc, char** argv) {
   // init Proposer

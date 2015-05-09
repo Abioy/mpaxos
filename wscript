@@ -32,21 +32,22 @@ def configure(conf):
     conf.load(COMPILER_LANG)
     conf.load('protoc unittest_gtest')
 
-    _enable_pic(conf)
-    _enable_debug(conf)     #debug
-    _enable_log(conf)       #log level
-    _enable_static(conf)    #static
+#    _enable_pic(conf)
+#    _enable_debug(conf)     #debug
+#    _enable_log(conf)       #log level
+#    _enable_static(conf)    #static
     _enable_cxx11(conf)
 
-    conf.env.LIB_PTHREAD = 'pthread'
-    conf.check_cfg(atleast_pkgconfig_version='0.0.0') 
+    conf.check_cxx(lib = 'pthread', uselib_store = 'PTHREAD')
+#    conf.env.LIB_PTHREAD = 'pthread'
+#    conf.check_cfg(atleast_pkgconfig_version='0.0.0') 
 #    conf.check_cfg(package='apr-1', uselib_store='APR', args=pargs)
 #    conf.check_cfg(package='apr-util-1', uselib_store='APR-UTIL', args=pargs)
 #    conf.check_cfg(package='json', uselib_store='JSON', args=pargs)
-    conf.check_cfg(package='protobuf', uselib_store='PROTOBUF', args=pargs)
-    conf.check_cfg(package='libzmq', uselib_store='ZMQ', args=pargs)
+#    conf.check_cfg(package='protobuf', uselib_store='PROTOBUF', args=pargs)
+#    conf.check_cfg(package='libzmq', uselib_store='ZMQ', args=pargs)
 #    conf.check_cfg(package='check', uselib_store='CHECK', args=pargs)
-    conf.check_cfg(package='yaml-cpp', uselib_store='YAML-CPP', args=pargs)
+#    conf.check_cfg(package='yaml-cpp', uselib_store='YAML-CPP', args=pargs)
 
     conf.env.PREFIX = "/usr"
     conf.env.LIBDIR = "/usr/lib"
@@ -54,7 +55,7 @@ def configure(conf):
 
 def build(bld):
 
-    bld.stlib(source=bld.path.ant_glob(['libmpaxos/proposer.cpp', 'libmpaxos/acceptor.cpp', 
+    bld.stlib(source=bld.path.ant_glob([ 'libmpaxos/view.cpp', 'libmpaxos/proposer.cpp', 'libmpaxos/acceptor.cpp', 
                                         'libmpaxos/captain.cpp', 'libmpaxos/commo.cpp', 'libmpaxos/mpaxos.proto']), 
               target="mpaxos",
               includes="libmpaxos",
@@ -62,20 +63,20 @@ def build(bld):
               install_path="${PREFIX}/lib")
 
     bld.program(source=['test/test_proposer.cpp'], 
-                target="test_proposer.out", 
+                target="test_proposer", 
                 includes="libmpaxos", 
                 use="mpaxos", 
                 install_path=False)
 
     bld.program(source=['test/test_captain.cpp'], 
-                target="test_captain.out", 
-                includes="libmpaxos", 
-                use="PTHREAD mpaxos", 
+                target="test_captain", 
+#                includes="libmpaxos", 
+                use="PTHREAD", 
                 install_path=False)
     
     bld.program(features = 'gtest',
                 source=['test/loli_gtest.cpp', 'libmpaxos/sample1.cc'], 
-                target="loli_gtest.out", 
+                target="loli_gtest", 
                 includes="libmpaxos", 
                 use="mpaxos", 
                 install_path=False)

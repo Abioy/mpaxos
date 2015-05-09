@@ -6,9 +6,11 @@
  */
 
 #include "acceptor.hpp"
+#include <iostream>
 namespace mpaxos {
 Acceptor::Acceptor(View &view) 
-  : max_proposed_ballot_(0), max_accepted_ballot_(0), max_value_(NULL) {
+  : view_(&view), max_proposed_ballot_(0),
+    max_accepted_ballot_(0), max_value_(NULL) {
 }
 Acceptor::~Acceptor() {
 }

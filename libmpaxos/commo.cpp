@@ -14,7 +14,7 @@ Commo::Commo(View &view, std::vector<Captain *> &captains)
 Commo::~Commo() {
 }
 void Commo::broadcast_msg(google::protobuf::Message *msg, MsgType msg_type) {
-  for (int i = 0; i < captains_.size(); i++) {
+  for (uint32_t i = 0; i < captains_.size(); i++) {
    captains_[i]->handle_msg(msg, msg_type);
   }
 }

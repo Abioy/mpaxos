@@ -5,20 +5,8 @@
  */
 
 #include "proposer.hpp"
-
+#include <iostream>
 namespace mpaxos {
-
-View::View(node_id_t node_id) : node_id_(node_id) {
-  nodes_.insert(0);
-}
-
-std::set<node_id_t> * View::get_nodes() {
-  return &nodes_;
-}
-
-node_id_t View::whoami() {
-  return node_id_;
-}
 
 Proposer::Proposer(View &view, PropValue &value) 
 //                   std::function<void>(PropValue &value) &callback) 
@@ -102,7 +90,7 @@ int Proposer::handle_msg_promise(MsgAckPrepare *msg_ack_pre) {
     std::cout << "NOT_ENOUGH!" << std::endl;
     return NOT_ENOUGH; 
   }
-  int true_counter = 0;
+  uint32_t true_counter = 0;
   std::map<node_id_t, MsgAckPrepare *>::iterator it;
   for (it = msg_ack_prepare_.begin(); it != msg_ack_prepare_.end(); it++) {
     if (it->second->reply()) {
@@ -139,7 +127,7 @@ int Proposer::handle_msg_accepted(MsgAckAccept *msg_ack_acc) {
   // NOT_ENOUGH
   if (msg_ack_accept_.size() <= view_->get_nodes()->size() / 2) 
     return NOT_ENOUGH; 
-  int true_counter = 0;
+  uint32_t true_counter = 0;
   std::map<node_id_t, MsgAckAccept *>::iterator it;
   for (it = msg_ack_accept_.begin(); it != msg_ack_accept_.end(); it++) {
     if (it->second->reply()) {
@@ -158,8 +146,9 @@ int Proposer::handle_msg_accepted(MsgAckAccept *msg_ack_acc) {
  * low 16bit is the node id.
  */ 
 ballot_id_t Proposer::gen_next_ballot() {
-  std::cout << "Before gen_next_ballot curr_ballot_ " << curr_ballot_ << std::endl;
-  curr_ballot_ = (((curr_ballot_ >> 16) + 1 ) << 16) + view_->whoami();
+  std::cout << "Before gen_next_ballot curr_ballot_ " << curr_ballot_ 
+            << " node_id " << view_->whoami() << std::endl;
+  curr_ballot_ = (curr_ballot_ + (1 << 16)) + view_->whoami();
   std::cout << "After gen_next_ballot curr_ballot_ " << curr_ballot_ << std::endl;
   return curr_ballot_;
 }

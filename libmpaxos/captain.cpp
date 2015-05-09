@@ -6,6 +6,7 @@
 
 #include "captain.hpp"
 #include "commo.hpp"
+#include <iostream>
 namespace mpaxos {
 Captain::Captain(View &view)
   : view_(&view), max_chosen_(0), curr_proposer_(NULL), commo_(NULL) {

@@ -7,6 +7,7 @@
 #pragma once
 #include "proposer.hpp"
 #include "acceptor.hpp"
+#include <queue>
 //#include "include_all.h"
 namespace mpaxos {
 // TODO [Loli] This module is responsible for locating the correct proposer and

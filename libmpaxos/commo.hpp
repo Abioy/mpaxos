@@ -4,8 +4,7 @@
  * Date: 5/5/2015
  */
 #pragma once
-#include "proposer.hpp"
-#include "acceptor.hpp"
+#include "view.hpp"
 namespace mpaxos {
 class Captain;
 class Commo {

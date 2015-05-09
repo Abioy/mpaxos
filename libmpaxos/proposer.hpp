@@ -5,15 +5,10 @@
 
 #pragma once
 
-#include "internal_types.hpp"
-
+#include "view.hpp"
+#include <mutex>
+#include <map>
 namespace mpaxos {
-
-//typedef uint16_t node_id_t;
-//typedef uint64_t slot_id_t;
-//typedef uint64_t ballot_id_t;
-//typedef uint64_t value_id_t;
-
 
 class Proposer {
  public:
