@@ -6,6 +6,7 @@
  */
 
 #include "acceptor.hpp"
+#include <iostream>
 namespace mpaxos {
 Acceptor::Acceptor(View &view) 
   : max_proposed_ballot_(0), max_accepted_ballot_(0), max_value_(NULL) {
@@ -28,7 +29,9 @@ MsgAckPrepare *Acceptor::handle_msg_prepare(MsgPrepare *msg_pre) {
   MsgHeader *msg_header = new MsgHeader();
   msg_header->set_msg_type(MsgType::PROMISE);
   msg_header->set_node_id(view_->whoami());
+  std::cout << "Here!" << std::endl;
   msg_header->set_slot_id(msg_pre->msg_header().slot_id());
+  std::cout << "There! slot_id" << msg_pre->msg_header().slot_id() << std::endl;
   // prepare the msg_ack_prepare
   MsgAckPrepare *msg_ack_pre = new MsgAckPrepare();
   msg_ack_pre->set_allocated_msg_header(msg_header);

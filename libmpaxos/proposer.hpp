@@ -5,7 +5,9 @@
 
 #pragma once
 
-#include "internal_types.hpp"
+#include "view.hpp"
+#include <map>
+#include <mutex>
 
 namespace mpaxos {
 

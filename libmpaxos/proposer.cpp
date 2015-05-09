@@ -5,20 +5,8 @@
  */
 
 #include "proposer.hpp"
-
+#include <iostream>
 namespace mpaxos {
-
-View::View(node_id_t node_id) : node_id_(node_id) {
-  nodes_.insert(0);
-}
-
-std::set<node_id_t> * View::get_nodes() {
-  return &nodes_;
-}
-
-node_id_t View::whoami() {
-  return node_id_;
-}
 
 Proposer::Proposer(View &view, PropValue &value) 
 //                   std::function<void>(PropValue &value) &callback) 

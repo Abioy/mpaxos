@@ -6,7 +6,8 @@
  */
 
 #pragma once
-#include "internal_types.hpp"
+#include <mutex>
+#include "view.hpp"
 
 namespace mpaxos {
 //typedef struct {
