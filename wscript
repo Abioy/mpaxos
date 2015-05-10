@@ -15,7 +15,7 @@ out = "bin"
 pargs = ['--cflags', '--libs']
 CFLAGS = []
 
-COMPILER_LANG = "compiler_clangxx"
+COMPILER_LANG = "compiler_cxx"
 
 
 def options(opt):
@@ -28,6 +28,7 @@ def options(opt):
     opt.add_option('-c', '--compiler', dest="compiler", default='', action="store")
 
 def configure(conf):
+    conf.env['CXX'] = "clang++"
 #    conf.load("compiler_c++")
     conf.load(COMPILER_LANG)
     conf.load('protoc unittest_gtest')
@@ -37,6 +38,7 @@ def configure(conf):
 #    _enable_log(conf)       #log level
 #    _enable_static(conf)    #static
     _enable_cxx11(conf)
+
 
 #    conf.check_cfg(package='apr-1', uselib_store='APR', args=pargs)
 #    conf.check_cfg(package='apr-util-1', uselib_store='APR-UTIL', args=pargs)
