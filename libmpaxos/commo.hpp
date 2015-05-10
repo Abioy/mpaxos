@@ -9,13 +9,13 @@ namespace mpaxos {
 class Captain;
 class Commo {
  public:
-  Commo(View &, std::vector<Captain *> &);
+  Commo(std::vector<Captain *> &);
   ~Commo();
   void broadcast_msg(google::protobuf::Message *, MsgType);
   void send_one_msg(google::protobuf::Message *, MsgType, node_id_t);
 
  private:
-  View *view_;
+//  View *view_;
   std::vector<Captain *> captains_;
 };
 } // namespace mpaxos

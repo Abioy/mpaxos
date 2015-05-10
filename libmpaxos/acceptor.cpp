@@ -29,10 +29,12 @@ MsgAckPrepare *Acceptor::handle_msg_prepare(MsgPrepare *msg_pre) {
             << curr_ballot << std::endl;
   MsgHeader *msg_header = new MsgHeader();
   msg_header->set_msg_type(MsgType::PROMISE);
+  std::cout << "before whoami" << std::endl;
+  std::cout << view_->whoami() << std::endl;
   msg_header->set_node_id(view_->whoami());
   std::cout << "Here!" << std::endl;
   msg_header->set_slot_id(msg_pre->msg_header().slot_id());
-  std::cout << "There! slot_id" << msg_pre->msg_header().slot_id() << std::endl;
+  std::cout << "There! slot_id " << msg_pre->msg_header().slot_id() << std::endl;
   // prepare the msg_ack_prepare
   MsgAckPrepare *msg_ack_pre = new MsgAckPrepare();
   msg_ack_pre->set_allocated_msg_header(msg_header);

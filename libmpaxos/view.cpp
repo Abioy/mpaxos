@@ -6,8 +6,13 @@
  */
 #include "view.hpp"
 namespace mpaxos {
+
 View::View(node_id_t node_id) : node_id_(node_id) {
-  nodes_.insert(0);
+  nodes_.insert(node_id);
+}
+
+View::View(node_id_t node_id, std::set<node_id_t> &nodes) 
+  : node_id_(node_id), nodes_(nodes) {
 }
 
 std::set<node_id_t> * View::get_nodes() {

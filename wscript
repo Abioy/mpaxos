@@ -71,7 +71,7 @@ def build(bld):
     bld.program(source=['test/test_captain.cpp'], 
                 target="test_captain", 
                 includes="libmpaxos", 
-                use="GTEST_PTHREAD", 
+                use="GTEST_PTHREAD mpaxos", 
                 install_path=False)
     
     bld.program(features = 'gtest',

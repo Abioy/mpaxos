@@ -35,6 +35,8 @@ MsgPrepare *Proposer::msg_prepare() {
   msg_pre->set_allocated_msg_header(msg_header);
   // gen_next_ballot will increase the curr_value_
   msg_pre->set_ballot_id(gen_next_ballot());
+  std::cout << "whoami " << view_->whoami() << std::endl;
+  std::cout << "init_value_id " << init_value_->id() << std::endl;
   std::cout << "Proposer -- Phase I : msg_prepare ballot_id " << curr_ballot_ << std::endl; 
   return msg_pre;
 }
@@ -78,6 +80,7 @@ PropValue *Proposer::get_chosen_value() {
 int Proposer::handle_msg_promise(MsgAckPrepare *msg_ack_pre) {
   std::lock_guard<std::mutex> lock(prepare_mutex_);
   //DROP Out of Date & Already enter Phase II
+  std::cout << "Proposer handle_msg_promise start" << std::endl;
   if (msg_ack_pre->ballot_id() < curr_ballot_ || curr_value_) {
     std::cout << "DROP!" << std::endl;
     return DROP; 

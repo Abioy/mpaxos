@@ -13,6 +13,7 @@ namespace mpaxos {
 class View {
  public:
 //  View(set<node_id_t> &nodes);
+  View(node_id_t node_id, std::set<node_id_t> &);
   View(node_id_t node_id);
   std::set<node_id_t> * get_nodes();
   node_id_t whoami();
