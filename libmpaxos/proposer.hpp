@@ -27,12 +27,6 @@ class Proposer {
   // start accepting, send accept requests to acceptors who responsed.
   MsgAccept *msg_accept();
 
-//  // Temp return msg_ack_prepare_ to captain
-//  std::map<node_id_t, MsgAckPrepare *> *get_ack_prepare();
-//
-//  // Temp return msg_ack_accept_ to captain
-//  std::map<node_id_t, MsgAckAccept *> *get_ack_accept();
-
   // Temp return curr_value_ to captain
   PropValue *get_chosen_value();
 

@@ -12,8 +12,10 @@ Acceptor::Acceptor(View &view)
   : view_(&view), max_proposed_ballot_(0),
     max_accepted_ballot_(0), max_value_(NULL) {
 }
+
 Acceptor::~Acceptor() {
 }
+
 /** 
  * handle prepare requests from proposers:
  * if ballot_id > max_proposed_ballot_, 
@@ -25,23 +27,23 @@ Acceptor::~Acceptor() {
  */ 
 MsgAckPrepare *Acceptor::handle_msg_prepare(MsgPrepare *msg_pre) {
   ballot_id_t curr_ballot = msg_pre->ballot_id();
-  std::cout << "Acceptor -- Phase I : Inside acceptor handle_msg_prepare curr_ballot: " 
+  std::cout << "\tAcceptor -- Phase I : Inside acceptor handle_msg_prepare curr_ballot: " 
             << curr_ballot << std::endl;
   MsgHeader *msg_header = new MsgHeader();
   msg_header->set_msg_type(MsgType::PROMISE);
-  std::cout << "before whoami" << std::endl;
-  std::cout << view_->whoami() << std::endl;
+//  std::cout << "before whoami" << std::endl;
+//  std::cout << view_->whoami() << std::endl;
   msg_header->set_node_id(view_->whoami());
-  std::cout << "Here!" << std::endl;
+//  std::cout << "Here!" << std::endl;
   msg_header->set_slot_id(msg_pre->msg_header().slot_id());
-  std::cout << "There! slot_id " << msg_pre->msg_header().slot_id() << std::endl;
+//  std::cout << "There! slot_id " << msg_pre->msg_header().slot_id() << std::endl;
   // prepare the msg_ack_prepare
   MsgAckPrepare *msg_ack_pre = new MsgAckPrepare();
   msg_ack_pre->set_allocated_msg_header(msg_header);
   msg_ack_pre->set_ballot_id(curr_ballot);
   msg_ack_pre->set_max_ballot_id(max_accepted_ballot_);
   if (curr_ballot > max_proposed_ballot_) {
-    std::cout << "Return true" << std::endl;
+//    std::cout << "Return true" << std::endl;
     max_proposed_ballot_ = curr_ballot;
     msg_ack_pre->set_reply(true);
     if (max_value_) {
@@ -49,8 +51,12 @@ MsgAckPrepare *Acceptor::handle_msg_prepare(MsgPrepare *msg_pre) {
     }  
   } else
     msg_ack_pre->set_reply(false);
+
+  std::cout << "\tAcceptor max_proposed_ballot_ " << max_proposed_ballot_
+            << "\tmax_accepted_ballot_ " << max_accepted_ballot_ << std::endl; 
   return msg_ack_pre;
 }
+
 /**
  * handle accept requests from proposers:
  * if ballot_id > max_proposed_ballot_, accept this value
@@ -62,6 +68,8 @@ MsgAckPrepare *Acceptor::handle_msg_prepare(MsgPrepare *msg_pre) {
  */
 MsgAckAccept *Acceptor::handle_msg_accept(MsgAccept *msg_acc) {
   ballot_id_t curr_ballot = msg_acc->ballot_id();
+  std::cout << "\tAcceptor -- Phase II : Inside handle_msg_accept curr_ballot: " 
+            << curr_ballot << " for Node " << view_->whoami() << std::endl;
   // prepare msg_header
   MsgHeader *msg_header = new MsgHeader();
   msg_header->set_msg_type(MsgType::ACCEPTED);
@@ -71,12 +79,16 @@ MsgAckAccept *Acceptor::handle_msg_accept(MsgAccept *msg_acc) {
   MsgAckAccept *msg_ack_acc = new MsgAckAccept();
   msg_ack_acc->set_allocated_msg_header(msg_header);
   msg_ack_acc->set_ballot_id(curr_ballot);
-  if (curr_ballot > max_proposed_ballot_) {
+  if (curr_ballot >= max_proposed_ballot_) {
+    std::cout <<"\tAcceptor Change 3 value" << std::endl;
     max_proposed_ballot_ = curr_ballot;
     max_accepted_ballot_ = curr_ballot;
     max_value_ = msg_acc->mutable_prop_value();
     msg_ack_acc->set_reply(true);
-  } else msg_ack_acc->set_reply(true);
+  } else msg_ack_acc->set_reply(false);
+  std::cout << "\tAcceptor max_proposed_ballot_ " << max_proposed_ballot_
+            << "\tmax_accepted_ballot_ " << max_accepted_ballot_ << std::endl; 
+//            << "max_value_ " << max_value_->data() << std::endl;
   return msg_ack_acc;
 }
 }  // namespace mpaxos

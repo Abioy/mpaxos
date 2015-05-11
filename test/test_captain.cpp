@@ -25,26 +25,26 @@ void client_commit(Captain * captain) {
   std::string line;
   node_id_t node_id = captain->get_node_id();
   std::string filename = "values/client_" +  std::to_string(node_id);
-  std::cout << "FileName " << filename << std::endl;
+//  std::cout << "FileName " << filename << std::endl;
   std::ifstream value_file (filename);
   if (value_file.is_open())
   {
     while (getline(value_file, line)) {
-      std::cout << "before commit Node " << node_id << " Value " << line << std::endl;
+      std::cout << "** client_commit: before commit Node " << node_id << " Value " << line << std::endl;
       captain->commit_value(line); 
-      std::cout << "commit this value succeed " << line << std::endl;
+      std::cout << "** client_commit: this value commits succeed " << line << std::endl;
     }
 //    if (line == "") 
 //      value_file << "Hello World From Node" + std::to_string(node_id); 
     value_file.close();
-    std::cout << "Close File client_" << node_id << std::endl;
+    std::cout << "** Close File client_" << node_id << std::endl;
   }
   else 
-    std::cout << "Unable to open file" << std::endl; 
+    std::cout << "** Unable to open file" << std::endl; 
 }
 
 int main(int argc, char** argv) {
-  std::cout << "START " << std::endl;
+  std::cout << "** START " << std::endl;
 
   int num = 5;
   if (argc > 1)
@@ -71,8 +71,14 @@ int main(int argc, char** argv) {
 //    clients.push_back(new std::thread(client_commit, captains[i]));
   }
 
-  for (int i = 0; i < num; i++)
+  for (int i = 0; i < num; i++) {
+    std::cout << "***********************************************************************" << std::endl;
+    std::cout << "** Client " << i << " Commit Start" << std::endl;
     client_commit(captains[i]);
+    std::cout << "** Client " << i << " Commit END" << std::endl;
+    std::cout << "***********************************************************************" << std::endl;
+    std::cout << std::endl;
+  }
 //  std::this_thread::sleep_for(std::chrono::seconds(100));
 
 //  for (int i = 0; i < num; i++)
