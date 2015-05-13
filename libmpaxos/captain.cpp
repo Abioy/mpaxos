@@ -211,7 +211,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
             new_slot();
           } else {
             // recommit the same value
-            LOG_INFO_CAP("Recommit the same (value):%s!!!", curr_value_->data().c_str());
+            LOG_DEBUG_CAP("Recommit the same (value):%s!!!", curr_value_->data().c_str());
             delete curr_proposer_;
             new_slot();
           }

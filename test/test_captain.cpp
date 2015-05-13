@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
 //    clients.push_back(new std::thread(client_commit, captains[i]));
   }
 
-  for (int i = 0; i < num; i++) {
+  for (int i = num -1 ; i >=0; i--) {
     LOG_INFO("***********************************************************************");
     LOG_INFO("** (Client):%d Commit Start", i);
     client_commit(captains[i]);

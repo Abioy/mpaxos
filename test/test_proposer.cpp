@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
   value.set_data("Hello World!");
   Proposer prop(view, value);  
   // Phase I Propser call prepare
-  DEBUG_METHOD("Test_Proposer Started Phase I");
+  LOG_INFO("Test_Proposer Started Phase I");
   MsgPrepare *msg_pre = prop.msg_prepare();
   LOG_INFO("Test_Proposer (ballot_id_):%llu", msg_pre->ballot_id());
 //  std::cout << "ballot_id_ " << msg_pre->ballot_id() <<std::endl;

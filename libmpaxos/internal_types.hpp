@@ -42,9 +42,12 @@ namespace mpaxos {
 #define LOG_DEBUG_ACC(...) printf("%s[DEBUG]%s %sACCEPTOR ", BAK_MAG, NRM, TXT_GRN); printf(__VA_ARGS__); printf("%s\n", NRM)
 #define LOG_DEBUG_CAP(...) printf("%s[DEBUG]%s %sCAPTAIN ", BAK_MAG, NRM, TXT_CYN); printf(__VA_ARGS__); printf("%s\n", NRM)
 #define LOG_DEBUG_COM(...) printf("%s[DEBUG]%s %sCOMMO ", BAK_MAG, NRM, TXT_YEL); printf(__VA_ARGS__); printf("%s\n", NRM)
-#define DEBUG_METHOD(name) std::cout << "-->" << name << std::endl;
 #else
 #define LOG_DEBUG(...)
+#define LOG_DEBUG_PRO(...) 
+#define LOG_DEBUG_ACC(...) 
+#define LOG_DEBUG_CAP(...) 
+#define LOG_DEBUG_COM(...) 
 #endif
 
 #if LOG_LEVEL >= 4 
@@ -55,6 +58,10 @@ namespace mpaxos {
 #define LOG_INFO_COM(...) printf("%s[INFO]%s  %sCOMMO ", UND_BLU, NRM, TXT_YEL); printf(__VA_ARGS__); printf("%s\n", NRM)
 #else
 #define LOG_INFO(...)
+#define LOG_INFO_PRO(...) 
+#define LOG_INFO_ACC(...) 
+#define LOG_INFO_CAP(...) 
+#define LOG_INFO_COM(...) 
 #endif
 
 enum AckType {
