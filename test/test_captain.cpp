@@ -30,21 +30,22 @@ void client_commit(Captain * captain) {
   if (value_file.is_open())
   {
     while (getline(value_file, line)) {
-      std::cout << "** client_commit: before commit Node " << node_id << " Value " << line << std::endl;
+//      std::cout << "** client_commit: before commit Node " << node_id << " Value " << line << std::endl;
+      LOG_INFO("** Before call <captain->client_commit>  --NodeID %u (value):%s", node_id, line.c_str());
       captain->commit_value(line); 
-      std::cout << "** client_commit: this value commits succeed " << line << std::endl;
+      LOG_INFO("** After call <captain->client_commit>  --NodeID %u (value):%s", node_id, line.c_str());
     }
 //    if (line == "") 
 //      value_file << "Hello World From Node" + std::to_string(node_id); 
     value_file.close();
-    std::cout << "** Close File client_" << node_id << std::endl;
+    LOG_INFO("** Close File  --NodeID %u", node_id);
   }
   else 
     std::cout << "** Unable to open file" << std::endl; 
 }
 
 int main(int argc, char** argv) {
-  std::cout << "** START " << std::endl;
+  LOG_INFO("** START **");
 
   int num = 5;
   if (argc > 1)
@@ -72,19 +73,18 @@ int main(int argc, char** argv) {
   }
 
   for (int i = 0; i < num; i++) {
-    std::cout << "***********************************************************************" << std::endl;
-    std::cout << "** Client " << i << " Commit Start" << std::endl;
+    LOG_INFO("***********************************************************************");
+    LOG_INFO("** (Client):%d Commit Start", i);
     client_commit(captains[i]);
-    std::cout << "** Client " << i << " Commit END" << std::endl;
-    std::cout << "***********************************************************************" << std::endl;
-    std::cout << std::endl;
+    LOG_INFO("** (Client):%d Commit END", i);
+    LOG_INFO("***********************************************************************");
   }
 //  std::this_thread::sleep_for(std::chrono::seconds(100));
 
 //  for (int i = 0; i < num; i++)
 //    clients[i]->join();
 
-  std::cout << "END " << std::endl;
+  LOG_INFO("** END **");
   return EXIT_SUCCESS;
 }
 } // namespace mpaxos

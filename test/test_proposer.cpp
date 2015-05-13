@@ -18,9 +18,10 @@ int main(int argc, char** argv) {
   value.set_data("Hello World!");
   Proposer prop(view, value);  
   // Phase I Propser call prepare
-  std::cout << "Started Phase I" << std::endl;
+  DEBUG_METHOD("Test_Proposer Started Phase I");
   MsgPrepare *msg_pre = prop.msg_prepare();
-  std::cout << "ballot_id_ " << msg_pre->ballot_id() <<std::endl;
+  LOG_INFO("Test_Proposer (ballot_id_):%llu", msg_pre->ballot_id());
+//  std::cout << "ballot_id_ " << msg_pre->ballot_id() <<std::endl;
 
   // Phase I Propsergot msg_pre and send to all acceptors
   for (it = nodes_set->begin(); it != nodes_set->end(); it++) {
@@ -38,7 +39,7 @@ int main(int argc, char** argv) {
     case NOT_ENOUGH: break;
     case CONTINUE: {
       // Send to all acceptors in view
-      std::cout << "Continue to Phase II" << std::endl;
+      LOG_INFO("Test_Proposer Continue to Phase II");
       msg_acc = prop.msg_accept();
       for (it = nodes_set->begin(); it != nodes_set->end(); it++) {
         // send msg_accpect
@@ -60,7 +61,8 @@ int main(int argc, char** argv) {
     case DROP: break;
     case NOT_ENOUGH: break;
     case CHOOSE: {
-      std::cout << "One Value is Successfully Chosen!" << std::endl;
+//      std::cout << "One Value is Successfully Chosen!" << std::endl;
+      LOG_INFO("Test_Proposer One Value is Successfully Chosen!");
       // destroy all the threads retlated to this paxos_instance 
       // TODO 
       break;
@@ -76,6 +78,10 @@ int main(int argc, char** argv) {
 } 
 }
 
+//INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, char** argv) {
+//  LOG(INFO) << "My first info log using default logger -- info";
+//  LOG(DEBUG) << "My first info log using default logger -- debug";
   return mpaxos::main(argc, argv);
 }

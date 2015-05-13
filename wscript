@@ -33,10 +33,10 @@ def configure(conf):
     conf.load(COMPILER_LANG)
     conf.load('protoc unittest_gtest')
 
-#    _enable_pic(conf)
-#    _enable_debug(conf)     #debug
-#    _enable_log(conf)       #log level
-#    _enable_static(conf)    #static
+    _enable_pic(conf)
+    _enable_debug(conf)     #debug
+    _enable_log(conf)       #log level
+    _enable_static(conf)    #static
     _enable_cxx11(conf)
 
 

@@ -37,7 +37,8 @@ MsgPrepare *Proposer::msg_prepare() {
   msg_pre->set_ballot_id(gen_next_ballot());
 //  std::cout << "\tProposer msg_prepare() whoami " << view_->whoami() << std::endl;
 //  std::cout << "\tPropsoer init_value_id " << init_value_->id() << std::endl;
-  std::cout << "\tProposer -- Phase I : msg_prepare ballot_id " << curr_ballot_ << std::endl; 
+//  std::cout << "\tProposer -- Phase I : msg_prepare ballot_id " << curr_ballot_ << std::endl; 
+  LOG_DEBUG_PRO("--> Phase I : <msg_prepare> (ballot_id):%llu", curr_ballot_);
   return msg_pre;
 }
 
@@ -80,9 +81,10 @@ PropValue *Proposer::get_chosen_value() {
 int Proposer::handle_msg_promise(MsgAckPrepare *msg_ack_pre) {
   std::lock_guard<std::mutex> lock(prepare_mutex_);
   //DROP Out of Date & Already enter Phase II
-  std::cout << "\tProposer handle_msg_promise start" << std::endl;
+//  std::cout << "\tProposer handle_msg_promise start" << std::endl;
   if (msg_ack_pre->ballot_id() < curr_ballot_ || curr_value_) {
-    std::cout << "\tProposer promise ---- DROP! NodeID" << msg_ack_pre->msg_header().node_id() << std::endl;
+    LOG_DEBUG_PRO("<handle_msg_promise> ---- DROP! --NodeID %u", msg_ack_pre->msg_header().node_id());
+//    std::cout << "\tProposer promise ---- DROP! --NodeID" << msg_ack_pre->msg_header().node_id() << std::endl;
     return DROP; 
   }
   node_id_t node_id = (uint16_t)msg_ack_pre->msg_header().node_id();
@@ -90,7 +92,8 @@ int Proposer::handle_msg_promise(MsgAckPrepare *msg_ack_pre) {
   msg_ack_prepare_[node_id] = msg_ack_pre;
   // NOT_ENOUGH
   if (msg_ack_prepare_.size() <= view_->get_nodes()->size() / 2) {
-    std::cout << "\tProposer promise ---- NOT_ENOUGH!" << std::endl;
+    LOG_DEBUG_PRO("<handle_msg_promise> ---- NOT_ENOUGH! --NodeID %u", msg_ack_pre->msg_header().node_id());
+//    std::cout << "\tProposer promise ---- NOT_ENOUGH!" << std::endl;
     return NOT_ENOUGH; 
   }
   uint32_t true_counter = 0;
@@ -107,10 +110,12 @@ int Proposer::handle_msg_promise(MsgAckPrepare *msg_ack_pre) {
   if (true_counter > view_->get_nodes()->size() / 2) {
     // CONTINUE
     curr_value_ = max_value_ == NULL ? init_value_ : max_value_;
-    std::cout << "\tProposer promise ---- CONTINUE into Phase II!" << std::endl;
+    LOG_DEBUG_PRO("<handle_msg_promise> ---- CONTINUE into Phase II! --NodeID %u", msg_ack_pre->msg_header().node_id());
+//    std::cout << "\tProposer promise ---- CONTINUE into Phase II!" << std::endl;
     return CONTINUE;
   } else {// RESTART 
-    std::cout << "\tPropsoer promise ---- RESTART!" << std::endl;
+//    std::cout << "\tPropsoer promise ---- RESTART!" << std::endl;
+    LOG_DEBUG_PRO("<handle_msg_promise> ---- RESTART! --NodeID %u", msg_ack_pre->msg_header().node_id());
     return RESTART;
   }
 }
@@ -124,7 +129,8 @@ int Proposer::handle_msg_accepted(MsgAckAccept *msg_ack_acc) {
   std::lock_guard<std::mutex> lock(accept_mutex_);
   //Drop Out of Date or Out of Order ACK
   if (msg_ack_acc->ballot_id() < curr_ballot_ || !curr_value_) {
-    std::cout << "\tProposer handle_msg_accepted --- DROP! from NodeID" << msg_ack_acc->msg_header().node_id() << std::endl;
+//    std::cout << "\tProposer handle_msg_accepted --- DROP! from --NodeID" << msg_ack_acc->msg_header().node_id() << std::endl;
+    LOG_DEBUG_PRO("<handle_msg_accepted> ---- DROP!  --NodeID %u", msg_ack_acc->msg_header().node_id());
     return DROP;
   }
   node_id_t node_id = (uint16_t)msg_ack_acc->msg_header().node_id();
@@ -133,7 +139,8 @@ int Proposer::handle_msg_accepted(MsgAckAccept *msg_ack_acc) {
 
   // NOT_ENOUGH
   if (msg_ack_accept_.size() <= view_->get_nodes()->size() / 2) {
-    std::cout << "\tProposer handle_msg_accepted --- NOT_ENOUGH! from NodeID" << msg_ack_acc->msg_header().node_id() << std::endl;
+//    std::cout << "\tProposer handle_msg_accepted --- NOT_ENOUGH! --NodeID" << msg_ack_acc->msg_header().node_id() << std::endl;
+    LOG_DEBUG_PRO("<handle_msg_accepted> ---- NOT_ENOUGH! --NodeID %u", msg_ack_acc->msg_header().node_id());
     return NOT_ENOUGH; 
   }
 
@@ -146,11 +153,14 @@ int Proposer::handle_msg_accepted(MsgAckAccept *msg_ack_acc) {
   }
 
   if (true_counter > view_->get_nodes()->size() / 2) {
-    std::cout << "\tProposer handle_msg_accepted --- CHOOSE! from NodeID" << msg_ack_acc->msg_header().node_id() << std::endl;
+//    std::cout << "\tProposer handle_msg_accepted --- CHOOSE! from NodeID" << msg_ack_acc->msg_header().node_id() << std::endl;
+    LOG_DEBUG_PRO("<handl_msg_accepted> ---- CHOOSE! --NodeID %u", msg_ack_acc->msg_header().node_id());
     // ACCEPT 
     return CHOOSE;
   } else // RESTART 
-    std::cout << "\tProposer handle_msg_accepted --- RESTART! from NodeID" << msg_ack_acc->msg_header().node_id() << std::endl;
+//    std::cout << "\tProposer handle_msg_accepted --- RESTART! from NodeID" << msg_ack_acc->msg_header().node_id() << std::endl;
+    LOG_DEBUG_PRO("<handle_msg_accepted> ---- RESTART! --NodeID %u", msg_ack_acc->msg_header().node_id());
+    // ACCEPT 
     return RESTART;    
 }   
 
@@ -159,10 +169,12 @@ int Proposer::handle_msg_accepted(MsgAckAccept *msg_ack_acc) {
  * low 16bit is the node id.
  */ 
 ballot_id_t Proposer::gen_next_ballot() {
-  std::cout << "\t\tBefore gen_next_ballot curr_ballot_ " << curr_ballot_ 
-            << " node_id " << view_->whoami() << std::endl;
+//  std::cout << "\t\tBefore gen_next_ballot curr_ballot_ " << curr_ballot_ << " NodeID " << view_->whoami() << std::endl;
+  LOG_DEBUG_PRO("Before <gen_next_ballot> (curr_ballot_):%llu --NodeID %u", curr_ballot_, view_->whoami());
+
   curr_ballot_ = (curr_ballot_ + (1 << 16)) + view_->whoami();
-  std::cout << "\t\tAfter gen_next_ballot curr_ballot_ " << curr_ballot_ << std::endl;
+//  std::cout << "\t\tAfter gen_next_ballot curr_ballot_ " << curr_ballot_ << std::endl;
+  LOG_DEBUG_PRO("After <gen_next_ballot> (curr_ballot_):%llu", curr_ballot_);
   return curr_ballot_;
 }
 }

@@ -19,8 +19,8 @@ class View {
   node_id_t whoami();
 
  private:
-  std::set<node_id_t> nodes_;
   node_id_t node_id_;
+  std::set<node_id_t> nodes_;
 };
 } // namespace mpaxos
 
