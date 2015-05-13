@@ -36,12 +36,26 @@ namespace mpaxos {
 #define BAK_MAG  "\e[45m"
 #define BAK_CYN  "\e[46m"
 
+#if LOG_LEVEL >= 6 
+#define LOG_TRACE(...) printf("%s[TRACE]%s ", BLD_MAG, NRM); printf(__VA_ARGS__); printf("\n")
+#define LOG_TRACE_PRO(...) printf("%s[TRACE]%s %sPROPOSER ", BLD_MAG, NRM, TXT_RED); printf(__VA_ARGS__); printf("%s\n", NRM)
+#define LOG_TRACE_ACC(...) printf("%s[TRACE]%s %sACCEPTOR ", BLD_MAG, NRM, TXT_GRN); printf(__VA_ARGS__); printf("%s\n", NRM)
+#define LOG_TRACE_CAP(...) printf("%s[TRACE]%s %sCAPTAIN ", BLD_MAG, NRM, TXT_CYN); printf(__VA_ARGS__); printf("%s\n", NRM)
+#define LOG_TRACE_COM(...) printf("%s[TRACE]%s %sCOMMO ", BLD_MAG, NRM, TXT_YEL); printf(__VA_ARGS__); printf("%s\n", NRM)
+#else
+#define LOG_TRACE(...)
+#define LOG_TRACE_PRO(...) 
+#define LOG_TRACE_ACC(...) 
+#define LOG_TRACE_CAP(...) 
+#define LOG_TRACE_COM(...) 
+#endif
+
 #if LOG_LEVEL >= 5 
-#define LOG_DEBUG(...) printf("%s[DEBUG]%s ", BAK_MAG, NRM); printf(__VA_ARGS__); printf("\n")
-#define LOG_DEBUG_PRO(...) printf("%s[DEBUG]%s %sPROPOSER ", BAK_MAG, NRM, TXT_RED); printf(__VA_ARGS__); printf("%s\n", NRM)
-#define LOG_DEBUG_ACC(...) printf("%s[DEBUG]%s %sACCEPTOR ", BAK_MAG, NRM, TXT_GRN); printf(__VA_ARGS__); printf("%s\n", NRM)
-#define LOG_DEBUG_CAP(...) printf("%s[DEBUG]%s %sCAPTAIN ", BAK_MAG, NRM, TXT_CYN); printf(__VA_ARGS__); printf("%s\n", NRM)
-#define LOG_DEBUG_COM(...) printf("%s[DEBUG]%s %sCOMMO ", BAK_MAG, NRM, TXT_YEL); printf(__VA_ARGS__); printf("%s\n", NRM)
+#define LOG_DEBUG(...) printf("%s[DEBUG]%s ", BAK_YEL, NRM); printf(__VA_ARGS__);  printf("\n")
+#define LOG_DEBUG_PRO(...) printf("%s[DEBUG]%s %sPROPOSER ", BAK_YEL, NRM, TXT_RED); printf(__VA_ARGS__); printf("%s\n", NRM)
+#define LOG_DEBUG_ACC(...) printf("%s[DEBUG]%s %sACCEPTOR ", BAK_YEL, NRM, TXT_GRN); printf(__VA_ARGS__); printf("%s\n", NRM)
+#define LOG_DEBUG_CAP(...) printf("%s[DEBUG]%s %sCAPTAIN ", BAK_YEL, NRM, TXT_CYN); printf(__VA_ARGS__); printf("%s\n", NRM)
+#define LOG_DEBUG_COM(...) printf("%s[DEBUG]%s %sCOMMO ", BAK_YEL, NRM, TXT_YEL); printf(__VA_ARGS__); printf("%s\n", NRM)
 #else
 #define LOG_DEBUG(...)
 #define LOG_DEBUG_PRO(...) 

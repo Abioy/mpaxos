@@ -38,7 +38,7 @@ void Captain::set_commo(Commo *commo) {
 void Captain::commit_value(std::string data) {
 //  std::lock_guard<std::mutex> lock(mutex_);
 //  std::cout << "\nCaptain commit_value" << std::endl;
-  LOG_INFO_CAP("<commit_value> Start");
+  LOG_DEBUG_CAP("<commit_value> Start");
   if (!tocommit_values_.empty() || curr_proposer_) {
     tocommit_values_.push(data);
     return;
@@ -48,12 +48,12 @@ void Captain::commit_value(std::string data) {
   curr_value_->set_data(data);
   value_id_t value_id = curr_value_->id() + (1 << 16) + view_->whoami();
   curr_value_->set_id(value_id);
-  LOG_DEBUG_CAP("(curr_value) id:%llu data:%s", curr_value_->id(), curr_value_->data().c_str());
+  LOG_TRACE_CAP("(curr_value) id:%llu data:%s", curr_value_->id(), curr_value_->data().c_str());
 //  std::cout << "curr_value id: " << curr_value_->id() 
 //            << " value: " << curr_value_->data() << std::endl; 
   // start a new instance
   new_slot();
-  LOG_INFO_CAP("<commit_value> Over!");
+  LOG_DEBUG_CAP("<commit_value> Over!");
 }
 
 /**
@@ -61,13 +61,13 @@ void Captain::commit_value(std::string data) {
  */
 void Captain::new_slot() {
   // new proposer
-  LOG_DEBUG_CAP("<new_slot> Start");
+  LOG_TRACE_CAP("<new_slot> Start");
   curr_proposer_ = new Proposer(*view_, *curr_value_);
   // new acceptor
 //  std::cout << "WHOOOO view_->whoami()" << view_->whoami() << std::endl;
   // IMPORTANT!!! Only when there is no such slot acceptor, init
   if (acceptors_.count(max_chosen_ + 1) == 0) {
-    LOG_DEBUG_CAP("<new_slot> init new acceptor id:%llu", max_chosen_ + 1);
+    LOG_TRACE_CAP("<new_slot> init new acceptor id:%llu", max_chosen_ + 1);
     acceptors_[max_chosen_ + 1] = new Acceptor(*view_);
   }
 //  std::cout << "Captain slot_id (max_chosen_ + 1)" << max_chosen_ + 1 << std::endl;
@@ -76,16 +76,16 @@ void Captain::new_slot() {
   MsgPrepare *msg_pre = curr_proposer_->msg_prepare();
   // important!! captain set slot_id
   msg_pre->mutable_msg_header()->set_slot_id(max_chosen_ + 1);
-  LOG_DEBUG_CAP("<new_slot> call <broadcast_msg> with (msg_type):PREPARE");
+  LOG_TRACE_CAP("<new_slot> call <broadcast_msg> with (msg_type):PREPARE");
   commo_->broadcast_msg(msg_pre, PREPARE);
-  LOG_DEBUG_CAP("<new_slot> call <broadcast_msg> Over");
+  LOG_TRACE_CAP("<new_slot> call <broadcast_msg> Over");
 }
 
 /**
  * handle message from commo, all kinds of message
  */
 void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
-  LOG_DEBUG_CAP("<handle_msg> Start (msg_type):%d", msg_type);
+  LOG_TRACE_CAP("<handle_msg> Start (msg_type):%d", msg_type);
 //  std::lock_guard<std::mutex> lock(mutex_);
   switch (msg_type) {
 
@@ -94,10 +94,10 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       MsgPrepare *msg_pre = (MsgPrepare *)msg;
 
       slot_id_t acc_slot = msg_pre->msg_header().slot_id();
-      LOG_DEBUG_CAP("(msg_type):PREPARE, (slot_id): %llu", acc_slot);
+      LOG_TRACE_CAP("(msg_type):PREPARE, (slot_id): %llu", acc_slot);
       // IMPORTANT!!! if there is no such acceptor then init
       if (acceptors_.count(acc_slot) == 0) {
-        LOG_DEBUG_CAP("(msg_type):PREPARE, New Acceptor");
+        LOG_TRACE_CAP("(msg_type):PREPARE, New Acceptor");
         acceptors_[acc_slot] = new Acceptor(*view_);
       }
 
@@ -110,13 +110,13 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       // proposer should handle ack of prepare message
       // IMPORTANT! if curr_proposer_ == NULL Drop TODO can send other info
       if (!curr_proposer_) {
-        LOG_DEBUG_CAP("(msg_type):PROMISE, Value has been chosen and Proposer is NULL now! Return!");
+        LOG_TRACE_CAP("(msg_type):PROMISE, Value has been chosen and Proposer is NULL now! Return!");
         return;
       }
       MsgAckPrepare *msg_ack_pre = (MsgAckPrepare *)msg;
 
       if (msg_ack_pre->msg_header().slot_id() != max_chosen_ + 1) {
-        LOG_DEBUG_CAP("(msg_type):PROMISE, This (slot_id):%llu is not (current_id):%llu! Return!", msg_ack_pre->msg_header().slot_id(), max_chosen_ + 1);
+        LOG_TRACE_CAP("(msg_type):PROMISE, This (slot_id):%llu is not (current_id):%llu! Return!", msg_ack_pre->msg_header().slot_id(), max_chosen_ + 1);
         return;
       }
 
@@ -125,7 +125,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
         case NOT_ENOUGH: break;
         case CONTINUE: {
           // Send to all acceptors in view
-          LOG_DEBUG_CAP("(msg_type):PROMISE, Continue to Phase II");
+          LOG_TRACE_CAP("(msg_type):PROMISE, Continue to Phase II");
           MsgAccept *msg_acc = curr_proposer_->msg_accept();
           msg_acc->mutable_msg_header()->set_slot_id(max_chosen_ + 1);
           commo_->broadcast_msg(msg_acc, ACCEPT);
@@ -147,11 +147,11 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       MsgAccept *msg_acc = (MsgAccept *)msg;
       slot_id_t acc_slot = msg_acc->msg_header().slot_id();
 
-      LOG_DEBUG_CAP("(msg_type):ACCEPT, (slot_id):%llu", acc_slot);
+      LOG_TRACE_CAP("(msg_type):ACCEPT, (slot_id):%llu", acc_slot);
       // IMPORTANT!!! if there is no such acceptor then init
       if (acceptors_.count(acc_slot) == 0) { 
 
-        LOG_DEBUG_CAP("(msg_type):ACCEPT, New Acceptor");
+        LOG_TRACE_CAP("(msg_type):ACCEPT, New Acceptor");
         acceptors_[acc_slot] = new Acceptor(*view_);
       }
 
@@ -164,14 +164,14 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       // proposer should handle ack of accept message
       // IMPORTANT! if curr_proposer_ == NULL Drop TODO can send other info
       if (!curr_proposer_) {
-        LOG_DEBUG_CAP("(msg_type):ACCEPTED, Value has been chosen and Proposer is NULL now! Return!");
+        LOG_TRACE_CAP("(msg_type):ACCEPTED, Value has been chosen and Proposer is NULL now! Return!");
         return;
       }
 
       MsgAckAccept *msg_ack_acc = (MsgAckAccept *)msg; 
 
       if (msg_ack_acc->msg_header().slot_id() != max_chosen_ + 1) {
-        LOG_DEBUG_CAP("(msg_type):ACCEPTED, This (slot_id):%llu is not (current_id):%llu! Return!", msg_ack_acc->msg_header().slot_id(), max_chosen_ + 1);
+        LOG_TRACE_CAP("(msg_type):ACCEPTED, This (slot_id):%llu is not (current_id):%llu! Return!", msg_ack_acc->msg_header().slot_id(), max_chosen_ + 1);
         return;
       }
 
@@ -184,19 +184,19 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
           // First add the chosen_value into chosen_values_ 
           PropValue *chosen_value = curr_proposer_->get_chosen_value();
 
-          LOG_INFO_CAP("*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*");
-          LOG_INFO_CAP("Successfully Choose (value):%s !", chosen_value->data().c_str());
-          LOG_INFO_CAP("*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*");
+          LOG_DEBUG_CAP("*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*");
+          LOG_DEBUG_CAP("Successfully Choose (value):%s !", chosen_value->data().c_str());
+          LOG_DEBUG_CAP("*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*");
 
           // IMPORTANT 
           chosen_values_[max_chosen_ + 1] = chosen_value;
           // self increase max_chosen_
           max_chosen_++;
-          LOG_DEBUG_CAP("(current_slot):%llu", max_chosen_);
+          LOG_TRACE_CAP("(current_slot):%llu", max_chosen_);
           if (chosen_value->id() == curr_value_->id()) {
             // client's commit succeeded, if no value to commit, set NULL
             if (tocommit_values_.empty()) {
-              LOG_INFO_CAP("Proposer END MISSION Temp");
+              LOG_DEBUG_CAP("Proposer END MISSION Temp");
               curr_proposer_ = NULL;
               return;
             }
@@ -211,7 +211,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
             new_slot();
           } else {
             // recommit the same value
-            LOG_DEBUG_CAP("Recommit the same (value):%s!!!", curr_value_->data().c_str());
+            LOG_TRACE_CAP("Recommit the same (value):%s!!!", curr_value_->data().c_str());
             delete curr_proposer_;
             new_slot();
           }

@@ -27,7 +27,7 @@ Acceptor::~Acceptor() {
  */ 
 MsgAckPrepare *Acceptor::handle_msg_prepare(MsgPrepare *msg_pre) {
   ballot_id_t curr_ballot = msg_pre->ballot_id();
-  LOG_DEBUG_ACC("--> Phase I : <handle_msg_prepare> (curr_ballot):%llu", curr_ballot);
+  LOG_TRACE_ACC("--> Phase I : <handle_msg_prepare> (curr_ballot):%llu", curr_ballot);
 //  std::cout << "\tAcceptor -- Phase I : Inside acceptor handle_msg_prepare curr_ballot: " 
 //            << curr_ballot << std::endl;
   MsgHeader *msg_header = new MsgHeader();
@@ -53,7 +53,7 @@ MsgAckPrepare *Acceptor::handle_msg_prepare(MsgPrepare *msg_pre) {
   } else
     msg_ack_pre->set_reply(false);
 
-  LOG_DEBUG_ACC("(max_proposed_ballot_):%llu (max_accepted_ballot_):%llu", max_proposed_ballot_, max_accepted_ballot_);
+  LOG_TRACE_ACC("(max_proposed_ballot_):%llu (max_accepted_ballot_):%llu", max_proposed_ballot_, max_accepted_ballot_);
 //  std::cout << "\tAcceptor max_proposed_ballot_ " << max_proposed_ballot_
 //            << "\tmax_accepted_ballot_ " << max_accepted_ballot_ << std::endl; 
   return msg_ack_pre;
@@ -70,7 +70,7 @@ MsgAckPrepare *Acceptor::handle_msg_prepare(MsgPrepare *msg_pre) {
  */
 MsgAckAccept *Acceptor::handle_msg_accept(MsgAccept *msg_acc) {
   ballot_id_t curr_ballot = msg_acc->ballot_id();
-  LOG_DEBUG_ACC("--> Phase II : <handle_msg_accept> (curr_ballot):%llu --NodeID %u", curr_ballot, view_->whoami());
+  LOG_TRACE_ACC("--> Phase II : <handle_msg_accept> (curr_ballot):%llu --NodeID %u", curr_ballot, view_->whoami());
 //  std::cout << "\tAcceptor -- Phase II : Inside handle_msg_accept curr_ballot: " 
 //            << curr_ballot << " for Node " << view_->whoami() << std::endl;
   // prepare msg_header
@@ -83,14 +83,14 @@ MsgAckAccept *Acceptor::handle_msg_accept(MsgAccept *msg_acc) {
   msg_ack_acc->set_allocated_msg_header(msg_header);
   msg_ack_acc->set_ballot_id(curr_ballot);
   if (curr_ballot >= max_proposed_ballot_) {
-    LOG_DEBUG_ACC("Change 3 value");
+    LOG_TRACE_ACC("Change 3 value");
     max_proposed_ballot_ = curr_ballot;
     max_accepted_ballot_ = curr_ballot;
     max_value_ = msg_acc->mutable_prop_value();
     msg_ack_acc->set_reply(true);
   } else msg_ack_acc->set_reply(false);
 
-  LOG_DEBUG_ACC("(max_proposed_ballot_):%llu (max_accepted_ballot_):%llu", max_proposed_ballot_, max_accepted_ballot_);
+  LOG_TRACE_ACC("(max_proposed_ballot_):%llu (max_accepted_ballot_):%llu", max_proposed_ballot_, max_accepted_ballot_);
 
   return msg_ack_acc;
 }

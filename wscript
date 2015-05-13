@@ -107,7 +107,11 @@ def _enable_debug(conf):
         conf.env.append_value("C", "clang++")
 
 def _enable_log(conf):
-    if Options.options.log == 'debug':
+    if Options.options.log == 'trace':
+        Logs.pprint("PINK", "Log level set to trace")
+        conf.env.append_value("CFLAGS", "-DLOG_LEVEL=6")
+        conf.env.append_value("CXXFLAGS", "-DLOG_LEVEL=6")
+    elif Options.options.log == 'debug':
         Logs.pprint("PINK", "Log level set to debug")
         conf.env.append_value("CFLAGS", "-DLOG_LEVEL=5")
         conf.env.append_value("CXXFLAGS", "-DLOG_LEVEL=5")
