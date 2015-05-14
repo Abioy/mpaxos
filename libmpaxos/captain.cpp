@@ -46,9 +46,12 @@ void Captain::commit_value(std::string data) {
   // prepare value
 //  std::cout << "Captain Prepare Value" << std::endl;
   curr_value_->set_data(data);
-  value_id_t value_id = curr_value_->id() + (1 << 16) + view_->whoami();
+  LOG_DEBUG_CAP("(view_->whoami()):%u", view_->whoami());
+  LOG_DEBUG_CAP("(curr_value_->id()):%llu (1<<16):%d", curr_value_->id(), 1<<16);
+  value_id_t value_id = curr_value_->id() + (1 << 16);
   curr_value_->set_id(value_id);
-  LOG_TRACE_CAP("(curr_value) id:%llu data:%s", curr_value_->id(), curr_value_->data().c_str());
+  LOG_DEBUG_CAP("(curr_value) id:%llu data:%s", curr_value_->id(), curr_value_->data().c_str());
+  LOG_DEBUG_CAP("(curr_slot):%llu", max_chosen_ + 1);
 //  std::cout << "curr_value id: " << curr_value_->id() 
 //            << " value: " << curr_value_->data() << std::endl; 
   // start a new instance
@@ -66,10 +69,10 @@ void Captain::new_slot() {
   // new acceptor
 //  std::cout << "WHOOOO view_->whoami()" << view_->whoami() << std::endl;
   // IMPORTANT!!! Only when there is no such slot acceptor, init
-  if (acceptors_.count(max_chosen_ + 1) == 0) {
-    LOG_TRACE_CAP("<new_slot> init new acceptor id:%llu", max_chosen_ + 1);
-    acceptors_[max_chosen_ + 1] = new Acceptor(*view_);
-  }
+//  if (acceptors_.count(max_chosen_ + 1) == 0) {
+//    LOG_TRACE_CAP("<new_slot> init new acceptor id:%llu", max_chosen_ + 1);
+//    acceptors_[max_chosen_ + 1] = new Acceptor(*view_);
+//  }
 //  std::cout << "Captain slot_id (max_chosen_ + 1)" << max_chosen_ + 1 << std::endl;
   // start phaseI
 //  std::cout << "Captain new_slot : before call msg_prepare" << std::endl;
@@ -150,7 +153,6 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       LOG_TRACE_CAP("(msg_type):ACCEPT, (slot_id):%llu", acc_slot);
       // IMPORTANT!!! if there is no such acceptor then init
       if (acceptors_.count(acc_slot) == 0) { 
-
         LOG_TRACE_CAP("(msg_type):ACCEPT, New Acceptor");
         acceptors_[acc_slot] = new Acceptor(*view_);
       }
@@ -184,15 +186,27 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
           // First add the chosen_value into chosen_values_ 
           PropValue *chosen_value = curr_proposer_->get_chosen_value();
 
-          LOG_DEBUG_CAP("*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*");
+//          LOG_DEBUG_CAP("*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*");
           LOG_DEBUG_CAP("Successfully Choose (value):%s !", chosen_value->data().c_str());
-          LOG_DEBUG_CAP("*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*");
+//          LOG_DEBUG_CAP("*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*");
 
           // IMPORTANT 
-          chosen_values_[max_chosen_ + 1] = chosen_value;
+          chosen_values_[max_chosen_ + 1] = new PropValue(*chosen_value);
           // self increase max_chosen_
           max_chosen_++;
-          LOG_TRACE_CAP("(current_slot):%llu", max_chosen_);
+//          LOG_DEBUG_CAP("(current_slot):%llu", max_chosen_);
+          LOG_DEBUG_CAP("After one value chosen! chosen_values_ ");
+          std::map<slot_id_t, PropValue *>::iterator it;
+          for (it = chosen_values_.begin(); it != chosen_values_.end(); it++) {
+            LOG_DEBUG_CAP("(slot_id):%llu (value) id:%llu data:%s", it->first, it->second->id(), it->second->data().c_str());
+          }
+          
+//          LOG_DEBUG_CAP("After one value chosen! acceptors_ ");
+//          std::map<slot_id_t, Acceptor *>::iterator itt;
+//          for (itt = acceptors_.begin(); itt != acceptors_.end(); itt++) {
+//            LOG_DEBUG_CAP("(slot_id):%llu (value) id:%llu data:%s", itt->first, itt->second->get_max_value()->id(), itt->second->get_max_value()->data().c_str());
+//          }
+
           if (chosen_value->id() == curr_value_->id()) {
             // client's commit succeeded, if no value to commit, set NULL
             if (tocommit_values_.empty()) {

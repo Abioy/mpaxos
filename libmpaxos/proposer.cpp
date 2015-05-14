@@ -172,7 +172,11 @@ ballot_id_t Proposer::gen_next_ballot() {
 //  std::cout << "\t\tBefore gen_next_ballot curr_ballot_ " << curr_ballot_ << " NodeID " << view_->whoami() << std::endl;
   LOG_TRACE_PRO("Before <gen_next_ballot> (curr_ballot_):%llu --NodeID %u", curr_ballot_, view_->whoami());
 
-  curr_ballot_ = (curr_ballot_ + (1 << 16)) + view_->whoami();
+  if (curr_ballot_ == 0)
+    curr_ballot_ = (curr_ballot_ + (1 << 16)) + view_->whoami();
+  else 
+    curr_ballot_ = curr_ballot_ + (1 << 16);
+
 //  std::cout << "\t\tAfter gen_next_ballot curr_ballot_ " << curr_ballot_ << std::endl;
   LOG_TRACE_PRO("After <gen_next_ballot> (curr_ballot_):%llu", curr_ballot_);
   return curr_ballot_;

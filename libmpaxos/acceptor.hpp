@@ -38,6 +38,8 @@ class Acceptor {
    */
   MsgAckAccept *handle_msg_accept(MsgAccept *);
 
+  PropValue *get_max_value();
+
  private:
   View *view_;
   // the max proposed ballot id I have ever seen, initial 0. 

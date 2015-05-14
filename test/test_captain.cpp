@@ -48,11 +48,15 @@ int main(int argc, char** argv) {
   LOG_INFO("** START **");
 
   int node_nums = 5;
+  int node_times = 1;
   int value_times = 1;
   if (argc > 1)
     node_nums = atoi(argv[1]);
   if (argc > 2)
-    value_times = atoi(argv[2]);
+    node_times = atoi(argv[2]);
+  if (argc > 3)
+    value_times = atoi(argv[3]);
+
 
   std::set<node_id_t> nodes;
   // init all nodes set
@@ -76,7 +80,7 @@ int main(int argc, char** argv) {
 //    clients.push_back(new std::thread(client_commit, captains[i]));
   }
 
-  for (int i = 0; i < node_nums; i++) {
+  for (int i = 0; i < node_times; i++) {
     for (int j = 0; j < value_times; j++) {
       LOG_INFO("***********************************************************************");
       std::string value = "Love MS Time_" + std::to_string(j) + " from Node_" + std::to_string(i);

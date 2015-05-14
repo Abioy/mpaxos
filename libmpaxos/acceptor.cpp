@@ -83,15 +83,25 @@ MsgAckAccept *Acceptor::handle_msg_accept(MsgAccept *msg_acc) {
   msg_ack_acc->set_allocated_msg_header(msg_header);
   msg_ack_acc->set_ballot_id(curr_ballot);
   if (curr_ballot >= max_proposed_ballot_) {
-    LOG_TRACE_ACC("Change 3 value");
+    LOG_TRACE_ACC("Change 2 ballot");
     max_proposed_ballot_ = curr_ballot;
     max_accepted_ballot_ = curr_ballot;
-    max_value_ = msg_acc->mutable_prop_value();
+    if (!max_value_ || max_value_->id() != msg_acc->prop_value().id()) {
+      LOG_TRACE_ACC("Change 1 value");
+      max_value_ = new PropValue(*(msg_acc->mutable_prop_value()));
+    }
+//    max_value_ = msg_acc->mutable_prop_value();
     msg_ack_acc->set_reply(true);
   } else msg_ack_acc->set_reply(false);
 
   LOG_TRACE_ACC("(max_proposed_ballot_):%llu (max_accepted_ballot_):%llu", max_proposed_ballot_, max_accepted_ballot_);
+  LOG_TRACE_ACC("max_value_ id:%llu data:%s", max_value_->id(), max_value_->data().c_str());
 
   return msg_ack_acc;
 }
+
+PropValue *Acceptor::get_max_value() {
+  return max_value_;
+}
+
 }  // namespace mpaxos
