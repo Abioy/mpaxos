@@ -10,7 +10,7 @@
 namespace mpaxos {
 
 Captain::Captain(View &view)
-  : view_(&view), max_chosen_(0), curr_proposer_(NULL), commo_(NULL) {
+  : view_(&view), max_chosen_(0), curr_proposer_(NULL), commo_(NULL), work_(true) {
   curr_value_ = new PropValue();
   curr_value_->set_id(view_->whoami());
 }
@@ -57,6 +57,13 @@ void Captain::commit_value(std::string data) {
   // start a new instance
   new_slot();
   LOG_DEBUG_CAP("<commit_value> Over!");
+  LOG_DEBUG_CAP("After <commit_value> chosen_values_ ");
+  std::map<slot_id_t, PropValue *>::iterator it;
+  for (it = chosen_values_.begin(); it != chosen_values_.end(); it++) {
+    LOG_DEBUG_CAP("(slot_id):%llu (value) id:%llu data:%s", it->first, it->second->id(), it->second->data().c_str());
+  }
+  // clean curr_proposer_!!
+  clean();
 }
 
 /**
@@ -88,6 +95,10 @@ void Captain::new_slot() {
  * handle message from commo, all kinds of message
  */
 void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
+  if (work_ == false) {
+    LOG_DEBUG_CAP("I'm dead TOT --NodeID %u", view_->whoami());
+    return;
+  }
   LOG_TRACE_CAP("<handle_msg> Start (msg_type):%d", msg_type);
 //  std::lock_guard<std::mutex> lock(mutex_);
   switch (msg_type) {
@@ -187,7 +198,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
           PropValue *chosen_value = curr_proposer_->get_chosen_value();
 
 //          LOG_DEBUG_CAP("*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*");
-          LOG_DEBUG_CAP("Successfully Choose (value):%s !", chosen_value->data().c_str());
+          LOG_DEBUG_CAP("%sSuccessfully Choose (value):%s !%s", BAK_MAG, chosen_value->data().c_str(), NRM);
 //          LOG_DEBUG_CAP("*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*");
 
           // IMPORTANT 
@@ -195,11 +206,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
           // self increase max_chosen_
           max_chosen_++;
 //          LOG_DEBUG_CAP("(current_slot):%llu", max_chosen_);
-          LOG_DEBUG_CAP("After one value chosen! chosen_values_ ");
-          std::map<slot_id_t, PropValue *>::iterator it;
-          for (it = chosen_values_.begin(); it != chosen_values_.end(); it++) {
-            LOG_DEBUG_CAP("(slot_id):%llu (value) id:%llu data:%s", it->first, it->second->id(), it->second->data().c_str());
-          }
+
           
 //          LOG_DEBUG_CAP("After one value chosen! acceptors_ ");
 //          std::map<slot_id_t, Acceptor *>::iterator itt;
@@ -211,6 +218,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
             // client's commit succeeded, if no value to commit, set NULL
             if (tocommit_values_.empty()) {
               LOG_DEBUG_CAP("Proposer END MISSION Temp");
+              delete curr_proposer_;
               curr_proposer_ = NULL;
               return;
             }
@@ -244,4 +252,26 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       break;
   }
 }
+
+/** 
+ * Callback function after commit_value  
+ */
+void Captain::clean() {
+  if (curr_proposer_) 
+    delete curr_proposer_;
+  curr_proposer_ = NULL;
+}
+
+void Captain::crash() {
+  work_ = false;
+}
+
+void Captain::recover() {
+  work_ = true;
+}
+
+bool Captain::get_status() {
+  return work_;
+}
+
 } //  namespace mpaxos

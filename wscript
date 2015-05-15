@@ -80,6 +80,19 @@ def build(bld):
                 use="GTEST_PTHREAD mpaxos", 
                 install_path=False)   
 
+    bld.program(source=['test/test_captain_random_total.cpp'], 
+                target="test_captain_random_total", 
+                includes="libmpaxos", 
+                use="GTEST_PTHREAD mpaxos", 
+                install_path=False)  
+
+    bld.program(source=['test/test_captain_random_down.cpp'], 
+                target="test_captain_random_down", 
+                includes="libmpaxos", 
+                use="GTEST_PTHREAD mpaxos", 
+                install_path=False)  
+
+
     bld.program(features = 'gtest',
                 source=['test/loli_gtest.cpp', 'libmpaxos/sample1.cc'], 
                 target="loli_gtest", 

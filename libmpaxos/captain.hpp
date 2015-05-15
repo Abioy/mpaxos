@@ -43,6 +43,17 @@ class Captain {
    */
   void handle_msg(google::protobuf::Message *, MsgType);
 
+  /** 
+   * Callback function after commit_value  
+   */
+  void clean();
+
+  void crash();
+
+  void recover();
+
+  bool get_status();
+
  private:
 
   View *view_;
@@ -52,10 +63,13 @@ class Captain {
 
   // max chosen instance/slot id 
   slot_id_t max_chosen_; 
+  // don't empty this, need value_id to do self increment
   PropValue *curr_value_;  
   Proposer *curr_proposer_;
   Commo *commo_;
   std::mutex mutex_;
+  // tag work 
+  bool work_;
 
 };
 

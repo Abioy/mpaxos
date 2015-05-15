@@ -49,18 +49,13 @@ int main(int argc, char** argv) {
   LOG_INFO("** START **");
 
   int node_nums = 5;
-  int node_times = 1;
-  int value_times = 1;
-  
+  int total_times = 1;
+
   if (argc > 1)
     node_nums = atoi(argv[1]);
   if (argc > 2)
-    node_times = atoi(argv[2]);
-  if (argc > 3)
-    value_times = atoi(argv[3]);
+    total_times = atoi(argv[2]);
 
-
-  std::cout << "node_nums " <<node_nums << " node_times " << node_times << std::endl;
   std::set<node_id_t> nodes;
   // init all nodes set
   for (int i = 0; i < node_nums; i++) 
@@ -83,39 +78,14 @@ int main(int argc, char** argv) {
 //    clients.push_back(new std::thread(client_commit, captains[i]));
   }
 
-  int total_times = 0;
-  std::vector<int> node_times_max(node_nums, node_times);  
-  std::vector<int> value_times_vec(node_nums, value_times);  
   std::vector<int> node_times_vec(node_nums, 0); 
 
-  for (int i = 0; i < node_nums; i++) {
-    auto t2 = std::chrono::high_resolution_clock::now();
-    srand(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
-//    srand((unsigned)time(NULL));
-    node_times_max[i] = rand() % (node_times + 1);
-    t2 = std::chrono::high_resolution_clock::now();
-    srand(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
-//    srand((unsigned)time(NULL));
-    value_times_vec[i] = rand() % (value_times + 1); 
-    LOG_INFO("Node_%d (node_times):%d (value_times):%d", i, node_times_max[i], value_times_vec[i]);
-    total_times += node_times_max[i];
-  }
-//  std::cout << "total_times " << total_times << std::endl;
-//  std::cout << "node_nums " << node_nums << std::endl;
   int node_id = 0;
   for (int i = 0; i < total_times; i++) {
-    while (1) {
-      auto t2 = std::chrono::high_resolution_clock::now();
-      srand(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
-      node_id = rand() % node_nums;
-//      std::cout << "node_id " << node_id << std::endl;
-      if (node_times_vec[node_id] == node_times_max[node_id]) {
-        continue;
-      }
-      if (node_times_vec[node_id] < node_times_max[node_id]) {
-        break;
-      }
-    }
+    auto t2 = std::chrono::high_resolution_clock::now();
+    srand(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
+    node_id = rand() % node_nums;
+//    std::cout << "node_id " << node_id << std::endl;
 
     LOG_INFO("***********************************************************************");
     LOG_INFO("** This (time):%d (node_id):%d (node_times):%d", i, node_id, node_times_vec[node_id]);

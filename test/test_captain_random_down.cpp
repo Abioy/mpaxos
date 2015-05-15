@@ -49,18 +49,13 @@ int main(int argc, char** argv) {
   LOG_INFO("** START **");
 
   int node_nums = 5;
-  int node_times = 1;
-  int value_times = 1;
-  
+  int total_times = 1;
+
   if (argc > 1)
     node_nums = atoi(argv[1]);
   if (argc > 2)
-    node_times = atoi(argv[2]);
-  if (argc > 3)
-    value_times = atoi(argv[3]);
+    total_times = atoi(argv[2]);
 
-
-  std::cout << "node_nums " <<node_nums << " node_times " << node_times << std::endl;
   std::set<node_id_t> nodes;
   // init all nodes set
   for (int i = 0; i < node_nums; i++) 
@@ -83,46 +78,51 @@ int main(int argc, char** argv) {
 //    clients.push_back(new std::thread(client_commit, captains[i]));
   }
 
-  int total_times = 0;
-  std::vector<int> node_times_max(node_nums, node_times);  
-  std::vector<int> value_times_vec(node_nums, value_times);  
   std::vector<int> node_times_vec(node_nums, 0); 
 
-  for (int i = 0; i < node_nums; i++) {
-    auto t2 = std::chrono::high_resolution_clock::now();
-    srand(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
-//    srand((unsigned)time(NULL));
-    node_times_max[i] = rand() % (node_times + 1);
-    t2 = std::chrono::high_resolution_clock::now();
-    srand(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
-//    srand((unsigned)time(NULL));
-    value_times_vec[i] = rand() % (value_times + 1); 
-    LOG_INFO("Node_%d (node_times):%d (value_times):%d", i, node_times_max[i], value_times_vec[i]);
-    total_times += node_times_max[i];
-  }
-//  std::cout << "total_times " << total_times << std::endl;
-//  std::cout << "node_nums " << node_nums << std::endl;
   int node_id = 0;
   for (int i = 0; i < total_times; i++) {
-    while (1) {
-      auto t2 = std::chrono::high_resolution_clock::now();
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+    srand(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
+    int chosen_id = rand() % node_nums;
+    if (captains[chosen_id]->get_status()) {
+      captains[chosen_id]->crash();
+      LOG_INFO("%s** Node_%d Crash @ Total_Time_%d%s", BAK_RED, chosen_id, i, NRM);
+    } else {
+      captains[chosen_id]->recover();
+      LOG_INFO("%s** Node_%d Recover @ Total_Time_%d%s", BAK_GRN, chosen_id, i, NRM);
+    }
+    
+    int alive_count = 0;
+    for (int j = 0; j < node_nums; j++) {
+      if (captains[j]->get_status())
+        alive_count++;
+    }
+    LOG_INFO("%s** %d Node/Nodes is/are Alive...%s", BAK_BLU, alive_count, NRM);
+
+    if (alive_count == 0) {
+      // randomly pick a node to recover
+      t2 = std::chrono::high_resolution_clock::now();
       srand(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
-      node_id = rand() % node_nums;
-//      std::cout << "node_id " << node_id << std::endl;
-      if (node_times_vec[node_id] == node_times_max[node_id]) {
-        continue;
-      }
-      if (node_times_vec[node_id] < node_times_max[node_id]) {
-        break;
-      }
+      int chosen_id = rand() % node_nums;
+      captains[chosen_id]->recover();
+      LOG_INFO("%s** Because No Node is Alive, Pick up Node_%d to Recover~~%s", BAK_GRN, chosen_id, NRM);
     }
 
-    LOG_INFO("***********************************************************************");
-    LOG_INFO("** This (time):%d (node_id):%d (node_times):%d", i, node_id, node_times_vec[node_id]);
+    while (1) {
+      t2 = std::chrono::high_resolution_clock::now();
+      srand(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
+      node_id = rand() % node_nums;
+      if (captains[node_id]->get_status())
+        break;
+    }
+
+//    LOG_INFO("** Total_Time_%d Node_%d Times_:%d", i, node_id, node_times_vec[node_id]);
     std::string value = "Love MS Time_" + std::to_string(node_times_vec[node_id]) + " from Node_" + std::to_string(node_id) + " Total_Time_" + std::to_string(i);
-    LOG_INFO("** Commit Value--[%s] Start", value.c_str());
+    LOG_INFO("** %s", value.c_str());
     captains[node_id]->commit_value(value);
-    LOG_INFO("** (Client):%d (Commit_Times):%d END", node_id, node_times_vec[node_id]);
+    LOG_INFO("** Node_%d Time_%d Total_Time_%d END", node_id, node_times_vec[node_id], i);
     LOG_INFO("***********************************************************************");
 
     node_times_vec[node_id]++;
