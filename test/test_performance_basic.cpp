@@ -48,14 +48,14 @@ int main(int argc, char** argv) {
   LOG_INFO("** START **");
 
   int node_nums = 5;
-  int node_times = 1;
-  int value_times = 1;
+  uint64_t node_times = 1;
+  uint64_t value_times = 1;
   if (argc > 1)
     node_nums = atoi(argv[1]);
   if (argc > 2)
-    node_times = atoi(argv[2]);
+    node_times = atoll(argv[2]);
   if (argc > 3)
-    value_times = atoi(argv[3]);
+    value_times = atoll(argv[3]);
 
 
   std::set<node_id_t> nodes;
@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
 
   auto t2 = std::chrono::high_resolution_clock::now();
   uint64_t time_count = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-  LOG_INFO("ms:%llu throughput:%llu per second", time_count, value_times * node_times * 1000 / time_count);
+  LOG_INFO("ms:%llu throughput:%llu per second", time_count, value_times * node_times / time_count * 1000);
 //  for (int i = node_nums -1 ; i >=0; i--) {
 //    LOG_INFO("***********************************************************************");
 //    LOG_INFO("** (Client):%d Commit Start", i);

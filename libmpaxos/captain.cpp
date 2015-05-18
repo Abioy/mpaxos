@@ -13,6 +13,8 @@ Captain::Captain(View &view)
   : view_(&view), max_chosen_(0), curr_proposer_(NULL), commo_(NULL), work_(true) {
   curr_value_ = new PropValue();
   curr_value_->set_id(view_->whoami());
+  chosen_values_.push_back(NULL);
+  acceptors_.push_back(NULL);
 }
 
 Captain::~Captain() {
@@ -58,9 +60,11 @@ void Captain::commit_value(std::string data) {
   new_slot();
   LOG_DEBUG_CAP("<commit_value> Over!");
   LOG_DEBUG_CAP("After <commit_value> chosen_values_ ");
-  std::map<slot_id_t, PropValue *>::iterator it;
-  for (it = chosen_values_.begin(); it != chosen_values_.end(); it++) {
-    LOG_DEBUG_CAP("(slot_id):%llu (value) id:%llu data:%s", it->first, it->second->id(), it->second->data().c_str());
+//  std::unordered_map<slot_id_t, PropValue *>::iterator it;
+  std::vector<PropValue *>::iterator it;
+
+  for (uint64_t i = 1; i < chosen_values_.size(); i++) {
+    LOG_DEBUG_CAP("(slot_id):%llu (value) id:%llu data:%s", i, chosen_values_[i]->id(), chosen_values_[i]->data().c_str());
   }
   // clean curr_proposer_!!
   clean();
@@ -110,10 +114,12 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       slot_id_t acc_slot = msg_pre->msg_header().slot_id();
       LOG_TRACE_CAP("(msg_type):PREPARE, (slot_id): %llu", acc_slot);
       // IMPORTANT!!! if there is no such acceptor then init
-      if (acceptors_.count(acc_slot) == 0) {
+//      if (acceptors_.count(acc_slot) == 0) {
+      for (int i = acceptors_.size(); i <= acc_slot; i++) {
         LOG_TRACE_CAP("(msg_type):PREPARE, New Acceptor");
-        acceptors_[acc_slot] = new Acceptor(*view_);
+        acceptors_.push_back(new Acceptor(*view_));
       }
+//        acceptors_[acc_slot] = new Acceptor(*view_);
 
       MsgAckPrepare * msg_ack_pre = acceptors_[acc_slot]->handle_msg_prepare(msg_pre);
       commo_->send_one_msg(msg_ack_pre, PROMISE, msg_pre->msg_header().node_id());
@@ -163,9 +169,13 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 
       LOG_TRACE_CAP("(msg_type):ACCEPT, (slot_id):%llu", acc_slot);
       // IMPORTANT!!! if there is no such acceptor then init
-      if (acceptors_.count(acc_slot) == 0) { 
-        LOG_TRACE_CAP("(msg_type):ACCEPT, New Acceptor");
-        acceptors_[acc_slot] = new Acceptor(*view_);
+//      if (acceptors_.count(acc_slot) == 0) { 
+//        LOG_TRACE_CAP("(msg_type):ACCEPT, New Acceptor");
+//        acceptors_[acc_slot] = new Acceptor(*view_);
+//      }
+      for (int i = acceptors_.size(); i <= acc_slot; i++) {
+        LOG_TRACE_CAP("(msg_type):PREPARE, New Acceptor");
+        acceptors_.push_back(new Acceptor(*view_));
       }
 
       MsgAckAccept *msg_ack_acc = acceptors_[acc_slot]->handle_msg_accept(msg_acc);
@@ -202,7 +212,8 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 //          LOG_DEBUG_CAP("*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*");
 
           // IMPORTANT 
-          chosen_values_[max_chosen_ + 1] = new PropValue(*chosen_value);
+//          chosen_values_[max_chosen_ + 1] = new PropValue(*chosen_value);
+          chosen_values_.push_back(new PropValue(*chosen_value));
           // self increase max_chosen_
           max_chosen_++;
 //          LOG_DEBUG_CAP("(current_slot):%llu", max_chosen_);

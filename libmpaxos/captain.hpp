@@ -8,6 +8,7 @@
 #include "proposer.hpp"
 #include "acceptor.hpp"
 #include <queue>
+#include <unordered_map>
 //#include "include_all.h"
 namespace mpaxos {
 // TODO [Loli] This module is responsible for locating the correct proposer and
@@ -57,8 +58,10 @@ class Captain {
  private:
 
   View *view_;
-  std::map<slot_id_t, Acceptor *> acceptors_;
-  std::map<slot_id_t, PropValue *> chosen_values_;
+//  std::map<slot_id_t, Acceptor *> acceptors_;
+  std::vector<Acceptor *> acceptors_;
+//  std::unordered_map<slot_id_t, PropValue *> chosen_values_;
+  std::vector<PropValue *> chosen_values_;
   std::queue<std::string> tocommit_values_;
 
   // max chosen instance/slot id 

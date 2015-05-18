@@ -33,7 +33,7 @@ MsgPrepare *Proposer::msg_prepare() {
 //  msg_header->set_slot_id(0);
   // prepare the msg_prepare
   msg_pre->set_allocated_msg_header(msg_header);
-  // gen_next_ballot will increase the curr_value_
+  // gen_next_ballot will increase the curr_ballot_
   msg_pre->set_ballot_id(gen_next_ballot());
 //  std::cout << "\tProposer msg_prepare() whoami " << view_->whoami() << std::endl;
 //  std::cout << "\tPropsoer init_value_id " << init_value_->id() << std::endl;
