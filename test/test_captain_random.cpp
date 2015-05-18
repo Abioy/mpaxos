@@ -52,12 +52,12 @@ int main(int argc, char** argv) {
   int node_times = 1;
   int value_times = 1;
   
+  if (argc == 1) 
+    std::cout << "Use default node_nums:5 node_times:1(only Node_0 will commit one time)\n you can specify the node_nums and the max_commit_times of every node " << std::endl;
   if (argc > 1)
     node_nums = atoi(argv[1]);
   if (argc > 2)
     node_times = atoi(argv[2]);
-  if (argc > 3)
-    value_times = atoi(argv[3]);
 
 
   std::cout << "node_nums " <<node_nums << " node_times " << node_times << std::endl;

@@ -50,6 +50,8 @@ int main(int argc, char** argv) {
   int node_nums = 5;
   int node_times = 1;
   int value_times = 1;
+  if (argc == 1) 
+    std::cout << "Use default node_nums:5 node_times:1(only Node_0 will commit) value_times:1(commit only one time) on order\n you can specify them one by one" << std::endl;
   if (argc > 1)
     node_nums = atoi(argv[1]);
   if (argc > 2)

@@ -47,9 +47,11 @@ void client_commit_file(Captain * captain) {
 int main(int argc, char** argv) {
   LOG_INFO("** START **");
 
-  int node_nums = 5;
+  int node_nums = 1;
   uint64_t node_times = 1;
-  uint64_t value_times = 1;
+  uint64_t value_times = 100000;
+  if (argc == 1) 
+    std::cout << "Use default node_nums:1 node_times:1(only Node_0 will commit) value_times:100,000(commit 100,000 times) on order\n you can specify them one by one" << std::endl;
   if (argc > 1)
     node_nums = atoi(argv[1]);
   if (argc > 2)

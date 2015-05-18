@@ -2,6 +2,7 @@
  * test_proposer.cpp
  * To test Proposer Class
  * Author: Lijing Wang
+ * No argument needed, Test Proposer and acceptor alone
  */
 
 #include "proposer.hpp"

@@ -51,6 +51,8 @@ int main(int argc, char** argv) {
   int node_nums = 5;
   int total_times = 1;
 
+  if (argc == 1) 
+    std::cout << "Use default node_nums:5 total_times:1(only Node_0 will commit one time)\n you can specify the node_nums and the total_times of all nodes" << std::endl;
   if (argc > 1)
     node_nums = atoi(argv[1]);
   if (argc > 2)
