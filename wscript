@@ -20,8 +20,7 @@ COMPILER_LANG = "compiler_cxx"
 
 def options(opt):
     opt.load(COMPILER_LANG)
-    opt.load('protoc unittest_gtest',
-            tooldir=['waf-tools'])
+    opt.load('protoc unittest_gtest boost')
     
     opt.add_option('-d', '--debug', dest='debug', default=False, action='store_true')
     opt.add_option('-l', '--log', dest="log", default='', help='log level', action='store')
