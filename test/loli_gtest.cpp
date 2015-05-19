@@ -46,6 +46,7 @@
 #include <limits.h>
 #include "sample1.h"
 #include <gtest/gtest.h>
+#include <stdio.h>
 
 
 // Step 2. Use the TEST macro to define your tests.
@@ -151,3 +152,9 @@ TEST(IsPrimeTest, Positive) {
 // Did you notice that we didn't register the tests?  The
 // RUN_ALL_TESTS() macro magically knows about all the tests we
 // defined.  Isn't this convenient?
+
+//GTEST_API_ int main(int argc, char **argv) {
+//  printf("Running main() from loli_gtest.cpp\n");
+//  testing::InitGoogleTest(&argc, argv);
+//  return RUN_ALL_TESTS();
+//}

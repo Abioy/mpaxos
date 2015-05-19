@@ -64,7 +64,7 @@ void Captain::commit_value(std::string data) {
   std::vector<PropValue *>::iterator it;
 
   for (uint64_t i = 1; i < chosen_values_.size(); i++) {
-    LOG_DEBUG_CAP("(slot_id):%llu (value) id:%llu data:%s", i, chosen_values_[i]->id(), chosen_values_[i]->data().c_str());
+    LOG_DEBUG_CAP("%s %s(slot_id):%llu (value) id:%llu data:%s %s", BAK_CYN, TXT_WHT, i, chosen_values_[i]->id(), chosen_values_[i]->data().c_str(), NRM);
   }
   // clean curr_proposer_!!
   clean();
@@ -212,12 +212,15 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 //          LOG_DEBUG_CAP("*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*");
 
           // IMPORTANT 
-//          chosen_values_[max_chosen_ + 1] = new PropValue(*chosen_value);
-          chosen_values_.push_back(new PropValue(*chosen_value));
+//          chosen_values_.push_back(new PropValue(*chosen_value));
+          for (int i = chosen_values_.size(); i <= max_chosen_ + 1; i++) {
+            LOG_TRACE_CAP("(msg_type):ACCEPTED, New Chosen_Value");
+            chosen_values_.push_back(NULL);
+          }
+          chosen_values_[max_chosen_ + 1] = new PropValue(*chosen_value);
           // self increase max_chosen_
           max_chosen_++;
 //          LOG_DEBUG_CAP("(current_slot):%llu", max_chosen_);
-
           
 //          LOG_DEBUG_CAP("After one value chosen! acceptors_ ");
 //          std::map<slot_id_t, Acceptor *>::iterator itt;
