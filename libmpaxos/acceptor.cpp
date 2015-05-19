@@ -88,7 +88,7 @@ MsgAckAccept *Acceptor::handle_msg_accept(MsgAccept *msg_acc) {
     max_accepted_ballot_ = curr_ballot;
     if (!max_value_ || max_value_->id() != msg_acc->prop_value().id()) {
       LOG_TRACE_ACC("Change 1 value");
-      max_value_ = new PropValue(*(msg_acc->mutable_prop_value()));
+      max_value_ = new PropValue(msg_acc->prop_value());
     }
 //    max_value_ = msg_acc->mutable_prop_value();
     msg_ack_acc->set_reply(true);

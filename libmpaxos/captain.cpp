@@ -64,7 +64,8 @@ void Captain::commit_value(std::string data) {
   std::vector<PropValue *>::iterator it;
 
   for (uint64_t i = 1; i < chosen_values_.size(); i++) {
-    LOG_DEBUG_CAP("%s %s(slot_id):%llu (value) id:%llu data:%s %s", BAK_CYN, TXT_WHT, i, chosen_values_[i]->id(), chosen_values_[i]->data().c_str(), NRM);
+    LOG_DEBUG_CAP("%s %s(slot_id):%llu (value) id:%llu data:%s %s", 
+                  BAK_CYN, TXT_WHT, i, chosen_values_[i]->id(), chosen_values_[i]->data().c_str(), NRM);
   }
   // clean curr_proposer_!!
   clean();
@@ -136,7 +137,8 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       MsgAckPrepare *msg_ack_pre = (MsgAckPrepare *)msg;
 
       if (msg_ack_pre->msg_header().slot_id() != max_chosen_ + 1) {
-        LOG_TRACE_CAP("(msg_type):PROMISE, This (slot_id):%llu is not (current_id):%llu! Return!", msg_ack_pre->msg_header().slot_id(), max_chosen_ + 1);
+        LOG_TRACE_CAP("(msg_type):PROMISE, This (slot_id):%llu is not (current_id):%llu! Return!", 
+                      msg_ack_pre->msg_header().slot_id(), max_chosen_ + 1);
         return;
       }
 
@@ -194,7 +196,8 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       MsgAckAccept *msg_ack_acc = (MsgAckAccept *)msg; 
 
       if (msg_ack_acc->msg_header().slot_id() != max_chosen_ + 1) {
-        LOG_TRACE_CAP("(msg_type):ACCEPTED, This (slot_id):%llu is not (current_id):%llu! Return!", msg_ack_acc->msg_header().slot_id(), max_chosen_ + 1);
+        LOG_TRACE_CAP("(msg_type):ACCEPTED, This (slot_id):%llu is not (current_id):%llu! Return!", 
+                      msg_ack_acc->msg_header().slot_id(), max_chosen_ + 1);
         return;
       }
 
@@ -213,19 +216,27 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 
           // IMPORTANT 
 //          chosen_values_.push_back(new PropValue(*chosen_value));
-          for (int i = chosen_values_.size(); i <= max_chosen_ + 1; i++) {
-            LOG_TRACE_CAP("(msg_type):ACCEPTED, New Chosen_Value");
-            chosen_values_.push_back(NULL);
-          }
-          chosen_values_[max_chosen_ + 1] = new PropValue(*chosen_value);
-          // self increase max_chosen_
-          max_chosen_++;
+//          for (int i = chosen_values_.size(); i <= max_chosen_ + 1; i++) {
+//            LOG_TRACE_CAP("(msg_type):ACCEPTED, New Chosen_Value");
+//            chosen_values_.push_back(NULL);
+//          }
+//          chosen_values_[max_chosen_ + 1] = new PropValue(*chosen_value);
+          
+          // Teach Progress to help others fast learning
+          LOG_TRACE_CAP("(msg_type):ACCEPTED, Broadcast this chosen_value");
+          MsgTeach *msg_tea = msg_teach();
+          commo_->broadcast_msg(msg_tea, TEACH);
+
+          // self increase max_chosen_ when to increase 
+//          max_chosen_++;
+
 //          LOG_DEBUG_CAP("(current_slot):%llu", max_chosen_);
           
 //          LOG_DEBUG_CAP("After one value chosen! acceptors_ ");
 //          std::map<slot_id_t, Acceptor *>::iterator itt;
 //          for (itt = acceptors_.begin(); itt != acceptors_.end(); itt++) {
-//            LOG_DEBUG_CAP("(slot_id):%llu (value) id:%llu data:%s", itt->first, itt->second->get_max_value()->id(), itt->second->get_max_value()->data().c_str());
+//            LOG_DEBUG_CAP("(slot_id):%llu (value) id:%llu data:%s", itt->first, 
+//                          itt->second->get_max_value()->id(), itt->second->get_max_value()->data().c_str());
 //          }
 
           if (chosen_value->id() == curr_value_->id()) {
@@ -262,9 +273,45 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       }
       break;
     }
+
+    case TEACH: {
+    // captain should handle this message
+      MsgTeach *msg_tea = (MsgTeach *)msg;
+      slot_id_t tea_slot = msg_tea->msg_header().slot_id();
+
+      for (int i = chosen_values_.size(); i <= tea_slot; i++) {
+        LOG_TRACE_CAP("(msg_type):TEACH, New Chosen_Value");
+        chosen_values_.push_back(NULL);
+      }
+      // Only this slot doesn't contain a value
+      if (chosen_values_[tea_slot] == NULL)
+        chosen_values_[tea_slot] = new PropValue(msg_tea->prop_value());
+
+      max_chosen_ = tea_slot; 
+
+      break;
+    }
+
     default: 
       break;
   }
+}
+
+/**
+ * Return Teach Message
+ */
+MsgTeach *Captain::msg_teach() {
+
+  MsgHeader *msg_header = new MsgHeader();
+  msg_header->set_msg_type(MsgType::TEACH);
+  msg_header->set_node_id(view_->whoami());
+  msg_header->set_slot_id(max_chosen_ + 1);
+
+  MsgTeach *msg_tea = new MsgTeach();
+  msg_tea->set_allocated_msg_header(msg_header); 
+  msg_tea->set_allocated_prop_value(curr_proposer_->get_chosen_value());
+
+  return msg_tea; 
 }
 
 /** 

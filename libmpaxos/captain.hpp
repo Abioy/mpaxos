@@ -44,6 +44,11 @@ class Captain {
    */
   void handle_msg(google::protobuf::Message *, MsgType);
 
+  /**
+   * Return Teach Message
+   */
+  MsgTeach *msg_teach();
+
   /** 
    * Callback function after commit_value  
    */
