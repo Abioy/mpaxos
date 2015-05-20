@@ -50,15 +50,26 @@ int main(int argc, char** argv) {
   int node_nums = 1;
   uint64_t node_times = 1;
   uint64_t value_times = 100000;
-  if (argc == 1) 
-    std::cout << "Use default node_nums:1 node_times:1(only Node_0 will commit) value_times:100,000(commit 100,000 times) on order\n you can specify them one by one" << std::endl;
+  if (argc == 1) {
+    LOG_INFO("Use default node_nums:%s1%s node_times:%s1%s value_times:%s100,000%s", 
+             TXT_RED, NRM, TXT_RED, NRM, TXT_RED, NRM);
+  }
   if (argc > 1)
     node_nums = atoi(argv[1]);
-  if (argc > 2)
+  if (argc > 2) {
     node_times = atoll(argv[2]);
-  if (argc > 3)
+    if (node_times > node_nums) {
+      LOG_INFO("node_times %sMUST%s <= node_nums RETURN!", TXT_RED, NRM);
+      return -1;
+    }
+  }
+  if (argc > 3) {
     value_times = atoll(argv[3]);
-
+    if (value_times < 100) {
+      LOG_INFO("Performance Test, please input %svalue_times >= 100%s RETURN!", TXT_RED, NRM);
+      return -1;
+    }
+  }
 
   std::set<node_id_t> nodes;
   // init all nodes set

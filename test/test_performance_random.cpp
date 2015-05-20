@@ -48,15 +48,22 @@ int main(int argc, char** argv) {
   LOG_INFO("** START **");
 
   int node_nums = 5;
-  int total_times = 1;
+  int total_times = 100000;
 
-  if (argc == 1) 
-    std::cout << "Use default node_nums:5 total_times:1(only Node_0 will commit one time)\n you can specify the node_nums and the total_times of random all nodes" << std::endl;
+
+  if (argc == 1) {
+    LOG_INFO("Use default node_nums:%s5%s total_times:%s100,000%s", TXT_RED, NRM, TXT_RED, NRM);
+  }
+
   if (argc > 1)
     node_nums = atoi(argv[1]);
-  if (argc > 2)
+  if (argc > 2) {
     total_times = atoi(argv[2]);
-
+    if (total_times < 100) {
+      LOG_INFO("Performance Test, please input %stotal_times >= 100%s RETURN!", TXT_RED, NRM);
+      return -1;
+    }
+  }
 
   std::set<node_id_t> nodes;
   // init all nodes set

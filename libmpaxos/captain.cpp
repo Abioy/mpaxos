@@ -64,8 +64,12 @@ void Captain::commit_value(std::string data) {
   std::vector<PropValue *>::iterator it;
 
   for (uint64_t i = 1; i < chosen_values_.size(); i++) {
-    LOG_DEBUG_CAP("%s %s(slot_id):%llu (value) id:%llu data:%s %s", 
-                  BAK_CYN, TXT_WHT, i, chosen_values_[i]->id(), chosen_values_[i]->data().c_str(), NRM);
+    if (chosen_values_[i]) {
+      LOG_DEBUG_CAP("%s%s(slot_id):%llu (value) id:%llu data: %s%s", 
+                     BAK_CYN, TXT_WHT, i, chosen_values_[i]->id(), chosen_values_[i]->data().c_str(), NRM);
+    } else {
+      LOG_DEBUG_CAP("%s%s(slot_id):%llu (value):NULL%s", BAK_CYN, TXT_WHT, i, NRM); 
+    }
   }
   // clean curr_proposer_!!
   clean();
@@ -101,7 +105,7 @@ void Captain::new_slot() {
  */
 void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
   if (work_ == false) {
-    LOG_DEBUG_CAP("I'm dead TOT --NodeID %u", view_->whoami());
+    LOG_DEBUG_CAP("%sI'm DEAD --NodeID %u", BAK_RED, view_->whoami());
     return;
   }
   LOG_TRACE_CAP("<handle_msg> Start (msg_type):%d", msg_type);
@@ -224,8 +228,8 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
           
           // Teach Progress to help others fast learning
           LOG_TRACE_CAP("(msg_type):ACCEPTED, Broadcast this chosen_value");
-          MsgTeach *msg_tea = msg_teach();
-          commo_->broadcast_msg(msg_tea, TEACH);
+          MsgDecide *msg_dec = msg_decide(max_chosen_ + 1);
+          commo_->broadcast_msg(msg_dec, DECIDE);
 
           // self increase max_chosen_ when to increase 
 //          max_chosen_++;
@@ -274,21 +278,45 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       break;
     }
 
+    case DECIDE: {
+      // captain should handle this message
+      MsgDecide *msg_dec = (MsgDecide *)msg;
+      slot_id_t dec_slot = msg_dec->msg_header().slot_id();
+      LOG_DEBUG_CAP("%s(msg_type):DECIDE (slot_id):%llu from (node_id):%u --NodeID %u handle", 
+                    UND_RED, dec_slot, msg_dec->msg_header().node_id(), view_->whoami());
+      if (acceptors_.size() > dec_slot && 
+         (acceptors_[dec_slot]->get_max_value()->id() == msg_dec->value_id())) {
+        // the value is stored in acceptors_[dec_slot]->max_value_
+        add_chosen_value(dec_slot, acceptors_[dec_slot]->get_max_value()); 
+      } else {
+        // acceptors_[dec_slot] doesn't contain such value, need learn from this sender
+        MsgLearn *msg_lea = msg_learn(dec_slot);
+        commo_->send_one_msg(msg_lea, LEARN, msg_dec->msg_header().node_id());
+      } 
+      break;
+    }
+
+    case LEARN: {
+      // captain should handle this message
+      MsgLearn *msg_lea = (MsgLearn *)msg;
+      slot_id_t lea_slot = msg_lea->msg_header().slot_id();
+      LOG_DEBUG_CAP("%s(msg_type):LEARN (slot_id):%llu from (node_id):%u --NodeID %u handle", 
+                    UND_GRN, lea_slot, msg_lea->msg_header().node_id(), view_->whoami());
+      MsgTeach *msg_tea = msg_teach(lea_slot);
+      if (msg_tea->mutable_prop_value())
+        commo_->send_one_msg(msg_tea, TEACH, msg_lea->msg_header().node_id());
+      break;
+    }
+
     case TEACH: {
-    // captain should handle this message
+      // captain should handle this message
       MsgTeach *msg_tea = (MsgTeach *)msg;
       slot_id_t tea_slot = msg_tea->msg_header().slot_id();
-
-      for (int i = chosen_values_.size(); i <= tea_slot; i++) {
-        LOG_TRACE_CAP("(msg_type):TEACH, New Chosen_Value");
-        chosen_values_.push_back(NULL);
-      }
-      // Only this slot doesn't contain a value
-      if (chosen_values_[tea_slot] == NULL)
-        chosen_values_[tea_slot] = new PropValue(msg_tea->prop_value());
-
-      max_chosen_ = tea_slot; 
-
+      LOG_DEBUG_CAP("%s(msg_type):TEACH (slot_id):%llu from (node_id):%u --NodeID %u handle", 
+                    UND_YEL, tea_slot, msg_tea->msg_header().node_id(), view_->whoami());
+      // only when has value
+//      if (msg_tea->mutable_prop_value())
+      add_chosen_value(tea_slot, msg_tea->mutable_prop_value());
       break;
     }
 
@@ -298,19 +326,77 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 }
 
 /**
- * Return Teach Message
+ * Add a new chosen_value 
  */
-MsgTeach *Captain::msg_teach() {
+void Captain::add_chosen_value(slot_id_t slot_id, PropValue *prop_value) {
+  for (int i = chosen_values_.size(); i <= slot_id; i++) {
+//    LOG_TRACE_CAP("New Chosen_Value");
+    chosen_values_.push_back(NULL);
+  }
+  // Only when this slot doesn't contain a value, add one
+  if (chosen_values_[slot_id] == NULL) {
+    // need copy not just pointer
+    chosen_values_[slot_id] = new PropValue(*prop_value);
+  }
+  max_chosen_ = slot_id; 
+}
 
+/**
+ * Return Msg_header
+ */
+MsgHeader *Captain::set_msg_header(MsgType msg_type) {
   MsgHeader *msg_header = new MsgHeader();
-  msg_header->set_msg_type(MsgType::TEACH);
+  msg_header->set_msg_type(msg_type);
   msg_header->set_node_id(view_->whoami());
   msg_header->set_slot_id(max_chosen_ + 1);
+  return msg_header;
+}
 
+/**
+ * Return Msg_header II
+ */
+MsgHeader *Captain::set_msg_header(MsgType msg_type, slot_id_t slot_id) {
+  MsgHeader *msg_header = new MsgHeader();
+  msg_header->set_msg_type(msg_type);
+  msg_header->set_node_id(view_->whoami());
+  msg_header->set_slot_id(slot_id);
+  return msg_header;
+}
+
+/**
+ * Return Decide Message
+ */
+MsgDecide *Captain::msg_decide(slot_id_t slot_id) {
+  MsgHeader *msg_header = set_msg_header(MsgType::DECIDE, slot_id);
+  MsgDecide *msg_dec = new MsgDecide();
+  msg_dec->set_allocated_msg_header(msg_header); 
+  msg_dec->set_value_id(curr_proposer_->get_chosen_value()->id());
+  return msg_dec;
+}
+
+/**
+ * Return Learn Message
+ */
+MsgLearn *Captain::msg_learn(slot_id_t slot_id) {
+  MsgHeader *msg_header = set_msg_header(MsgType::LEARN, slot_id);
+  MsgLearn *msg_lea = new MsgLearn();
+  msg_lea->set_allocated_msg_header(msg_header);
+  return msg_lea;
+}
+
+/**
+ * Return Teach Message
+ */
+MsgTeach *Captain::msg_teach(slot_id_t slot_id) {
+  MsgHeader *msg_header = set_msg_header(MsgType::TEACH, slot_id);
   MsgTeach *msg_tea = new MsgTeach();
-  msg_tea->set_allocated_msg_header(msg_header); 
-  msg_tea->set_allocated_prop_value(curr_proposer_->get_chosen_value());
-
+  msg_tea->set_allocated_msg_header(msg_header);
+  PropValue *prop_value = NULL;  
+  if (slot_id == max_chosen_ + 1)
+    prop_value = curr_proposer_->get_chosen_value();
+  else if (slot_id < max_chosen_ + 1)
+    prop_value = chosen_values_[slot_id];
+  msg_tea->set_allocated_prop_value(prop_value);
   return msg_tea; 
 }
 

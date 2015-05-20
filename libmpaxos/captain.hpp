@@ -45,9 +45,34 @@ class Captain {
   void handle_msg(google::protobuf::Message *, MsgType);
 
   /**
+   * Add a new chosen_value 
+   */
+  void add_chosen_value(slot_id_t, PropValue *);
+
+  /**
+   * Return Msg_header
+   */
+  MsgHeader *set_msg_header(MsgType);
+
+  /**
+   * Return Msg_header
+   */
+  MsgHeader *set_msg_header(MsgType, slot_id_t);
+
+  /**
+   * Return Decide Message
+   */
+  MsgDecide *msg_decide(slot_id_t);
+
+  /**
+   * Return Learn Message
+   */
+  MsgLearn *msg_learn(slot_id_t);
+
+  /**
    * Return Teach Message
    */
-  MsgTeach *msg_teach();
+  MsgTeach *msg_teach(slot_id_t);
 
   /** 
    * Callback function after commit_value  

@@ -48,17 +48,23 @@ int main(int argc, char** argv) {
   LOG_INFO("** START **");
 
   int node_nums = 5;
-  int node_times = 1;
-  int value_times = 1;
-  if (argc == 1) 
-    std::cout << "Use default node_nums:5 node_times:1(only Node_0 will commit) value_times:1(commit only one time) on order\n you can specify them one by one" << std::endl;
+  uint64_t node_times = 1;
+  uint64_t value_times = 1;
+  if (argc == 1) {
+    LOG_INFO("Use default node_nums:%s5%s node_times:%s1%s value_times:%s1%s", 
+             TXT_RED, NRM, TXT_RED, NRM, TXT_RED, NRM);
+  }
   if (argc > 1)
     node_nums = atoi(argv[1]);
-  if (argc > 2)
-    node_times = atoi(argv[2]);
-  if (argc > 3)
-    value_times = atoi(argv[3]);
-
+  if (argc > 2) {
+    node_times = atoll(argv[2]);
+    if (node_times > node_nums) {
+      LOG_INFO("node_times %sMUST%s <= node_nums RETURN!", TXT_RED, NRM);
+      return -1;
+    }
+  }
+  if (argc > 3) 
+    value_times = atoll(argv[3]);
 
   std::set<node_id_t> nodes;
   // init all nodes set

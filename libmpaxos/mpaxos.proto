@@ -5,9 +5,9 @@ enum MsgType {
   PROMISE = 1;
   ACCEPT = 2;
   ACCEPTED = 3;
-  TEACH = 4;
+  DECIDE = 4;
   LEARN = 5;
-  DECIDE = 6;
+  TEACH = 6;
 }
 
 message MsgHeader {
@@ -46,10 +46,16 @@ message MsgAckAccept {
   required bool reply = 3;
 }
 
+message MsgDecide {
+  required MsgHeader msg_header = 1;
+  required uint64 value_id = 2;
+}
+
+message MsgLearn {
+  required MsgHeader msg_header = 1;
+}
+
 message MsgTeach {
   required MsgHeader msg_header = 1;
   required PropValue prop_value = 2;
-}
-message MsgLearn {
-  required MsgHeader msg_header = 1;
 }

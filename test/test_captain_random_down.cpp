@@ -49,16 +49,17 @@ int main(int argc, char** argv) {
   LOG_INFO("** START **");
 
   int node_nums = 5;
-  int total_times = 1;
+  uint64_t total_times = 1;
 
   if (argc == 1) {
-    std::cout << "Use default node_nums:5 total_times:1(only Node_0 will commit one time)\n you can specify the node_nums and the total_times of all nodes" << std::endl;
-    std::cout << "Every time before commit_value (randomly), one node will crash or start" << std::endl;
+    LOG_INFO("Use default node_nums:%s5%s total_times:%s1%s", TXT_RED, NRM, TXT_RED, NRM);
+    LOG_INFO("Every time before commit_value (randomly), one node will crash or start");
   }
+
   if (argc > 1)
     node_nums = atoi(argv[1]);
-  if (argc > 2)
-    total_times = atoi(argv[2]);
+  if (argc > 2) 
+    total_times = atoll(argv[2]);
 
   std::set<node_id_t> nodes;
   // init all nodes set
