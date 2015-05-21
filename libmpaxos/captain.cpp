@@ -219,23 +219,17 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 //          LOG_DEBUG_CAP("*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*");
 
           // IMPORTANT 
-//          chosen_values_.push_back(new PropValue(*chosen_value));
 //          for (int i = chosen_values_.size(); i <= max_chosen_ + 1; i++) {
 //            LOG_TRACE_CAP("(msg_type):ACCEPTED, New Chosen_Value");
 //            chosen_values_.push_back(NULL);
 //          }
 //          chosen_values_[max_chosen_ + 1] = new PropValue(*chosen_value);
           
-          // Teach Progress to help others fast learning
-          LOG_TRACE_CAP("(msg_type):ACCEPTED, Broadcast this chosen_value");
-          MsgDecide *msg_dec = msg_decide(max_chosen_ + 1);
-          commo_->broadcast_msg(msg_dec, DECIDE);
+          // self increase max_chosen_ when to increase
+          chosen_values_.push_back(new PropValue(*chosen_value)); 
+          max_chosen_++;
 
-          // self increase max_chosen_ when to increase 
-//          max_chosen_++;
-
-//          LOG_DEBUG_CAP("(current_slot):%llu", max_chosen_);
-          
+          LOG_DEBUG_CAP("(max_chosen_):%llu (chosen_values.size()):%lu", max_chosen_, chosen_values_.size());
 //          LOG_DEBUG_CAP("After one value chosen! acceptors_ ");
 //          std::map<slot_id_t, Acceptor *>::iterator itt;
 //          for (itt = acceptors_.begin(); itt != acceptors_.end(); itt++) {
@@ -244,6 +238,10 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 //          }
 
           if (chosen_value->id() == curr_value_->id()) {
+            // Teach Progress to help others fast learning
+            LOG_TRACE_CAP("(msg_type):ACCEPTED, Broadcast this chosen_value");
+            MsgDecide *msg_dec = msg_decide(max_chosen_);
+            commo_->broadcast_msg(msg_dec, DECIDE);
             // client's commit succeeded, if no value to commit, set NULL
             if (tocommit_values_.empty()) {
               LOG_DEBUG_CAP("Proposer END MISSION Temp");
@@ -282,6 +280,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       // captain should handle this message
       MsgDecide *msg_dec = (MsgDecide *)msg;
       slot_id_t dec_slot = msg_dec->msg_header().slot_id();
+      if (max_chosen_ >= dec_slot && chosen_values_[dec_slot]) return;
       LOG_DEBUG_CAP("%s(msg_type):DECIDE (slot_id):%llu from (node_id):%u --NodeID %u handle", 
                     UND_RED, dec_slot, msg_dec->msg_header().node_id(), view_->whoami());
       if (acceptors_.size() > dec_slot && 
@@ -302,9 +301,9 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       slot_id_t lea_slot = msg_lea->msg_header().slot_id();
       LOG_DEBUG_CAP("%s(msg_type):LEARN (slot_id):%llu from (node_id):%u --NodeID %u handle", 
                     UND_GRN, lea_slot, msg_lea->msg_header().node_id(), view_->whoami());
+      if (lea_slot > max_chosen_ || chosen_values_[lea_slot] == NULL) return;
       MsgTeach *msg_tea = msg_teach(lea_slot);
-      if (msg_tea->mutable_prop_value())
-        commo_->send_one_msg(msg_tea, TEACH, msg_lea->msg_header().node_id());
+      commo_->send_one_msg(msg_tea, TEACH, msg_lea->msg_header().node_id());
       break;
     }
 
@@ -312,6 +311,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       // captain should handle this message
       MsgTeach *msg_tea = (MsgTeach *)msg;
       slot_id_t tea_slot = msg_tea->msg_header().slot_id();
+      if (max_chosen_ >= tea_slot && chosen_values_[tea_slot]) return;
       LOG_DEBUG_CAP("%s(msg_type):TEACH (slot_id):%llu from (node_id):%u --NodeID %u handle", 
                     UND_YEL, tea_slot, msg_tea->msg_header().node_id(), view_->whoami());
       // only when has value
@@ -329,16 +329,17 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
  * Add a new chosen_value 
  */
 void Captain::add_chosen_value(slot_id_t slot_id, PropValue *prop_value) {
-  for (int i = chosen_values_.size(); i <= slot_id; i++) {
+  for (int i = max_chosen_; i < slot_id; i++) {
 //    LOG_TRACE_CAP("New Chosen_Value");
     chosen_values_.push_back(NULL);
   }
   // Only when this slot doesn't contain a value, add one
-  if (chosen_values_[slot_id] == NULL) {
+//  if (chosen_values_[slot_id] == NULL) {
     // need copy not just pointer
-    chosen_values_[slot_id] = new PropValue(*prop_value);
-  }
-  max_chosen_ = slot_id; 
+  chosen_values_[slot_id] = new PropValue(*prop_value);
+//  }
+  if (slot_id > max_chosen_)
+    max_chosen_ = slot_id; 
 }
 
 /**
@@ -370,7 +371,8 @@ MsgDecide *Captain::msg_decide(slot_id_t slot_id) {
   MsgHeader *msg_header = set_msg_header(MsgType::DECIDE, slot_id);
   MsgDecide *msg_dec = new MsgDecide();
   msg_dec->set_allocated_msg_header(msg_header); 
-  msg_dec->set_value_id(curr_proposer_->get_chosen_value()->id());
+//  msg_dec->set_value_id(curr_proposer_->get_chosen_value()->id());
+  msg_dec->set_value_id(chosen_values_[slot_id]->id());
   return msg_dec;
 }
 
@@ -391,12 +393,12 @@ MsgTeach *Captain::msg_teach(slot_id_t slot_id) {
   MsgHeader *msg_header = set_msg_header(MsgType::TEACH, slot_id);
   MsgTeach *msg_tea = new MsgTeach();
   msg_tea->set_allocated_msg_header(msg_header);
-  PropValue *prop_value = NULL;  
-  if (slot_id == max_chosen_ + 1)
-    prop_value = curr_proposer_->get_chosen_value();
-  else if (slot_id < max_chosen_ + 1)
-    prop_value = chosen_values_[slot_id];
-  msg_tea->set_allocated_prop_value(prop_value);
+//  PropValue *prop_value = NULL;  
+//  if (slot_id == max_chosen_ + 1)
+//    prop_value = curr_proposer_->get_chosen_value();
+//  else if (slot_id < max_chosen_ + 1)
+//  prop_value = chosen_values_[slot_id];
+  msg_tea->set_allocated_prop_value(chosen_values_[slot_id]);
   return msg_tea; 
 }
 
