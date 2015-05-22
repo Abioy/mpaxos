@@ -20,8 +20,7 @@ COMPILER_LANG = "compiler_cxx"
 
 def options(opt):
     opt.load(COMPILER_LANG)
-    opt.load('protoc unittest_gtest',
-            tooldir=['waf-tools'])
+    opt.load('boost protoc unittest_gtest', tooldir=['waf-tools'])
     
     opt.add_option('-d', '--debug', dest='debug', default=False, action='store_true')
     opt.add_option('-l', '--log', dest="log", default='', help='log level', action='store')
@@ -31,7 +30,7 @@ def configure(conf):
     conf.env['CXX'] = "clang++"
 #    conf.load("compiler_c++")
     conf.load(COMPILER_LANG)
-    conf.load('protoc unittest_gtest')
+    conf.load('boost protoc unittest_gtest')
 
     _enable_pic(conf)
     _enable_debug(conf)     #debug
@@ -49,6 +48,10 @@ def configure(conf):
 #    conf.check_cfg(package='yaml-cpp', uselib_store='YAML-CPP', args=pargs)
 
 #    conf.env.LIB_PTHREAD = 'pthread'
+    USED_BOOST_LIBS = ['system', 'filesystem', 'date_time', 'iostreams', 'thread',
+                      'regex', 'program_options', 'chrono', 'random']
+    conf.check_boost(lib=USED_BOOST_LIBS, mandatory=True)
+
     conf.env.PREFIX = "/usr"
     conf.env.LIBDIR = "/usr/lib"
     conf.env.INCLUDEDIR = "/usr/include"
@@ -62,41 +65,14 @@ def build(bld):
               use="PROTOBUF",
               install_path="${PREFIX}/lib")
 
-    bld.program(source=['test/test_proposer.cpp'], 
-                target="test_proposer", 
-                includes="libmpaxos", 
-                use="mpaxos", 
-                install_path=False)
-
-    bld.program(source=['test/test_captain.cpp'], 
-                target="test_captain", 
-                includes="libmpaxos", 
-                use="GTEST_PTHREAD mpaxos", 
-                install_path=False)
-
-    bld.program(source=['test/test_captain_random.cpp'], 
-                target="test_captain_random", 
-                includes="libmpaxos", 
-                use="GTEST_PTHREAD mpaxos", 
-                install_path=False)   
-
-    bld.program(source=['test/test_captain_random_total.cpp'], 
-                target="test_captain_random_total", 
-                includes="libmpaxos", 
-                use="GTEST_PTHREAD mpaxos", 
-                install_path=False)  
-
-    bld.program(source=['test/test_captain_random_down.cpp'], 
-                target="test_captain_random_down", 
-                includes="libmpaxos", 
-                use="GTEST_PTHREAD mpaxos", 
-                install_path=False)  
-
-    bld.program(source=['test/test_performance_basic.cpp'], 
-                target="test_performance_basic", 
-                includes="libmpaxos", 
-                use="GTEST_PTHREAD mpaxos", 
-                install_path=False)  
+    for app in bld.path.ant_glob('loli_test/*.cpp'):
+        bld(features=['cxx', 'cxxprogram'],
+            source = app,
+            target = '%s' % (str(app.change_ext('','.cpp'))),
+            #cxxflags = ['-std=c++0x'],
+            includes="libmpaxos", 
+            use="BOOST mpaxos",
+            ) 
 
     bld.program(features = 'gtest',
                 source=['test/loli_gtest.cpp', 'libmpaxos/sample1.cc'], 
@@ -105,11 +81,6 @@ def build(bld):
                 use="GTEST_PTHREAD mpaxos lib", 
                 install_path=False)
 
-    bld.program(source=['test/test_performance_random.cpp'], 
-                target="test_performance_random", 
-                includes="libmpaxos", 
-                use="GTEST_PTHREAD mpaxos", 
-                install_path=False)  
 
     bld.install_files('${PREFIX}/include', 
                       bld.path.ant_glob('include/mpaxos/*.hpp'))
