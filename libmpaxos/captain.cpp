@@ -34,6 +34,13 @@ void Captain::set_commo(Commo *commo) {
   commo_ = commo;
 }
 
+/**
+ * set set thread_pool handler 
+ */
+//void Captain::set_thread_pool(ThreadPool *pool) {
+//  pool_ = pool; 
+//}
+
 /** 
  * client commits one value to captain
  */
@@ -103,6 +110,14 @@ void Captain::new_slot() {
 /**
  * handle message from commo, all kinds of message
  */
+//void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
+////  pool_->enqueue(&Captain::handle_msg_thread, msg, msg_type);
+//  pool_->enqueue(std::bind(&Captain::handle_msg_thread, this, msg, msg_type));
+//}
+
+/**
+ * handle message from commo, all kinds of message
+ */
 void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
   if (work_ == false) {
     LOG_DEBUG_CAP("%sI'm DEAD --NodeID %u", BAK_RED, view_->whoami());
@@ -122,7 +137,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 //      if (acceptors_.count(acc_slot) == 0) {
       for (int i = acceptors_.size(); i <= acc_slot; i++) {
         LOG_TRACE_CAP("(msg_type):PREPARE, New Acceptor");
-        acceptors_.push_back(new Acceptor(*view_));
+        acceptors_.emplace_back(new Acceptor(*view_));
       }
 //        acceptors_[acc_slot] = new Acceptor(*view_);
 
@@ -181,7 +196,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 //      }
       for (int i = acceptors_.size(); i <= acc_slot; i++) {
         LOG_TRACE_CAP("(msg_type):PREPARE, New Acceptor");
-        acceptors_.push_back(new Acceptor(*view_));
+        acceptors_.emplace_back(new Acceptor(*view_));
       }
 
       MsgAckAccept *msg_ack_acc = acceptors_[acc_slot]->handle_msg_accept(msg_acc);
@@ -226,7 +241,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 //          chosen_values_[max_chosen_ + 1] = new PropValue(*chosen_value);
           
           // self increase max_chosen_ when to increase
-          chosen_values_.push_back(new PropValue(*chosen_value)); 
+          chosen_values_.emplace_back(new PropValue(*chosen_value)); 
           max_chosen_++;
 
           LOG_DEBUG_CAP("(max_chosen_):%llu (chosen_values.size()):%lu", max_chosen_, chosen_values_.size());

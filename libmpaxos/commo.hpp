@@ -5,6 +5,7 @@
  */
 #pragma once
 #include "view.hpp"
+#include "ThreadPool.h"
 namespace mpaxos {
 class Captain;
 class Commo {
@@ -17,5 +18,6 @@ class Commo {
  private:
 //  View *view_;
   std::vector<Captain *> captains_;
+  ThreadPool *pool_;
 };
 } // namespace mpaxos

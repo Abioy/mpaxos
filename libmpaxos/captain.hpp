@@ -9,6 +9,7 @@
 #include "acceptor.hpp"
 #include <queue>
 #include <unordered_map>
+#include "ThreadPool.h"
 //#include "include_all.h"
 namespace mpaxos {
 // TODO [Loli] This module is responsible for locating the correct proposer and
@@ -38,6 +39,11 @@ class Captain {
    * set commo_handler 
    */
   void set_commo(Commo *); 
+
+  /**
+   * set set thread_pool handler 
+   */
+//  void set_thread_pool(ThreadPool *); 
 
   /**
    * handle message from commo, all kinds of message
@@ -100,7 +106,12 @@ class Captain {
   PropValue *curr_value_;  
   Proposer *curr_proposer_;
   Commo *commo_;
-  std::mutex mutex_;
+  std::mutex curr_value_mutex_;
+  std::mutex curr_proposer_mutex_;
+  std::mutex chosen_values_mutex_;
+  std::mutex acceptors_mutex_;
+//  ThreadPool *pool_;
+  
   // tag work 
   bool work_;
 
