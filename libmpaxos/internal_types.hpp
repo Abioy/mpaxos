@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include "mpaxos.pb.h"
+#include <mutex>
 //#include "easylogging++.h"
 
 namespace mpaxos {
@@ -37,7 +38,7 @@ namespace mpaxos {
 #define BAK_CYN  "\e[46m"
 
 #if LOG_LEVEL >= 6 
-#define LOG_TRACE(...) printf("%s[TRACE]%s ", BLD_MAG, NRM); printf(__VA_ARGS__); printf("\n")
+#define LOG_TRACE(...)  printf("%s[TRACE]%s ", BLD_MAG, NRM); printf(__VA_ARGS__); printf("\n")
 #define LOG_TRACE_PRO(...) printf("%s[TRACE]%s %sPROPOSER ", BLD_MAG, NRM, TXT_RED); printf(__VA_ARGS__); printf("%s\n", NRM)
 #define LOG_TRACE_ACC(...) printf("%s[TRACE]%s %sACCEPTOR ", BLD_MAG, NRM, TXT_GRN); printf(__VA_ARGS__); printf("%s\n", NRM)
 #define LOG_TRACE_CAP(...) printf("%s[TRACE]%s %sCAPTAIN ", BLD_MAG, NRM, TXT_CYN); printf(__VA_ARGS__); printf("%s\n", NRM)

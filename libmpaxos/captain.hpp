@@ -10,6 +10,7 @@
 #include <queue>
 #include <unordered_map>
 #include "ThreadPool.h"
+#include "threadpool.hpp"
 //#include "include_all.h"
 namespace mpaxos {
 // TODO [Loli] This module is responsible for locating the correct proposer and
@@ -106,10 +107,16 @@ class Captain {
   PropValue *curr_value_;  
   Proposer *curr_proposer_;
   Commo *commo_;
-  std::mutex curr_value_mutex_;
-  std::mutex curr_proposer_mutex_;
-  std::mutex chosen_values_mutex_;
-  std::mutex acceptors_mutex_;
+  boost::mutex curr_value_mutex_;
+  boost::mutex curr_proposer_mutex_;
+  boost::mutex chosen_values_mutex_;
+  boost::mutex acceptors_mutex_;
+  boost::mutex max_chosen_mutex_;
+  boost::mutex work_mutex_;
+  boost::mutex print_mutex_;
+  boost::mutex commit_mutex_;
+  boost::condition_variable commit_con_;
+  bool done_;
 //  ThreadPool *pool_;
   
   // tag work 

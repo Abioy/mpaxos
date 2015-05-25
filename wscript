@@ -48,9 +48,9 @@ def configure(conf):
 #    conf.check_cfg(package='yaml-cpp', uselib_store='YAML-CPP', args=pargs)
 
 #    conf.env.LIB_PTHREAD = 'pthread'
-#    USED_BOOST_LIBS = ['system', 'filesystem', 'date_time', 'iostreams', 'thread',
-#                      'regex', 'program_options', 'chrono', 'random']
-#    conf.check_boost(lib=USED_BOOST_LIBS, mandatory=True)
+    USED_BOOST_LIBS = ['system', 'filesystem', 'date_time', 'iostreams', 'thread',
+                      'regex', 'program_options', 'chrono', 'random']
+    conf.check_boost(lib=USED_BOOST_LIBS, mandatory=True)
 
     conf.env.PREFIX = "/usr"
     conf.env.LIBDIR = "/usr/lib"
@@ -62,7 +62,7 @@ def build(bld):
                                         'libmpaxos/captain.cpp', 'libmpaxos/commo.cpp', 'libmpaxos/mpaxos.proto']), 
               target="mpaxos",
               includes="libmpaxos",
-              use="PROTOBUF",
+              use="BOOST PROTOBUF",
               install_path="${PREFIX}/lib")
 
     for app in bld.path.ant_glob('loli_test/*.cpp'):

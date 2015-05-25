@@ -78,8 +78,8 @@ PropValue *Proposer::get_chosen_value() {
  * if a majority of no, 
  * restart with a higher ballot 
  */ 
-int Proposer::handle_msg_promise(MsgAckPrepare *msg_ack_pre) {
-  std::lock_guard<std::mutex> lock(prepare_mutex_);
+AckType Proposer::handle_msg_promise(MsgAckPrepare *msg_ack_pre) {
+//  std::lock_guard<std::mutex> lock(prepare_mutex_);
   //DROP Out of Date & Already enter Phase II
 //  std::cout << "\tProposer handle_msg_promise start" << std::endl;
   if (msg_ack_pre->ballot_id() < curr_ballot_ || curr_value_) {
@@ -125,8 +125,8 @@ int Proposer::handle_msg_promise(MsgAckPrepare *msg_ack_pre) {
  * if a majority of yes, the value is successfully chosen. 
  * if a majority of no, restart the first phase with a higher ballot.
  */
-int Proposer::handle_msg_accepted(MsgAckAccept *msg_ack_acc) {
-  std::lock_guard<std::mutex> lock(accept_mutex_);
+AckType Proposer::handle_msg_accepted(MsgAckAccept *msg_ack_acc) {
+//  std::lock_guard<std::mutex> lock(accept_mutex_);
   //Drop Out of Date or Out of Order ACK
   if (msg_ack_acc->ballot_id() < curr_ballot_ || !curr_value_) {
 //    std::cout << "\tProposer handle_msg_accepted --- DROP! from --NodeID" << msg_ack_acc->msg_header().node_id() << std::endl;

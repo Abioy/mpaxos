@@ -39,7 +39,7 @@ class Proposer {
    *   restart with a higher ballot.
    * return the status 
    */ 
-  int handle_msg_promise(MsgAckPrepare *);
+  AckType handle_msg_promise(MsgAckPrepare *);
 
   /**
    * handle acks to the accept reqeusts:
@@ -47,7 +47,7 @@ class Proposer {
    * if a majority of no, restart the first phase with a higher ballot.
    * return the status 
    */
-  int handle_msg_accepted(MsgAckAccept *); 
+  AckType handle_msg_accepted(MsgAckAccept *); 
 
   /**
    * ballot_id_t should be a 64-bit uint, high 48bit is self incremental counter,
