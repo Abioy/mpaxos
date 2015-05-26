@@ -57,59 +57,47 @@ void Captain::commit_value(std::string data) {
 //  std::lock_guard<boost::mutex> lock(mutex_);
 //  std::cout << "\nCaptain commit_value" << std::endl;
 //  print_mutex_.lock();
-  LOG_DEBUG_CAP("<commit_value> Start");
+  LOG_INFO_CAP("<commit_value> Start");
 //  print_mutex_.unlock();
 
-//  curr_proposer_mutex_.lock();
-  if (!tocommit_values_.empty() || curr_proposer_) {
+  tocommit_values_mutex_.lock();
+  LOG_INFO_CAP("(tocommit_values_.size):%lu", tocommit_values_.size());
+  if (!tocommit_values_.empty()) {
     tocommit_values_.push(data);
+    tocommit_values_mutex_.unlock();
     return;
+  } else {
+    tocommit_values_mutex_.unlock();
+    curr_proposer_mutex_.lock();
+    if (curr_proposer_) {
+      curr_proposer_mutex_.unlock();
+      tocommit_values_mutex_.lock();  
+      tocommit_values_.push(data);
+      tocommit_values_mutex_.unlock();
+      return;
+    }
+    curr_proposer_mutex_.unlock();
   } 
-//  curr_proposer_mutex_.unlock();
-
-  // prepare value
-//  std::cout << "Captain Prepare Value" << std::endl;
 
   curr_value_mutex_.lock();
-
   curr_value_->set_data(data);
-  LOG_DEBUG_CAP("(view_->whoami()):%u", view_->whoami());
-  LOG_DEBUG_CAP("(curr_value_->id()):%llu (1<<16):%d", curr_value_->id(), 1<<16);
+  LOG_INFO_CAP("(view_->whoami()):%u", view_->whoami());
   value_id_t value_id = curr_value_->id() + (1 << 16);
   curr_value_->set_id(value_id);
-  LOG_DEBUG_CAP("(curr_value) id:%llu data:%s", curr_value_->id(), curr_value_->data().c_str());
-  LOG_DEBUG_CAP("(curr_slot):%llu", max_chosen_ + 1);
-
+  LOG_INFO_CAP("(curr_value) id:%llu data:%s", curr_value_->id(), curr_value_->data().c_str());
+  LOG_INFO_CAP("(curr_slot):%llu", max_chosen_ + 1);
   curr_value_mutex_.unlock();
-//  std::cout << "curr_value id: " << curr_value_->id() 
-//            << " value: " << curr_value_->data() << std::endl; 
+
   // start a new instance
   new_slot();
 
-  done_ = false;
-  boost::unique_lock<boost::mutex> lck(commit_mutex_);
-  while (!done_) commit_con_.wait(lck);
-//  sleep(2);
+//  boost::unique_lock<boost::mutex> lck(commit_mutex_);
+//  done_ = false;
+//  while (!done_) commit_con_.wait(lck);
 
-//  print_mutex_.lock();
-  LOG_DEBUG_CAP("<commit_value> Over!");
-  LOG_DEBUG_CAP("After <commit_value> chosen_values_ ");
-//  std::unordered_map<slot_id_t, PropValue *>::iterator it;
-  std::vector<PropValue *>::iterator it;
-
-  chosen_values_mutex_.lock();
-  for (uint64_t i = 1; i < chosen_values_.size(); i++) {
-    if (chosen_values_[i] != NULL) {
-      LOG_DEBUG_CAP("%s%s(slot_id):%llu (value) id:%llu data: %s%s", 
-                     BAK_CYN, TXT_WHT, i, chosen_values_[i]->id(), chosen_values_[i]->data().c_str(), NRM);
-    } else {
-      LOG_DEBUG_CAP("%s%s(slot_id):%llu (value):NULL%s", BAK_CYN, TXT_WHT, i, NRM); 
-    }
-  }
-//  print_mutex_.unlock();
-  chosen_values_mutex_.unlock();
+//  LOG_DEBUG_CAP("<commit_value> Over!");
   // clean curr_proposer_!!
-  clean();
+//  clean();
 }
 
 /**
@@ -124,15 +112,7 @@ void Captain::new_slot() {
   curr_proposer_mutex_.lock();
   curr_proposer_ = new Proposer(*view_, *curr_value_);
   // new acceptor
-//  std::cout << "WHOOOO view_->whoami()" << view_->whoami() << std::endl;
-  // IMPORTANT!!! Only when there is no such slot acceptor, init
-//  if (acceptors_.count(max_chosen_ + 1) == 0) {
-//    LOG_TRACE_CAP("<new_slot> init new acceptor id:%llu", max_chosen_ + 1);
-//    acceptors_[max_chosen_ + 1] = new Acceptor(*view_);
-//  }
-//  std::cout << "Captain slot_id (max_chosen_ + 1)" << max_chosen_ + 1 << std::endl;
-  // start phaseI
-//  std::cout << "Captain new_slot : before call msg_prepare" << std::endl;
+
   MsgPrepare *msg_pre = curr_proposer_->msg_prepare();
   curr_proposer_mutex_.unlock();
   // important!! captain set slot_id
@@ -208,13 +188,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
     case PROMISE: {
       // proposer should handle ack of prepare message
       // IMPORTANT! if curr_proposer_ == NULL Drop TODO can send other info
-      curr_proposer_mutex_.lock();
-      if (!curr_proposer_) {
-        LOG_TRACE_CAP("(msg_type):PROMISE, Value has been chosen and Proposer is NULL now! Return!");
-        curr_proposer_mutex_.unlock();
-        return;
-      }
-      curr_proposer_mutex_.unlock();
+
 
       MsgAckPrepare *msg_ack_pre = (MsgAckPrepare *)msg;
 
@@ -228,6 +202,12 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       max_chosen_mutex_.unlock();
 
       curr_proposer_mutex_.lock();
+      if (!curr_proposer_) {
+        LOG_TRACE_CAP("(msg_type):PROMISE, Value has been chosen and Proposer is NULL now! Return!");
+        curr_proposer_mutex_.unlock();
+        return;
+      }
+
       switch (curr_proposer_->handle_msg_promise(msg_ack_pre)) {
         case DROP: {
           curr_proposer_mutex_.unlock();
@@ -241,6 +221,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
           // Send to all acceptors in view
           LOG_TRACE_CAP("(msg_type):PROMISE, Continue to Phase II");
           MsgAccept *msg_acc = curr_proposer_->msg_accept();
+
           curr_proposer_mutex_.unlock();
 
           max_chosen_mutex_.lock();
@@ -316,47 +297,61 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
         return;
       }
       AckType type = curr_proposer_->handle_msg_accepted(msg_ack_acc);
-      curr_proposer_mutex_.unlock();
 
       switch (type) {
-        case DROP: break;
-        case NOT_ENOUGH: break;
+        case DROP: {
+          curr_proposer_mutex_.unlock();
+          break;
+        }
+
+        case NOT_ENOUGH: {
+          curr_proposer_mutex_.unlock();
+          break;
+        }        
+        
         case CHOOSE: {
 
           // First add the chosen_value into chosen_values_ 
-          curr_proposer_mutex_.lock();
           PropValue *chosen_value = curr_proposer_->get_chosen_value();
           curr_proposer_ = NULL;
-          LOG_DEBUG_CAP("%sSuccessfully Choose (value):%s !%s", BAK_MAG, chosen_value->data().c_str(), NRM);
+          LOG_INFO_CAP("%sNodeID:%u Successfully Choose (value):%s !%s", 
+                        BAK_MAG, view_->whoami(), chosen_value->data().c_str(), NRM);
           curr_proposer_mutex_.unlock();
 
+          add_chosen_value(max_chosen_ + 1, chosen_value);
           // self increase max_chosen_ when to increase
-          max_chosen_mutex_.lock();
-          max_chosen_++;
-          max_chosen_mutex_.unlock();
-
-          chosen_values_mutex_.lock();
-          chosen_values_.push_back(new PropValue(*chosen_value)); 
-//          delete chosen_value;
-          chosen_values_mutex_.unlock();
+//          max_chosen_mutex_.lock();
+//          max_chosen_++;
+//          max_chosen_mutex_.unlock();
+//
+//          chosen_values_mutex_.lock();
+//          chosen_values_.push_back(new PropValue(*chosen_value)); 
+////          delete chosen_value;
+//          chosen_values_mutex_.unlock();
 
 //          LOG_DEBUG_CAP("(max_chosen_):%llu (chosen_values.size()):%lu", max_chosen_, chosen_values_.size());
 
+          curr_value_mutex_.lock();
           if (chosen_value->id() == curr_value_->id()) {
+            curr_value_mutex_.unlock();
             // Teach Progress to help others fast learning
             max_chosen_mutex_.lock();
-            LOG_TRACE_CAP("(msg_type):ACCEPTED, Broadcast this chosen_value");
-            MsgDecide *msg_dec = msg_decide(max_chosen_);
+            slot_id_t slot_id = max_chosen_;
             max_chosen_mutex_.unlock();
+            LOG_TRACE_CAP("(msg_type):ACCEPTED, Broadcast this chosen_value");
+            MsgDecide *msg_dec = msg_decide(slot_id);
 
-            boost::unique_lock<boost::mutex> lck(commit_mutex_);
-            done_ = true;
-            commit_con_.notify_one();
+//            boost::unique_lock<boost::mutex> lck(commit_mutex_);
+//            done_ = true;
+//            commit_con_.notify_one();
 
             commo_->broadcast_msg(msg_dec, DECIDE);
 
             // client's commit succeeded, if no value to commit, set NULL
-            if (tocommit_values_.empty()) {
+            tocommit_values_mutex_.lock();
+            bool result = tocommit_values_.empty();
+            tocommit_values_mutex_.unlock();
+            if (result) {
               LOG_DEBUG_CAP("Proposer END MISSION Temp");
 //              curr_proposer_mutex_.lock();
 //              delete curr_proposer_;
@@ -364,13 +359,24 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 //              curr_proposer_mutex_.unlock();
               return;
             }
-            // start committing a new value from queue
-            curr_value_mutex_.lock();
-            curr_value_->set_data(tocommit_values_.front());
 
+            curr_proposer_mutex_.lock();
+            if (curr_proposer_) {
+              curr_proposer_mutex_.unlock();
+              return;
+            }
+            curr_proposer_mutex_.unlock();
+
+            // start committing a new value from queue
+            tocommit_values_mutex_.lock();
+            std::string data = tocommit_values_.front();
             // pop the value
             tocommit_values_.pop();
-            value_id_t value_id = curr_value_->id() + (1 << 16) + view_->whoami();
+            tocommit_values_mutex_.unlock();
+
+            curr_value_mutex_.lock();
+            curr_value_->set_data(data);
+            value_id_t value_id = curr_value_->id() + (1 << 16);
             curr_value_->set_id(value_id);
             curr_value_mutex_.unlock();
 
@@ -380,6 +386,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
             // start a new slot
             new_slot();
           } else {
+            curr_value_mutex_.unlock();
             // recommit the same value
             LOG_TRACE_CAP("Recommit the same (value):%s!!!", curr_value_->data().c_str());
 //            curr_proposer_mutex_.lock();
@@ -391,15 +398,16 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
         }
 
         default: { //RESTART
-          curr_proposer_mutex_.lock();
-          MsgPrepare *msg_pre = curr_proposer_->restart_msg_prepare();
+//          curr_proposer_mutex_.lock();
+          LOG_DEBUG_CAP("--NodeID:%u (msg_type):ACCEPTED, %sRESTART!%s", view_->whoami(), TXT_RED, NRM); 
+//          MsgPrepare *msg_pre = curr_proposer_->restart_msg_prepare();
           curr_proposer_mutex_.unlock();
-
-          max_chosen_mutex_.lock();
-          msg_pre->mutable_msg_header()->set_slot_id(max_chosen_ + 1);
-          max_chosen_mutex_.unlock();
-
-          commo_->broadcast_msg(msg_pre, PREPARE);
+          new_slot();
+//          max_chosen_mutex_.lock();
+//          LOG_DEBUG_CAP("--NodeID:%u (msg_type):ACCEPTED, %s (slot_id):%llu %s", view_->whoami(), TXT_RED, max_chosen_ + 1, NRM); 
+//          msg_pre->mutable_msg_header()->set_slot_id(max_chosen_ + 1);
+//          max_chosen_mutex_.unlock();
+//          commo_->broadcast_msg(msg_pre, PREPARE);
         }
       }
       break;
@@ -495,10 +503,20 @@ void Captain::add_chosen_value(slot_id_t slot_id, PropValue *prop_value) {
 //    LOG_TRACE_CAP("New Chosen_Value");
     chosen_values_.push_back(NULL);
   }
+
   // Only when this slot doesn't contain a value, add one
 //  if (chosen_values_[slot_id] == NULL) {
     // need copy not just pointer
   chosen_values_[slot_id] = new PropValue(*prop_value);
+  LOG_DEBUG_CAP("%s%sNodeID:%u (chosen_values_): %s", BAK_CYN, TXT_WHT, view_->whoami(), NRM);
+  for (uint64_t i = 1; i < chosen_values_.size(); i++) {
+    if (chosen_values_[i] != NULL) {
+      LOG_DEBUG_CAP("%s%s(slot_id):%llu (value) id:%llu data: %s%s", 
+                     BAK_CYN, TXT_WHT, i, chosen_values_[i]->id(), chosen_values_[i]->data().c_str(), NRM);
+    } else {
+      LOG_DEBUG_CAP("%s%s(slot_id):%llu (value):NULL%s", BAK_CYN, TXT_WHT, i, NRM); 
+    }
+  }
   chosen_values_mutex_.unlock();
 //  }
   max_chosen_mutex_.lock();

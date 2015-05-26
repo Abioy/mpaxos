@@ -12,7 +12,7 @@ namespace mpaxos {
 Commo::Commo(std::vector<Captain *> &captains) 
   : captains_(captains) {
 //  pool_ = new ThreadPool(1);
-  pool_ = new pool(1);
+  pool_ = new pool(4);
 //    for (int i = 0; i < captains_.size(); i++) {
 //      captains_[i]->set_thread_pool(pool_);
 //    }

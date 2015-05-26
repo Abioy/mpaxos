@@ -95,7 +95,8 @@ MsgAckAccept *Acceptor::handle_msg_accept(MsgAccept *msg_acc) {
   } else msg_ack_acc->set_reply(false);
 
   LOG_TRACE_ACC("(max_proposed_ballot_):%llu (max_accepted_ballot_):%llu", max_proposed_ballot_, max_accepted_ballot_);
-  LOG_TRACE_ACC("max_value_ id:%llu data:%s", max_value_->id(), max_value_->data().c_str());
+//  if (max_accepted_ballot_ > 0)
+//  LOG_TRACE_ACC("max_value_ id:%llu data:%s", max_value_->id(), max_value_->data().c_str());
 
   return msg_ack_acc;
 }

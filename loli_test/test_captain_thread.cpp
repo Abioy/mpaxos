@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
   }
   
   Commo commo(captains);
-  pool tp(4);
+  pool tp(1);
   commo.set_pool(&tp);
   // set commo for every captain & init a new client thread
   for (int i = 0; i < node_nums; i++) {
@@ -73,8 +73,10 @@ int main(int argc, char** argv) {
     }
   }
 
-//  std::this_thread::sleep_for(std::chrono::seconds(100));
+//  LOG_INFO("HEHE");
+//  boost::this_thread::sleep_for(boost::chrono::seconds(4));
   tp.wait();
+  
   LOG_INFO("** END **");
   return EXIT_SUCCESS;
 }

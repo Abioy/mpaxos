@@ -113,10 +113,11 @@ class Captain {
   boost::mutex acceptors_mutex_;
   boost::mutex max_chosen_mutex_;
   boost::mutex work_mutex_;
-  boost::mutex print_mutex_;
-  boost::mutex commit_mutex_;
-  boost::condition_variable commit_con_;
-  bool done_;
+  boost::mutex tocommit_values_mutex_;
+//  boost::mutex print_mutex_;
+//  boost::mutex commit_mutex_;
+//  boost::condition_variable commit_con_;
+//  bool done_;
 //  ThreadPool *pool_;
   
   // tag work 
