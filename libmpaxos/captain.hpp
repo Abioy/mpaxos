@@ -92,6 +92,10 @@ class Captain {
 
   bool get_status();
 
+  void print_chosen_values();
+
+  std::vector<PropValue *> get_chosen_values();
+
  private:
 
   View *view_;
@@ -106,6 +110,7 @@ class Captain {
   // don't empty this, need value_id to do self increment
   PropValue *curr_value_;  
   Proposer *curr_proposer_;
+
   Commo *commo_;
   boost::mutex curr_value_mutex_;
   boost::mutex curr_proposer_mutex_;

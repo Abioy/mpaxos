@@ -85,6 +85,10 @@ int main(int argc, char** argv) {
   }
   
   Commo commo(captains);
+
+  pool tp(4);
+  commo.set_pool(&tp);
+
   std::vector<std::thread *> clients; 
   // set commo for every captain & init a new client thread
   for (int i = 0; i < node_nums; i++) {
@@ -105,10 +109,15 @@ int main(int argc, char** argv) {
 //      LOG_INFO("***********************************************************************");
     }
   }
-
+  LOG_INFO("node_nums:%s%d%s node_times:%s%llu%s value_times:%s%llu%s", 
+           TXT_RED, node_nums, NRM, TXT_RED, node_times, NRM, TXT_RED, value_times, NRM);
   auto t2 = std::chrono::high_resolution_clock::now();
   uint64_t time_count = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-  LOG_INFO("ms:%llu throughput:%llu per second", time_count, value_times * node_times / time_count * 1000);
+  LOG_INFO("Before wait ms:%llu throughput:%llu per second", time_count, value_times * node_times / time_count * 1000);
+  tp.wait();
+  t2 = std::chrono::high_resolution_clock::now();
+  time_count = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+  LOG_INFO("After wait ms:%llu throughput:%llu per second", time_count, value_times * node_times / time_count * 1000);
 //  for (int i = node_nums -1 ; i >=0; i--) {
 //    LOG_INFO("***********************************************************************");
 //    LOG_INFO("** (Client):%d Commit Start", i);

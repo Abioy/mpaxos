@@ -57,11 +57,11 @@ void Captain::commit_value(std::string data) {
 //  std::lock_guard<boost::mutex> lock(mutex_);
 //  std::cout << "\nCaptain commit_value" << std::endl;
 //  print_mutex_.lock();
-  LOG_INFO_CAP("<commit_value> Start");
+  LOG_DEBUG_CAP("<commit_value> Start");
 //  print_mutex_.unlock();
 
   tocommit_values_mutex_.lock();
-  LOG_INFO_CAP("(tocommit_values_.size):%lu", tocommit_values_.size());
+  LOG_DEBUG_CAP("(tocommit_values_.size):%lu", tocommit_values_.size());
   if (!tocommit_values_.empty()) {
     tocommit_values_.push(data);
     tocommit_values_mutex_.unlock();
@@ -81,11 +81,11 @@ void Captain::commit_value(std::string data) {
 
   curr_value_mutex_.lock();
   curr_value_->set_data(data);
-  LOG_INFO_CAP("(view_->whoami()):%u", view_->whoami());
+  LOG_DEBUG_CAP("(view_->whoami()):%u", view_->whoami());
   value_id_t value_id = curr_value_->id() + (1 << 16);
   curr_value_->set_id(value_id);
-  LOG_INFO_CAP("(curr_value) id:%llu data:%s", curr_value_->id(), curr_value_->data().c_str());
-  LOG_INFO_CAP("(curr_slot):%llu", max_chosen_ + 1);
+  LOG_DEBUG_CAP("(curr_value) id:%llu data:%s", curr_value_->id(), curr_value_->data().c_str());
+  LOG_DEBUG_CAP("(curr_slot):%llu", max_chosen_ + 1);
   curr_value_mutex_.unlock();
 
   // start a new instance
@@ -314,7 +314,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
           // First add the chosen_value into chosen_values_ 
           PropValue *chosen_value = curr_proposer_->get_chosen_value();
           curr_proposer_ = NULL;
-          LOG_INFO_CAP("%sNodeID:%u Successfully Choose (value):%s !%s", 
+          LOG_DEBUG_CAP("%sNodeID:%u Successfully Choose (value):%s !%s", 
                         BAK_MAG, view_->whoami(), chosen_value->data().c_str(), NRM);
           curr_proposer_mutex_.unlock();
 
@@ -402,12 +402,17 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
           LOG_DEBUG_CAP("--NodeID:%u (msg_type):ACCEPTED, %sRESTART!%s", view_->whoami(), TXT_RED, NRM); 
 //          MsgPrepare *msg_pre = curr_proposer_->restart_msg_prepare();
           curr_proposer_mutex_.unlock();
-          new_slot();
+          new_slot();          
+//          curr_proposer_ = new Proposer(*view_, *curr_value_);
+//          MsgPrepare *msg_pre = curr_proposer_->msg_prepare();
+//          curr_proposer_mutex_.unlock();
+//        
 //          max_chosen_mutex_.lock();
-//          LOG_DEBUG_CAP("--NodeID:%u (msg_type):ACCEPTED, %s (slot_id):%llu %s", view_->whoami(), TXT_RED, max_chosen_ + 1, NRM); 
 //          msg_pre->mutable_msg_header()->set_slot_id(max_chosen_ + 1);
 //          max_chosen_mutex_.unlock();
+//        
 //          commo_->broadcast_msg(msg_pre, PREPARE);
+//          LOG_DEBUG_CAP("--NodeID:%u (msg_type):ACCEPTED, %s (slot_id):%llu %s", view_->whoami(), TXT_RED, max_chosen_ + 1, NRM); 
         }
       }
       break;
@@ -436,12 +441,29 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
         // the value is stored in acceptors_[dec_slot]->max_value_
         add_chosen_value(dec_slot, acceptors_[dec_slot]->get_max_value()); 
         acceptors_mutex_.unlock();
+
+        curr_proposer_mutex_.lock();
+        if (curr_proposer_) {
+        curr_proposer_ = new Proposer(*view_, *curr_value_);
+        MsgPrepare *msg_pre = curr_proposer_->msg_prepare();
+        curr_proposer_mutex_.unlock();
+        
+        max_chosen_mutex_.lock();
+        msg_pre->mutable_msg_header()->set_slot_id(max_chosen_ + 1);
+        max_chosen_mutex_.unlock();
+        
+        commo_->broadcast_msg(msg_pre, PREPARE);
+        } else {
+          curr_proposer_mutex_.unlock();
+        }
+
       } else {
         // acceptors_[dec_slot] doesn't contain such value, need learn from this sender
         acceptors_mutex_.unlock();
         MsgLearn *msg_lea = msg_learn(dec_slot);
         commo_->send_one_msg(msg_lea, LEARN, msg_dec->msg_header().node_id());
       } 
+      max_chosen_mutex_.unlock();
       break;
     }
 
@@ -486,6 +508,21 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       // only when has value
 //      if (msg_tea->mutable_prop_value())
       add_chosen_value(tea_slot, msg_tea->mutable_prop_value());
+
+      curr_proposer_mutex_.lock();
+      if (curr_proposer_) {
+      curr_proposer_ = new Proposer(*view_, *curr_value_);
+      MsgPrepare *msg_pre = curr_proposer_->msg_prepare();
+      curr_proposer_mutex_.unlock();
+      
+      max_chosen_mutex_.lock();
+      msg_pre->mutable_msg_header()->set_slot_id(max_chosen_ + 1);
+      max_chosen_mutex_.unlock();
+      
+      commo_->broadcast_msg(msg_pre, PREPARE);
+      } else {
+        curr_proposer_mutex_.unlock();
+      }
       break;
     }
 
@@ -509,14 +546,7 @@ void Captain::add_chosen_value(slot_id_t slot_id, PropValue *prop_value) {
     // need copy not just pointer
   chosen_values_[slot_id] = new PropValue(*prop_value);
   LOG_DEBUG_CAP("%s%sNodeID:%u (chosen_values_): %s", BAK_CYN, TXT_WHT, view_->whoami(), NRM);
-  for (uint64_t i = 1; i < chosen_values_.size(); i++) {
-    if (chosen_values_[i] != NULL) {
-      LOG_DEBUG_CAP("%s%s(slot_id):%llu (value) id:%llu data: %s%s", 
-                     BAK_CYN, TXT_WHT, i, chosen_values_[i]->id(), chosen_values_[i]->data().c_str(), NRM);
-    } else {
-      LOG_DEBUG_CAP("%s%s(slot_id):%llu (value):NULL%s", BAK_CYN, TXT_WHT, i, NRM); 
-    }
-  }
+
   chosen_values_mutex_.unlock();
 //  }
   max_chosen_mutex_.lock();
@@ -621,4 +651,18 @@ bool Captain::get_status() {
   return work_;
 }
 
+void Captain::print_chosen_values() {
+  for (uint64_t i = 1; i < chosen_values_.size(); i++) {
+    if (chosen_values_[i] != NULL) {
+      LOG_INFO_CAP("%s%s(slot_id):%llu (value) id:%llu data: %s%s", 
+                     BAK_CYN, TXT_WHT, i, chosen_values_[i]->id(), chosen_values_[i]->data().c_str(), NRM);
+    } else {
+      LOG_INFO_CAP("%s%s(slot_id):%llu (value):NULL%s", BAK_CYN, TXT_WHT, i, NRM); 
+    }
+  }
+}
+
+std::vector<PropValue *> Captain::get_chosen_values() {
+  return chosen_values_; 
+}
 } //  namespace mpaxos

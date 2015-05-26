@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
   }
   
   Commo commo(captains);
-  pool tp(1);
+  pool tp(4);
   commo.set_pool(&tp);
   // set commo for every captain & init a new client thread
   for (int i = 0; i < node_nums; i++) {
@@ -76,8 +76,30 @@ int main(int argc, char** argv) {
 //  LOG_INFO("HEHE");
 //  boost::this_thread::sleep_for(boost::chrono::seconds(4));
   tp.wait();
-  
-  LOG_INFO("** END **");
+  std::vector<std::vector<PropValue *> > results;
+  int total_times = node_times * value_times;
+  for (int i = 0; i < node_nums; i++) {
+//    LOG_INFO("NodeID %d (chosen_values_):", i);
+//    captains[i]->print_chosen_values();
+    results.push_back(captains[i]->get_chosen_values());
+    if (results[i].size() != total_times + 1) {
+      LOG_INFO("Result ERROR Size not EQUAL! (NodeID): %d (chosen_values.size): %lu (total_times): %d", i, results[i].size(), total_times);
+      return -1;
+    }
+  } 
+
+
+  for (int i = 1; i <= total_times; i++) {
+    if (results[0][i] == NULL) continue;
+    for (int j = 1; j < node_nums; j++) {
+      if (results[j][i] && results[j][i]->id() != results[0][i]->id()) {
+        LOG_INFO("Value Not EQUAL! slot_id: %d", i);
+      }
+    }
+  }
+
+  captains[0]->print_chosen_values();
+  LOG_INFO("** DONE! **");
   return EXIT_SUCCESS;
 }
 } // namespace mpaxos
