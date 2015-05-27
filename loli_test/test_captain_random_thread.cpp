@@ -4,13 +4,13 @@
  * Author: Lijing Wang
  */
 
-#include "captain.hpp"
 #include "commo.hpp"
 #include <iostream>
 #include <thread>
 #include <cstdlib>
 #include <fstream>
 #include <chrono>
+#include "detect_error.hpp"
 
 namespace mpaxos {
 
@@ -31,9 +31,9 @@ void client_commit_file(Captain * captain) {
   {
     while (getline(value_file, line)) {
 //      std::cout << "** client_commit: before commit Node " << node_id << " Value " << line << std::endl;
-      LOG_INFO("** Before call <captain->client_commit>  --NodeID %u (value):%s", node_id, line.c_str());
+      LOG_DEBUG("** Before call <captain->client_commit>  --NodeID %u (value):%s", node_id, line.c_str());
       captain->commit_value(line); 
-      LOG_INFO("** After  call <captain->client_commit>  --NodeID %u (value):%s", node_id, line.c_str());
+      LOG_DEBUG("** After  call <captain->client_commit>  --NodeID %u (value):%s", node_id, line.c_str());
     }
 //    if (line == "") 
 //      value_file << "Hello World From Node" + std::to_string(node_id); 
@@ -75,6 +75,8 @@ int main(int argc, char** argv) {
   }
   
   Commo commo(captains);
+  pool tp(4);
+  commo.set_pool(&tp);
   std::vector<std::thread *> clients; 
   // set commo for every captain & init a new client thread
   for (int i = 0; i < node_nums; i++) {
@@ -92,17 +94,22 @@ int main(int argc, char** argv) {
     node_id = rand() % node_nums;
 //    std::cout << "node_id " << node_id << std::endl;
 
-    LOG_INFO("***********************************************************************");
+    LOG_DEBUG("***********************************************************************");
     LOG_INFO("** This (time):%d (node_id):%d (node_times):%d", i, node_id, node_times_vec[node_id]);
     std::string value = "Love MS Time_" + std::to_string(node_times_vec[node_id]) + " from Node_" + std::to_string(node_id) + " Total_Time_" + std::to_string(i);
-    LOG_INFO("** Commit Value--[%s] Start", value.c_str());
+    LOG_DEBUG("** Commit Value--[%s] Start", value.c_str());
     captains[node_id]->commit_value(value);
-    LOG_INFO("** (Client):%d (Commit_Times):%d END", node_id, node_times_vec[node_id]);
-    LOG_INFO("***********************************************************************");
+    LOG_DEBUG("** (Client):%d (Commit_Times):%d END", node_id, node_times_vec[node_id]);
+    LOG_DEBUG("***********************************************************************");
 
     node_times_vec[node_id]++;
   }
 
+  tp.wait();
+  Detection det(captains, total_times);
+  if (!det.detect_all()) 
+    det.print_one();
+  
   LOG_INFO("** END **");
   return EXIT_SUCCESS;
 }

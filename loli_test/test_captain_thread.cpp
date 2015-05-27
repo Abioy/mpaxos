@@ -4,13 +4,13 @@
  * Author: Lijing Wang
  */
 
-#include "captain.hpp"
 #include "commo.hpp"
 #include <iostream>
 #include <thread>
 #include <cstdlib>
 #include <fstream>
 #include <chrono>
+#include "detect_error.hpp"
 
 namespace mpaxos {
 
@@ -63,42 +63,26 @@ int main(int argc, char** argv) {
 
   for (int i = 0; i < node_times; i++) {
     for (int j = 0; j < value_times; j++) {
-      LOG_INFO("***********************************************************************");
+      LOG_DEBUG("***********************************************************************");
       std::string value = "Love MS Time_" + std::to_string(j) + " from Node_" + std::to_string(i);
       LOG_INFO("** Commit Value--[%s] Start", value.c_str());
       captains[i]->commit_value(value);
 //      client_commit_file(captains[i]);
-      LOG_INFO("** (Client):%d (Commit_Times):%d END", i, j);
-      LOG_INFO("***********************************************************************");
+      LOG_DEBUG("** (Client):%d (Commit_Times):%d END", i, j);
+      LOG_DEBUG("***********************************************************************");
     }
   }
 
 //  LOG_INFO("HEHE");
 //  boost::this_thread::sleep_for(boost::chrono::seconds(4));
   tp.wait();
-  std::vector<std::vector<PropValue *> > results;
+//  std::vector<std::vector<PropValue *> > results;
   int total_times = node_times * value_times;
-  for (int i = 0; i < node_nums; i++) {
-//    LOG_INFO("NodeID %d (chosen_values_):", i);
-//    captains[i]->print_chosen_values();
-    results.push_back(captains[i]->get_chosen_values());
-    if (results[i].size() != total_times + 1) {
-      LOG_INFO("Result ERROR Size not EQUAL! (NodeID): %d (chosen_values.size): %lu (total_times): %d", i, results[i].size(), total_times);
-      return -1;
-    }
-  } 
+  Detection det(captains, total_times);
+  if (!det.detect_all()) 
+    det.print_one();
 
-
-  for (int i = 1; i <= total_times; i++) {
-    if (results[0][i] == NULL) continue;
-    for (int j = 1; j < node_nums; j++) {
-      if (results[j][i] && results[j][i]->id() != results[0][i]->id()) {
-        LOG_INFO("Value Not EQUAL! slot_id: %d", i);
-      }
-    }
-  }
-
-  captains[0]->print_chosen_values();
+//  captains[0]->print_chosen_values();
   LOG_INFO("** DONE! **");
   return EXIT_SUCCESS;
 }

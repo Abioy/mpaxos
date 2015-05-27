@@ -4,13 +4,13 @@
  * Author: Lijing Wang
  */
 
-#include "captain.hpp"
 #include "commo.hpp"
 #include <iostream>
 #include <thread>
 #include <cstdlib>
 #include <fstream>
 #include <chrono>
+#include "detect_error.hpp"
 
 namespace mpaxos {
 
@@ -75,6 +75,9 @@ int main(int argc, char** argv) {
   }
   
   Commo commo(captains);
+  pool tp(4);
+  commo.set_pool(&tp);
+
   std::vector<std::thread *> clients; 
   // set commo for every captain & init a new client thread
   for (int i = 0; i < node_nums; i++) {
@@ -86,6 +89,7 @@ int main(int argc, char** argv) {
   std::vector<int> node_times_vec(node_nums, 0); 
 
   int node_id = 0;
+  int alive_times = total_times;
   for (int i = 0; i < total_times; i++) {
 
     auto t2 = std::chrono::high_resolution_clock::now();
@@ -105,6 +109,8 @@ int main(int argc, char** argv) {
         alive_count++;
     }
     LOG_INFO("%s** %d Node/Nodes is/are Alive...%s", BAK_BLU, alive_count, NRM);
+    if (alive_count <= node_nums / 2)
+      alive_times--;
 
     if (alive_count == 0) {
       // randomly pick a node to recover
@@ -133,6 +139,17 @@ int main(int argc, char** argv) {
     node_times_vec[node_id]++;
   }
 
+  tp.wait();
+  LOG_INFO("Alive_times: %d", alive_times);
+  Detection det(captains, alive_times);
+//  if (!det.detect_all()) 
+//    det.print_one();
+  if (det.detect_unique_all()) {
+    LOG_INFO("%sUNIQUE TEST PASS%s", BLD_GRN, NRM);
+  } else {
+    LOG_INFO("%sERROR! UNIQUE!%s", BLD_RED, NRM);
+  }
+  det.print_all();
   LOG_INFO("** END **");
   return EXIT_SUCCESS;
 }

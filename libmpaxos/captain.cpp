@@ -545,7 +545,6 @@ void Captain::add_chosen_value(slot_id_t slot_id, PropValue *prop_value) {
 //  if (chosen_values_[slot_id] == NULL) {
     // need copy not just pointer
   chosen_values_[slot_id] = new PropValue(*prop_value);
-  LOG_DEBUG_CAP("%s%sNodeID:%u (chosen_values_): %s", BAK_CYN, TXT_WHT, view_->whoami(), NRM);
 
   chosen_values_mutex_.unlock();
 //  }
@@ -652,6 +651,10 @@ bool Captain::get_status() {
 }
 
 void Captain::print_chosen_values() {
+  LOG_INFO_CAP("%s%sNodeID:%u (chosen_values_): %s", BAK_BLU, TXT_WHT, view_->whoami(), NRM);
+  if (chosen_values_.size() == 1) {
+     LOG_INFO_CAP("%sEMPTY!%s", BLD_RED, NRM); 
+  }
   for (uint64_t i = 1; i < chosen_values_.size(); i++) {
     if (chosen_values_[i] != NULL) {
       LOG_INFO_CAP("%s%s(slot_id):%llu (value) id:%llu data: %s%s", 
