@@ -4,13 +4,13 @@
  * Author: Lijing Wang
  */
 
-#include "captain.hpp"
 #include "commo.hpp"
 #include <iostream>
 #include <thread>
 #include <cstdlib>
 #include <fstream>
 #include <chrono>
+#include "detect_error.hpp"
 
 namespace mpaxos {
 
@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
   
   Commo commo(captains);
 
-  pool tp(4);
+  pool tp(1);
   commo.set_pool(&tp);
 
   std::vector<std::thread *> clients; 
@@ -118,17 +118,10 @@ int main(int argc, char** argv) {
   t2 = std::chrono::high_resolution_clock::now();
   time_count = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
   LOG_INFO("After wait ms:%llu throughput:%llu per second", time_count, value_times * node_times / time_count * 1000);
-//  for (int i = node_nums -1 ; i >=0; i--) {
-//    LOG_INFO("***********************************************************************");
-//    LOG_INFO("** (Client):%d Commit Start", i);
-//    client_commit(captains[i]);
-//    LOG_INFO("** (Client):%d Commit END", i);
-//    LOG_INFO("***********************************************************************");
-//  }
-//  std::this_thread::sleep_for(std::chrono::seconds(100));
 
-//  for (int i = 0; i < node_nums; i++)
-//    clients[i]->join();
+//  Detection det(captains, node_times * value_times);
+//  if (!det.detect_all()) 
+//    det.print_one();
 
   LOG_INFO("** END **");
   return EXIT_SUCCESS;

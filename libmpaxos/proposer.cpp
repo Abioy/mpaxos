@@ -181,4 +181,15 @@ ballot_id_t Proposer::gen_next_ballot() {
   LOG_TRACE_PRO("After <gen_next_ballot> (curr_ballot_):%llu", curr_ballot_);
   return curr_ballot_;
 }
+
+/**
+ * when one node is dead clean all except max_ballot_ & max_value
+ */
+void Proposer::die_clean() {
+  curr_value_ = NULL;
+  curr_ballot_ = 0;
+  // clear map
+  msg_ack_prepare_.clear();
+  msg_ack_accept_.clear();
+}
 }

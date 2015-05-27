@@ -69,9 +69,11 @@ class Detection {
   bool detect_unique_all() {
     bool ret = true;
     for (int k = 0; k < node_nums_; k++) {
-      for (int i = 1; i < results_[k].size(); i++) {
-        for (int j = i + 1; j < results_[k].size(); j++) {
-          if (results_[k][i]->id() == results_[k][j]->id()) {
+      int size = results_[k].size();
+      for (int i = 1; i < size; i++) {
+        if (results_[k][i] == NULL) continue;
+        for (int j = i + 1; j < size; j++) {
+          if (results_[k][j] && results_[k][i]->id() == results_[k][j]->id()) {
             LOG_INFO("Value Not UNIQUE! slot_id: %d & slot_id: %d", i, j);
             LOG_INFO("Value: %s", results_[k][j]->data().c_str());
             ret = false;

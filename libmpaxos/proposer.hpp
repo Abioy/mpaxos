@@ -55,6 +55,11 @@ class Proposer {
    */ 
   ballot_id_t gen_next_ballot() ;
 
+  /**
+   * when one node is dead clean all except max_ballot_ & max_value
+   */
+  void die_clean();
+
  private:
   View *view_; 
 

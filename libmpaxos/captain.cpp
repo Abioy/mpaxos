@@ -106,6 +106,14 @@ void Captain::commit_value(std::string data) {
 void Captain::new_slot() {
   // new proposer
 //  print_mutex_.lock();
+  work_mutex_.lock();
+  if (work_ == false) {
+    LOG_DEBUG_CAP("%snew_slot I'm DEAD --NodeID %u", BAK_RED, view_->whoami());
+    work_mutex_.unlock();
+    return;
+  }
+  work_mutex_.unlock();
+
   LOG_TRACE_CAP("<new_slot> Start");
 //  print_mutex_.unlock();
 
@@ -314,38 +322,33 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
           // First add the chosen_value into chosen_values_ 
           PropValue *chosen_value = curr_proposer_->get_chosen_value();
           curr_proposer_ = NULL;
-          LOG_DEBUG_CAP("%sNodeID:%u Successfully Choose (value):%s !%s", 
-                        BAK_MAG, view_->whoami(), chosen_value->data().c_str(), NRM);
+          LOG_DEBUG_CAP("%sNodeID:%u Successfully Choose (value):%s ! (slot_id):%llu %s", 
+                        BAK_MAG, view_->whoami(), chosen_value->data().c_str(), max_chosen_ + 1, NRM);
           curr_proposer_mutex_.unlock();
 
-          add_chosen_value(max_chosen_ + 1, chosen_value);
+//          add_chosen_value(max_chosen_ + 1, chosen_value);
           // self increase max_chosen_ when to increase
-//          max_chosen_mutex_.lock();
-//          max_chosen_++;
-//          max_chosen_mutex_.unlock();
-//
-//          chosen_values_mutex_.lock();
-//          chosen_values_.push_back(new PropValue(*chosen_value)); 
-////          delete chosen_value;
-//          chosen_values_mutex_.unlock();
+          max_chosen_mutex_.lock();
+          max_chosen_++;
+
+          chosen_values_mutex_.lock();
+          chosen_values_.push_back(new PropValue(*chosen_value)); 
+//          delete chosen_value;
+          chosen_values_mutex_.unlock();
 
 //          LOG_DEBUG_CAP("(max_chosen_):%llu (chosen_values.size()):%lu", max_chosen_, chosen_values_.size());
+          slot_id_t slot_id = max_chosen_;
+          max_chosen_mutex_.unlock();
+          LOG_DEBUG_CAP("(msg_type):ACCEPTED, Broadcast this chosen_value");
+          MsgDecide *msg_dec = msg_decide(slot_id);
+
+          commo_->broadcast_msg(msg_dec, DECIDE);
 
           curr_value_mutex_.lock();
           if (chosen_value->id() == curr_value_->id()) {
             curr_value_mutex_.unlock();
             // Teach Progress to help others fast learning
-            max_chosen_mutex_.lock();
-            slot_id_t slot_id = max_chosen_;
-            max_chosen_mutex_.unlock();
-            LOG_TRACE_CAP("(msg_type):ACCEPTED, Broadcast this chosen_value");
-            MsgDecide *msg_dec = msg_decide(slot_id);
 
-//            boost::unique_lock<boost::mutex> lck(commit_mutex_);
-//            done_ = true;
-//            commit_con_.notify_one();
-
-            commo_->broadcast_msg(msg_dec, DECIDE);
 
             // client's commit succeeded, if no value to commit, set NULL
             tocommit_values_mutex_.lock();
@@ -436,14 +439,16 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 //      print_mutex_.unlock();
 
       acceptors_mutex_.lock();
-      if (acceptors_.size() > dec_slot && 
+      if (acceptors_.size() > dec_slot && acceptors_[dec_slot]->get_max_value() && 
          (acceptors_[dec_slot]->get_max_value()->id() == msg_dec->value_id())) {
         // the value is stored in acceptors_[dec_slot]->max_value_
         add_chosen_value(dec_slot, acceptors_[dec_slot]->get_max_value()); 
         acceptors_mutex_.unlock();
 
         curr_proposer_mutex_.lock();
-        if (curr_proposer_) {
+        if (if_recommit()) {
+        LOG_DEBUG_CAP("%sRECOMMIT! (msg_type):DECIDE (slot_id):%llu from (node_id):%u --NodeID %u handle", 
+              UND_RED, dec_slot, msg_dec->msg_header().node_id(), view_->whoami());
         curr_proposer_ = new Proposer(*view_, *curr_value_);
         MsgPrepare *msg_pre = curr_proposer_->msg_prepare();
         curr_proposer_mutex_.unlock();
@@ -463,7 +468,6 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
         MsgLearn *msg_lea = msg_learn(dec_slot);
         commo_->send_one_msg(msg_lea, LEARN, msg_dec->msg_header().node_id());
       } 
-      max_chosen_mutex_.unlock();
       break;
     }
 
@@ -510,7 +514,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       add_chosen_value(tea_slot, msg_tea->mutable_prop_value());
 
       curr_proposer_mutex_.lock();
-      if (curr_proposer_) {
+      if (if_recommit()) {
       curr_proposer_ = new Proposer(*view_, *curr_value_);
       MsgPrepare *msg_pre = curr_proposer_->msg_prepare();
       curr_proposer_mutex_.unlock();
@@ -535,6 +539,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
  * Add a new chosen_value 
  */
 void Captain::add_chosen_value(slot_id_t slot_id, PropValue *prop_value) {
+  max_chosen_mutex_.lock();
   chosen_values_mutex_.lock();
   for (int i = max_chosen_; i < slot_id; i++) {
 //    LOG_TRACE_CAP("New Chosen_Value");
@@ -542,15 +547,15 @@ void Captain::add_chosen_value(slot_id_t slot_id, PropValue *prop_value) {
   }
 
   // Only when this slot doesn't contain a value, add one
-//  if (chosen_values_[slot_id] == NULL) {
-    // need copy not just pointer
-  chosen_values_[slot_id] = new PropValue(*prop_value);
+  if (chosen_values_[slot_id] == NULL)
+    chosen_values_[slot_id] = new PropValue(*prop_value);
 
   chosen_values_mutex_.unlock();
 //  }
-  max_chosen_mutex_.lock();
-  if (slot_id > max_chosen_)
+  if (slot_id > max_chosen_) {
     max_chosen_ = slot_id; 
+    LOG_DEBUG("<add_chosen_value> (max_chosen_): %llu", max_chosen_);
+  }
   max_chosen_mutex_.unlock();
 }
 
@@ -637,6 +642,9 @@ void Captain::clean() {
 void Captain::crash() {
   work_mutex_.lock();
   work_ = false;
+//  curr_proposer_mutex_.lock();
+//  curr_proposer_ = NULL;
+//  curr_proposer_mutex_.unlock();
   work_mutex_.unlock();
 }
 
@@ -667,5 +675,14 @@ void Captain::print_chosen_values() {
 
 std::vector<PropValue *> Captain::get_chosen_values() {
   return chosen_values_; 
+}
+
+bool Captain::if_recommit() {
+  if (curr_proposer_ == NULL) return false;
+  for (int i = 1; i < chosen_values_.size(); i++) {
+    if (chosen_values_[i] && chosen_values_[i]->id() == curr_value_->id())
+      return false;
+  }
+  return true;
 }
 } //  namespace mpaxos

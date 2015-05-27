@@ -96,6 +96,8 @@ class Captain {
 
   std::vector<PropValue *> get_chosen_values();
 
+  bool if_recommit();
+
  private:
 
   View *view_;

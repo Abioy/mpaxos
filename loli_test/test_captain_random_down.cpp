@@ -144,12 +144,13 @@ int main(int argc, char** argv) {
   Detection det(captains, alive_times);
 //  if (!det.detect_all()) 
 //    det.print_one();
+
+  det.print_all();
   if (det.detect_unique_all()) {
     LOG_INFO("%sUNIQUE TEST PASS%s", BLD_GRN, NRM);
   } else {
     LOG_INFO("%sERROR! UNIQUE!%s", BLD_RED, NRM);
   }
-  det.print_all();
   LOG_INFO("** END **");
   return EXIT_SUCCESS;
 }
