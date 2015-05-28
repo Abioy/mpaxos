@@ -18,8 +18,27 @@ namespace mpaxos {
 class Commo;
 class Captain {
  public:
+
+  typedef std::function<void(slot_id_t, std::string&)> callback_t;
+  /** 
+   * TODO for loli, trigger this callback 
+   * sequentially for each chosen value.
+   */
+  callback_t callback_;
+
   Captain(View &);
   ~Captain();
+
+
+  void set_callback(callback_t& cb) { 
+    callback_ = cb;
+  }
+
+
+  /**
+   * TODO for loli
+   */
+  void commit(std::string&);
 
   /** 
    * client commits one value to captain
