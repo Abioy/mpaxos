@@ -10,7 +10,8 @@
 namespace mpaxos {
 
 Captain::Captain(View &view)
-  : view_(&view), max_chosen_(0), curr_proposer_(NULL), commo_(NULL), work_(true) {
+  : view_(&view), max_chosen_(0), curr_proposer_(NULL), commo_(NULL), 
+    callback_slot_(1), work_(true) {
 
   curr_value_mutex_.lock();
   curr_value_ = new PropValue();
@@ -27,6 +28,10 @@ Captain::Captain(View &view)
 }
 
 Captain::~Captain() {
+}
+
+void Captain::set_callback(callback_t& cb) { 
+  callback_ = cb;
 }
 
 /** 
@@ -326,21 +331,17 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
                         BAK_MAG, view_->whoami(), chosen_value->data().c_str(), max_chosen_ + 1, NRM);
           curr_proposer_mutex_.unlock();
 
-//          add_chosen_value(max_chosen_ + 1, chosen_value);
+          add_chosen_value(max_chosen_ + 1, chosen_value);
           // self increase max_chosen_ when to increase
-          max_chosen_mutex_.lock();
-          max_chosen_++;
-
-          chosen_values_mutex_.lock();
-          chosen_values_.push_back(new PropValue(*chosen_value)); 
-//          delete chosen_value;
-          chosen_values_mutex_.unlock();
-
-//          LOG_DEBUG_CAP("(max_chosen_):%llu (chosen_values.size()):%lu", max_chosen_, chosen_values_.size());
-          slot_id_t slot_id = max_chosen_;
-          max_chosen_mutex_.unlock();
+//          max_chosen_mutex_.lock();
+//          max_chosen_++;
+//          chosen_values_mutex_.lock();
+//          chosen_values_.push_back(new PropValue(*chosen_value)); 
+//          chosen_values_mutex_.unlock();
+//          max_chosen_mutex_.unlock();
+          LOG_DEBUG_CAP("(max_chosen_):%llu (chosen_values.size()):%lu", max_chosen_, chosen_values_.size());
           LOG_DEBUG_CAP("(msg_type):ACCEPTED, Broadcast this chosen_value");
-          MsgDecide *msg_dec = msg_decide(slot_id);
+          MsgDecide *msg_dec = msg_decide(max_chosen_);
 
           commo_->broadcast_msg(msg_dec, DECIDE);
 
@@ -406,16 +407,6 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 //          MsgPrepare *msg_pre = curr_proposer_->restart_msg_prepare();
           curr_proposer_mutex_.unlock();
           new_slot();          
-//          curr_proposer_ = new Proposer(*view_, *curr_value_);
-//          MsgPrepare *msg_pre = curr_proposer_->msg_prepare();
-//          curr_proposer_mutex_.unlock();
-//        
-//          max_chosen_mutex_.lock();
-//          msg_pre->mutable_msg_header()->set_slot_id(max_chosen_ + 1);
-//          max_chosen_mutex_.unlock();
-//        
-//          commo_->broadcast_msg(msg_pre, PREPARE);
-//          LOG_DEBUG_CAP("--NodeID:%u (msg_type):ACCEPTED, %s (slot_id):%llu %s", view_->whoami(), TXT_RED, max_chosen_ + 1, NRM); 
         }
       }
       break;
@@ -535,29 +526,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
   }
 }
 
-/**
- * Add a new chosen_value 
- */
-void Captain::add_chosen_value(slot_id_t slot_id, PropValue *prop_value) {
-  max_chosen_mutex_.lock();
-  chosen_values_mutex_.lock();
-  for (int i = max_chosen_; i < slot_id; i++) {
-//    LOG_TRACE_CAP("New Chosen_Value");
-    chosen_values_.push_back(NULL);
-  }
 
-  // Only when this slot doesn't contain a value, add one
-  if (chosen_values_[slot_id] == NULL)
-    chosen_values_[slot_id] = new PropValue(*prop_value);
-
-  chosen_values_mutex_.unlock();
-//  }
-  if (slot_id > max_chosen_) {
-    max_chosen_ = slot_id; 
-    LOG_DEBUG("<add_chosen_value> (max_chosen_): %llu", max_chosen_);
-  }
-  max_chosen_mutex_.unlock();
-}
 
 /**
  * Return Msg_header
@@ -685,4 +654,38 @@ bool Captain::if_recommit() {
   }
   return true;
 }
+
+/**
+ * Add a new chosen_value 
+ */
+void Captain::add_chosen_value(slot_id_t slot_id, PropValue *prop_value) {
+  max_chosen_mutex_.lock();
+  chosen_values_mutex_.lock();
+
+  for (int i = max_chosen_; i < slot_id; i++) {
+    chosen_values_.push_back(NULL);
+  }
+
+  // Only when this slot doesn't contain a value, add one
+  if (chosen_values_[slot_id] == NULL) {
+    chosen_values_[slot_id] = new PropValue(*prop_value);
+    if (slot_id > max_chosen_) {
+      max_chosen_ = slot_id; 
+      LOG_DEBUG("<add_chosen_value> (max_chosen_): %llu", max_chosen_);
+    }
+    callback_mutex_.lock();
+    while (callback_slot_ <= max_chosen_) {
+      if (chosen_values_[callback_slot_] == NULL) {
+        break;
+      }
+      callback_(slot_id, *(prop_value->mutable_data()));
+      callback_slot_++;
+    } 
+    callback_mutex_.unlock();
+  }
+
+  chosen_values_mutex_.unlock();
+  max_chosen_mutex_.unlock();
+}
+
 } //  namespace mpaxos

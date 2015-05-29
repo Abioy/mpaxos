@@ -92,4 +92,6 @@ using slot_id_t = uint64_t;
 using ballot_id_t = uint64_t;
 using value_id_t = uint64_t;
 
+using callback_t = std::function<void(slot_id_t, std::string&)>;
+
 }  // namespace mpaxos

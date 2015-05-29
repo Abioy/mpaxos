@@ -14,11 +14,8 @@
 
 namespace mpaxos {
 
-void foo() {
-  std::cout << "FOO" << std::endl;
-}
-void bar(int x) {
-  std::cout << "BAR " << x << std::endl;
+void do_sth(slot_id_t slot_id, std::string& data) {
+//  LOG_INFO("HAHA slot_id:%llu value:%s", slot_id, data.c_str());
 }
 // client to commit value
 void client_commit_file(Captain * captain) {
@@ -88,13 +85,11 @@ int main(int argc, char** argv) {
 
   pool tp(1);
   commo.set_pool(&tp);
-
-  std::vector<std::thread *> clients; 
+  callback_t callback = do_sth;
   // set commo for every captain & init a new client thread
   for (int i = 0; i < node_nums; i++) {
     captains[i]->set_commo(&commo);
-//    client_commit(captains[i]);
-//    clients.push_back(new std::thread(client_commit, captains[i]));
+    captains[i]->set_callback(callback);
   }
 
   auto t1 = std::chrono::high_resolution_clock::now();

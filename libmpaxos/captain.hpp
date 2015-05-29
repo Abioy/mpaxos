@@ -19,21 +19,13 @@ class Commo;
 class Captain {
  public:
 
-  typedef std::function<void(slot_id_t, std::string&)> callback_t;
-  /** 
-   * TODO for loli, trigger this callback 
-   * sequentially for each chosen value.
-   */
-  callback_t callback_;
-
   Captain(View &);
   ~Captain();
 
-
-  void set_callback(callback_t& cb) { 
-    callback_ = cb;
-  }
-
+  /**
+   * set_callback from outside
+   */
+  void set_callback(callback_t& cb);
 
   /**
    * TODO for loli
@@ -140,12 +132,14 @@ class Captain {
   boost::mutex max_chosen_mutex_;
   boost::mutex work_mutex_;
   boost::mutex tocommit_values_mutex_;
-//  boost::mutex print_mutex_;
-//  boost::mutex commit_mutex_;
-//  boost::condition_variable commit_con_;
-//  bool done_;
-//  ThreadPool *pool_;
-  
+  boost::mutex callback_mutex_;
+  /** 
+   * TODO for loli, trigger this callback 
+   * sequentially for each chosen value.
+   */
+  callback_t callback_;
+  slot_id_t callback_slot_;
+
   // tag work 
   bool work_;
 

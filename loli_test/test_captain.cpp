@@ -14,12 +14,10 @@
 
 namespace mpaxos {
 
-void foo() {
-  std::cout << "FOO" << std::endl;
+void do_sth(slot_id_t slot_id, std::string& data) {
+  LOG_INFO("HAHA slot_id:%llu value:%s", slot_id, data.c_str());
 }
-void bar(int x) {
-  std::cout << "BAR " << x << std::endl;
-}
+
 // client to commit value
 void client_commit_file(Captain * captain) {
   std::string line;
@@ -80,12 +78,13 @@ int main(int argc, char** argv) {
   }
   
   Commo commo(captains);
-  std::vector<std::thread *> clients; 
+  pool tp(4);
+  commo.set_pool(&tp);
+  callback_t callback = do_sth;
   // set commo for every captain & init a new client thread
   for (int i = 0; i < node_nums; i++) {
     captains[i]->set_commo(&commo);
-//    client_commit(captains[i]);
-//    clients.push_back(new std::thread(client_commit, captains[i]));
+    captains[i]->set_callback(callback);
   }
 
   for (int i = 0; i < node_times; i++) {
@@ -100,18 +99,7 @@ int main(int argc, char** argv) {
     }
   }
 
-//  for (int i = node_nums -1 ; i >=0; i--) {
-//    LOG_INFO("***********************************************************************");
-//    LOG_INFO("** (Client):%d Commit Start", i);
-//    client_commit(captains[i]);
-//    LOG_INFO("** (Client):%d Commit END", i);
-//    LOG_INFO("***********************************************************************");
-//  }
-//  std::this_thread::sleep_for(std::chrono::seconds(100));
-
-//  for (int i = 0; i < node_nums; i++)
-//    clients[i]->join();
-
+  tp.wait();
   LOG_INFO("** END **");
   return EXIT_SUCCESS;
 }

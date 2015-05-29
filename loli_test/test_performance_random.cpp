@@ -14,12 +14,10 @@
 
 namespace mpaxos {
 
-void foo() {
-  std::cout << "FOO" << std::endl;
+void do_sth(slot_id_t slot_id, std::string& data) {
+//  LOG_INFO("HAHA slot_id:%llu value:%s", slot_id, data.c_str());
 }
-void bar(int x) {
-  std::cout << "BAR " << x << std::endl;
-}
+
 // client to commit value
 void client_commit_file(Captain * captain) {
   std::string line;
@@ -79,12 +77,13 @@ int main(int argc, char** argv) {
   }
   
   Commo commo(captains);
-  std::vector<std::thread *> clients; 
+  pool tp(4);
+  commo.set_pool(&tp);
+  callback_t callback = do_sth;
   // set commo for every captain & init a new client thread
   for (int i = 0; i < node_nums; i++) {
     captains[i]->set_commo(&commo);
-//    client_commit(captains[i]);
-//    clients.push_back(new std::thread(client_commit, captains[i]));
+    captains[i]->set_callback(callback);
   }
 
   auto t1 = std::chrono::high_resolution_clock::now();
@@ -98,6 +97,8 @@ int main(int argc, char** argv) {
     std::string value = "Love_MS from Node_" + std::to_string(node_id) + " Total_Time_" + std::to_string(i);
     captains[node_id]->commit_value(value);
   }
+
+  tp.wait();
 
   auto t2 = std::chrono::high_resolution_clock::now();
   uint64_t time_count = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
