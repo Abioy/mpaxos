@@ -33,7 +33,7 @@ for i in range(all_times) :
     f=open('../results/down_result_%s/node%s_times%s_round%s'%(tag, node_num, total_times, all_times))
     ff=f.read()
     if "ERROR" in ff:
-        print ("ERROR!!!!")
+        print ("test_captain_random_down ERROR!!!!")
         pylog = open('pylog_down', 'a+')
         dt = datetime.now()
         pylog.write(dt.strftime("%A, %d. %B %Y %I:%M%p"))

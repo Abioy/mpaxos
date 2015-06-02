@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
   }
   
   Commo commo(captains);
-  pool tp(1);
+  pool tp(4);
   commo.set_pool(&tp);
   callback_t callback = do_sth;
   // set commo for every captain & init a new client thread
@@ -67,15 +67,17 @@ int main(int argc, char** argv) {
     captains[i]->set_callback(callback);
   }
 
+  int total = 0;
   for (int i = 0; i < node_times; i++) {
     for (int j = 0; j < value_times; j++) {
       LOG_DEBUG("***********************************************************************");
-      std::string value = "Love MS Time_" + std::to_string(j) + " from Node_" + std::to_string(i);
+      std::string value = "Love MS Time_" + std::to_string(j) + " from Node_" + std::to_string(i) + " Total_Time_" + std::to_string(total);
       LOG_INFO("** Commit Value--[%s] Start", value.c_str());
       captains[i]->commit_value(value);
 //      client_commit_file(captains[i]);
       LOG_DEBUG("** (Client):%d (Commit_Times):%d END", i, j);
       LOG_DEBUG("***********************************************************************");
+      total++;
     }
   }
 
