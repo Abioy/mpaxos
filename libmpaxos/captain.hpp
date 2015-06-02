@@ -125,7 +125,7 @@ class Captain {
   Proposer *curr_proposer_;
 
   Commo *commo_;
-//  boost::mutex curr_value_mutex_;
+  boost::mutex curr_value_mutex_;
   boost::mutex curr_proposer_mutex_;
 //  boost::mutex chosen_values_mutex_;
   boost::mutex acceptors_mutex_;
