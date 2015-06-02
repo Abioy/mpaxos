@@ -17,15 +17,17 @@ else:
 
 node_num = 10
 node_times = 10
-total_times = 100
-all_times = 10 
+total_times = 10
+all_times = 10
 
 if len(sys.argv) > 1:
    node_num = sys.argv[1]
 if len(sys.argv) > 2:
-   total_times = sys.argv[2]
+   node_times = sys.argv[2]
 if len(sys.argv) > 3:
-   all_times = int(sys.argv[3])
+   total_times = sys.argv[3]
+if len(sys.argv) > 4:
+   all_times = int(sys.argv[4])
 
 for i in range(all_times) :
 
