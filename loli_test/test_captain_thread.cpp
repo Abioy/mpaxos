@@ -15,7 +15,7 @@
 namespace mpaxos {
 
 void do_sth(slot_id_t slot_id, std::string& data) {
-  LOG_INFO("HAHA slot_id:%llu value:%s", slot_id, data.c_str());
+//  LOG_INFO("HAHA slot_id:%llu value:%s", slot_id, data.c_str());
 }
 
 int main(int argc, char** argv) {
@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
   }
   
   Commo commo(captains);
-  pool tp(4);
+  pool tp(1);
   commo.set_pool(&tp);
   callback_t callback = do_sth;
   // set commo for every captain & init a new client thread

@@ -11,11 +11,12 @@
 #include <fstream>
 #include <chrono>
 #include "detect_error.hpp"
+#include <assert.h>
 
 namespace mpaxos {
 
 void do_sth(slot_id_t slot_id, std::string& data) {
-  LOG_INFO("HAHA slot_id:%llu value:%s", slot_id, data.c_str());
+//  LOG_INFO("HAHA slot_id:%llu value:%s", slot_id, data.c_str());
 }
 
 // client to commit value
@@ -51,7 +52,7 @@ int main(int argc, char** argv) {
 
   if (argc == 1) {
     LOG_INFO("Use default node_nums:%s5%s total_times:%s1%s", TXT_RED, NRM, TXT_RED, NRM);
-    LOG_INFO("Every time before commit_value (randomly), one node will crash or start");
+    LOG_INFO("Every time before commit_value (randomly), one node will crash");
   }
 
   if (argc > 1)
@@ -86,18 +87,18 @@ int main(int argc, char** argv) {
   std::vector<int> node_times_vec(node_nums, 0); 
 
   int node_id = 0;
-  int alive_times = total_times;
+  int alive_times = 0;
   for (int i = 0; i < total_times; i++) {
 
-    auto t2 = std::chrono::high_resolution_clock::now();
-    srand(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
-    int chosen_id = rand() % node_nums;
-    if (captains[chosen_id]->get_status()) {
-      captains[chosen_id]->crash();
-      LOG_INFO("%s** Node_%d Crash @ Total_Time_%d%s", BAK_RED, chosen_id, i, NRM);
-    } else {
-      captains[chosen_id]->recover();
-      LOG_INFO("%s** Node_%d Recover @ Total_Time_%d%s", BAK_GRN, chosen_id, i, NRM);
+    while (1) {
+      auto t2 = std::chrono::high_resolution_clock::now();
+      srand(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
+      int chosen_id = rand() % node_nums;
+      if (captains[chosen_id]->get_status()) {
+        captains[chosen_id]->crash();
+        LOG_INFO("%s** Node_%d Crash @ Total_Time_%d%s", BAK_RED, chosen_id, i, NRM);
+        break;
+      }
     }
     
     int alive_count = 0;
@@ -105,34 +106,27 @@ int main(int argc, char** argv) {
       if (captains[j]->get_status())
         alive_count++;
     }
-    LOG_INFO("%s** %d Node/Nodes is/are Alive...%s", BAK_BLU, alive_count, NRM);
-    if (alive_count <= node_nums / 2)
-      alive_times--;
-
-    if (alive_count == 0) {
-      // randomly pick a node to recover
-      t2 = std::chrono::high_resolution_clock::now();
-      srand(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
-      int chosen_id = rand() % node_nums;
-      captains[chosen_id]->recover();
-      LOG_INFO("%s** Because No Node is Alive, Pick up Node_%d to Recover~~%s", BAK_GRN, chosen_id, NRM);
+    if (alive_count <= node_nums / 2) {
+      LOG_INFO("There is no majority now! End");
+      break;
     }
+    LOG_INFO("%s** %d Node/Nodes is/are Alive...%s", BAK_BLU, alive_count, NRM);
 
     while (1) {
-      t2 = std::chrono::high_resolution_clock::now();
+      auto t2 = std::chrono::high_resolution_clock::now();
       srand(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
       node_id = rand() % node_nums;
       if (captains[node_id]->get_status())
         break;
     }
 
-//    LOG_INFO("** Total_Time_%d Node_%d Times_:%d", i, node_id, node_times_vec[node_id]);
     std::string value = "Love MS Time_" + std::to_string(node_times_vec[node_id]) + " from Node_" + std::to_string(node_id) + " Total_Time_" + std::to_string(i);
     LOG_INFO("** %s", value.c_str());
     captains[node_id]->commit_value(value);
     LOG_INFO("** Node_%d Time_%d Total_Time_%d END", node_id, node_times_vec[node_id], i);
     LOG_INFO("***********************************************************************");
 
+    alive_times++;
     node_times_vec[node_id]++;
   }
 
@@ -147,6 +141,8 @@ int main(int argc, char** argv) {
     LOG_INFO("%sUNIQUE TEST PASS%s", BLD_GRN, NRM);
   } else {
     LOG_INFO("%sERROR! UNIQUE!%s", BLD_RED, NRM);
+//    assert(0);
+//    return EXIT_FAILURE;
   }
   LOG_INFO("** END **");
   return EXIT_SUCCESS;

@@ -30,9 +30,9 @@ void client_commit_file(Captain * captain) {
   {
     while (getline(value_file, line)) {
 //      std::cout << "** client_commit: before commit Node " << node_id << " Value " << line << std::endl;
-      LOG_DEBUG("** Before call <captain->client_commit>  --NodeID %u (value):%s", node_id, line.c_str());
+      LOG_INFO("** Before call <captain->client_commit>  --NodeID %u (value):%s", node_id, line.c_str());
       captain->commit_value(line); 
-      LOG_DEBUG("** After  call <captain->client_commit>  --NodeID %u (value):%s", node_id, line.c_str());
+      LOG_INFO("** After  call <captain->client_commit>  --NodeID %u (value):%s", node_id, line.c_str());
     }
 //    if (line == "") 
 //      value_file << "Hello World From Node" + std::to_string(node_id); 
@@ -52,13 +52,13 @@ int main(int argc, char** argv) {
 
   if (argc == 1) {
     LOG_INFO("Use default node_nums:%s5%s total_times:%s1%s", TXT_RED, NRM, TXT_RED, NRM);
+    LOG_INFO("Every time before commit_value (randomly), one node will crash or start");
   }
 
   if (argc > 1)
     node_nums = atoi(argv[1]);
   if (argc > 2) 
     total_times = atoll(argv[2]);
-
 
   std::set<node_id_t> nodes;
   // init all nodes set
@@ -76,6 +76,7 @@ int main(int argc, char** argv) {
   Commo commo(captains);
   pool tp(4);
   commo.set_pool(&tp);
+
   callback_t callback = do_sth;
   // set commo for every captain & init a new client thread
   for (int i = 0; i < node_nums; i++) {
@@ -86,28 +87,78 @@ int main(int argc, char** argv) {
   std::vector<int> node_times_vec(node_nums, 0); 
 
   int node_id = 0;
+  int alive_times = 0;
+  int alive_count = node_nums;
   for (int i = 0; i < total_times; i++) {
+
     auto t2 = std::chrono::high_resolution_clock::now();
     srand(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
-    node_id = rand() % node_nums;
-//    std::cout << "node_id " << node_id << std::endl;
+    int chosen_id = rand() % node_nums;
+    if (captains[chosen_id]->get_status()) {
+      if (alive_count <= node_nums / 2 + 1) {
+        LOG_INFO("%sNo Node Changes @ Total_Time_%d%s", BAK_MAG, i, NRM);
+      } else {
+        captains[chosen_id]->crash();
+        LOG_INFO("%s** Node_%d Crash @ Total_Time_%d%s", BAK_RED, chosen_id, i, NRM);
+      }
+    } else {
+      captains[chosen_id]->recover();
+      LOG_INFO("%s** Node_%d Recover @ Total_Time_%d%s", BAK_GRN, chosen_id, i, NRM);
+    }
+    
+    alive_count = 0;
+    for (int j = 0; j < node_nums; j++) {
+      if (captains[j]->get_status())
+        alive_count++;
+    }
+    LOG_INFO("%s** %d Node/Nodes is/are Alive...%s", BAK_BLU, alive_count, NRM);
 
-    LOG_DEBUG("***********************************************************************");
-    LOG_INFO("** This (time):%d (node_id):%d (node_times):%d", i, node_id, node_times_vec[node_id]);
+//    if (alive_count <= node_nums / 2) {
+//      while (1) {
+//        t2 = std::chrono::high_resolution_clock::now();
+//        srand(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
+//        int chosen_id = rand() % node_nums;
+//        if (captains[chosen_id]->get_status() == false) {
+//          captains[chosen_id]->recover();
+//          LOG_INFO("%s** Because No Majority is Alive, Pick up Node_%d to Recover~~%s", BAK_GRN, chosen_id, NRM);
+//          break;
+//        }
+//      }
+//    }
+
+    while (1) {
+      t2 = std::chrono::high_resolution_clock::now();
+      srand(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
+      node_id = rand() % node_nums;
+      if (captains[node_id]->get_status())
+        break;
+    }
+
+//    LOG_INFO("** Total_Time_%d Node_%d Times_:%d", i, node_id, node_times_vec[node_id]);
     std::string value = "Love MS Time_" + std::to_string(node_times_vec[node_id]) + " from Node_" + std::to_string(node_id) + " Total_Time_" + std::to_string(i);
-    LOG_DEBUG("** Commit Value--[%s] Start", value.c_str());
+    LOG_INFO("** %s", value.c_str());
     captains[node_id]->commit_value(value);
-    LOG_DEBUG("** (Client):%d (Commit_Times):%d END", node_id, node_times_vec[node_id]);
-    LOG_DEBUG("***********************************************************************");
+    LOG_INFO("** Node_%d Time_%d Total_Time_%d END", node_id, node_times_vec[node_id], i);
+    LOG_INFO("***********************************************************************");
 
+    alive_times++;
     node_times_vec[node_id]++;
   }
 
   tp.wait();
-  Detection det(captains, total_times);
-  if (!det.detect_all()) 
-    det.print_one();
-  
+  LOG_INFO("Alive_times: %d", alive_times);
+  Detection det(captains, alive_times);
+//  if (!det.detect_all()) 
+//    det.print_one();
+
+  det.print_all();
+  if (det.detect_unique_all()) {
+    LOG_INFO("%sUNIQUE TEST PASS%s", BLD_GRN, NRM);
+  } else {
+    LOG_INFO("%sERROR! UNIQUE!%s", BLD_RED, NRM);
+//    assert(0);
+//    return EXIT_FAILURE;
+  }
   LOG_INFO("** END **");
   return EXIT_SUCCESS;
 }
