@@ -87,6 +87,16 @@ enum AckType {
   CHOOSE = 4
 };
 
+enum ProposerStatus {
+  INIT = 0,
+  PHASEI = 1,
+  PHASEII = 2,
+  CHOSEN = 3,
+  DONE = 4,
+  DIE = 5,
+  EMPTY = 6
+};
+
 using node_id_t = uint16_t;
 using slot_id_t = uint64_t;
 using ballot_id_t = uint64_t;

@@ -123,6 +123,8 @@ class Captain {
   // don't empty this, need value_id to do self increment
   PropValue *curr_value_;  
   Proposer *curr_proposer_;
+  // mark if value is chosen
+  ProposerStatus proposer_status_;
 
   Commo *commo_;
   boost::mutex curr_value_mutex_;

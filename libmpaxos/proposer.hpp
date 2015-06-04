@@ -60,6 +60,16 @@ class Proposer {
    */
   void die_clean();
 
+  /**
+   * Return the current Phase 
+   * if curr_value_ == NULL return Phase I
+   * if curr_value_ != NULL && chosen_ == false return Phase II
+   * if curr_value_ != NULL && chosen_ == true return CHOSEN
+   * else return ERROR
+   */
+  ProposerStatus get_curr_status();
+
+
  private:
   View *view_; 
 
