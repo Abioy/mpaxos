@@ -68,6 +68,11 @@ class Captain {
   void add_chosen_value(slot_id_t, PropValue *);
 
   /**
+   * Add a new chosen_value 
+   */
+  void add_learn_value(slot_id_t, PropValue *, node_id_t);
+
+  /**
    * Return Msg_header
    */
   MsgHeader *set_msg_header(MsgType);

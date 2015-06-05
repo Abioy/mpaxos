@@ -302,7 +302,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
             // start committing a new value from queue
             if (tocommit_values_.empty()) {
               LOG_DEBUG_CAP("Proposer END MISSION Temp");
-              curr_proposer_ = NULL;
+//              curr_proposer_ = NULL;
               proposer_status_ = EMPTY;
               curr_proposer_mutex_.unlock();
               return;
@@ -312,7 +312,6 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
             tocommit_values_mutex_.lock();
             std::string data = tocommit_values_.front();
             // pop the value
-            // TODO first commit after succeed then pop
             tocommit_values_.pop();
             tocommit_values_mutex_.unlock();
 
@@ -353,21 +352,18 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       LOG_DEBUG_CAP("%s(msg_type):DECIDE (slot_id):%llu from (node_id):%u --NodeID %u handle", 
                     UND_RED, dec_slot, msg_dec->msg_header().node_id(), view_->whoami());
 
-      acceptors_mutex_.lock();
       if (acceptors_.size() > dec_slot && acceptors_[dec_slot]->get_max_value() && 
          (acceptors_[dec_slot]->get_max_value()->id() == msg_dec->value_id())) {
         // the value is stored in acceptors_[dec_slot]->max_value_
-        acceptors_mutex_.unlock();
-        add_chosen_value(dec_slot, acceptors_[dec_slot]->get_max_value()); 
+        add_learn_value(dec_slot, acceptors_[dec_slot]->get_max_value(), msg_dec->msg_header().node_id()); 
 
         if (if_recommit()) {
-        LOG_DEBUG_CAP("%sRECOMMIT! (msg_type):DECIDE (slot_id):%llu from (node_id):%u --NodeID %u handle", 
-              UND_RED, dec_slot, msg_dec->msg_header().node_id(), view_->whoami());
-        new_slot();
+          LOG_DEBUG_CAP("%sRECOMMIT! (msg_type):DECIDE (slot_id):%llu from (node_id):%u --NodeID %u handle", 
+                UND_RED, dec_slot, msg_dec->msg_header().node_id(), view_->whoami());
+          new_slot();
         }
       } else {
         // acceptors_[dec_slot] doesn't contain such value, need learn from this sender
-        acceptors_mutex_.unlock();
         MsgLearn *msg_lea = msg_learn(dec_slot);
         commo_->send_one_msg(msg_lea, LEARN, msg_dec->msg_header().node_id());
       } 
@@ -403,7 +399,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       LOG_DEBUG_CAP("%s(msg_type):TEACH (slot_id):%llu from (node_id):%u --NodeID %u handle", 
                     UND_YEL, tea_slot, msg_tea->msg_header().node_id(), view_->whoami());
       // only when has value
-      add_chosen_value(tea_slot, msg_tea->mutable_prop_value());
+      add_learn_value(tea_slot, msg_tea->mutable_prop_value(), msg_tea->msg_header().node_id());
 
       if (if_recommit()) {
         new_slot();
@@ -550,28 +546,56 @@ bool Captain::if_recommit() {
 void Captain::add_chosen_value(slot_id_t slot_id, PropValue *prop_value) {
   max_chosen_mutex_.lock();
 
-  for (int i = max_chosen_; i < slot_id; i++) {
-    chosen_values_.push_back(NULL);
-  }
+  chosen_values_.push_back(new PropValue(*prop_value));
+  max_chosen_ = slot_id;
 
-  // Only when this slot doesn't contain a value, add one
-  if (chosen_values_[slot_id] == NULL) {
-    chosen_values_[slot_id] = new PropValue(*prop_value);
-    if (slot_id > max_chosen_) {
-      max_chosen_ = slot_id; 
-      LOG_DEBUG("<add_chosen_value> (max_chosen_): %llu", max_chosen_);
+  callback_mutex_.lock();
+  while (callback_slot_ <= max_chosen_) {
+    if (chosen_values_[callback_slot_] == NULL) {
+      break;
     }
-    callback_mutex_.lock();
-    while (callback_slot_ <= max_chosen_) {
-      if (chosen_values_[callback_slot_] == NULL) {
-        break;
-      }
-      callback_(slot_id, *(prop_value->mutable_data()));
-      callback_slot_++;
-    } 
-    callback_mutex_.unlock();
-  }
+    callback_(slot_id, *(prop_value->mutable_data()));
+    callback_slot_++;
+  } 
+  callback_mutex_.unlock();
+
   max_chosen_mutex_.unlock();
 }
 
+/**
+ * Add a new chosen_value 
+ */
+void Captain::add_learn_value(slot_id_t slot_id, PropValue *prop_value, node_id_t node_id) {
+  max_chosen_mutex_.lock();
+
+  if (slot_id <= max_chosen_) { 
+    if (chosen_values_[slot_id] == NULL) {
+    LOG_INFO("<add_chosen_value> NULL occurred!");
+    chosen_values_[slot_id] = new PropValue(*prop_value);
+    } else {
+      max_chosen_mutex_.unlock();
+      return;
+    }
+  } else {
+    for (int i = max_chosen_ + 1; i < slot_id; i++) {
+      chosen_values_.push_back(NULL);
+      MsgLearn *msg_lea = msg_learn(slot_id);
+      commo_->send_one_msg(msg_lea, LEARN, node_id);
+    }
+    chosen_values_.push_back(new PropValue(*prop_value));
+    max_chosen_ = slot_id;
+  }
+
+  callback_mutex_.lock();
+  while (callback_slot_ <= max_chosen_) {
+    if (chosen_values_[callback_slot_] == NULL) {
+      break;
+    }
+    callback_(slot_id, *(prop_value->mutable_data()));
+    callback_slot_++;
+  } 
+  callback_mutex_.unlock();
+
+  max_chosen_mutex_.unlock();
+}
 } //  namespace mpaxos
