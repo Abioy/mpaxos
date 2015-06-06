@@ -11,7 +11,7 @@ namespace mpaxos {
 
 Captain::Captain(View &view)
   : view_(&view), max_chosen_(0), curr_proposer_(NULL), proposer_status_(EMPTY), 
-    commo_(NULL), callback_slot_(1), work_(true) {
+    commo_(NULL), max_chosen_without_hole_(0), work_(true) {
 
   curr_value_ = new PropValue();
   curr_value_->set_id(view_->whoami());
@@ -76,7 +76,8 @@ void Captain::commit_value(std::string data) {
   value_id_t value_id = curr_value_->id() + (1 << 16);
   curr_value_->set_id(value_id);
   LOG_DEBUG_CAP("(curr_value) id:%llu data:%s", curr_value_->id(), curr_value_->data().c_str());
-  LOG_DEBUG_CAP("(curr_slot):%llu", max_chosen_ + 1);
+  LOG_DEBUG_CAP("(max_chosen_):%llu", max_chosen_);
+  LOG_DEBUG_CAP("(max_chosen_without_hole_):%llu", max_chosen_without_hole_);
   curr_value_mutex_.unlock();
 
   // start a new instance
@@ -106,7 +107,7 @@ void Captain::new_slot() {
   // important!! captain set slot_id
   curr_proposer_mutex_.unlock();
 
-  msg_pre->mutable_msg_header()->set_slot_id(max_chosen_ + 1);
+  msg_pre->mutable_msg_header()->set_slot_id(max_chosen_without_hole_ + 1);
 
   LOG_TRACE_CAP("<new_slot> call <broadcast_msg> with (msg_type):PREPARE");
 
@@ -166,9 +167,9 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 
       MsgAckPrepare *msg_ack_pre = (MsgAckPrepare *)msg;
 
-      if (msg_ack_pre->msg_header().slot_id() != max_chosen_ + 1) {
+      if (msg_ack_pre->msg_header().slot_id() != max_chosen_without_hole_ + 1) {
         LOG_TRACE_CAP("(msg_type):PROMISE, This (slot_id):%llu is not (current_id):%llu! Return!", 
-                      msg_ack_pre->msg_header().slot_id(), max_chosen_ + 1);
+                      msg_ack_pre->msg_header().slot_id(), max_chosen_without_hole_ + 1);
         return;
       }
 
@@ -196,7 +197,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
           LOG_TRACE_CAP("(msg_type):PROMISE, Continue to Phase II");
           MsgAccept *msg_acc = curr_proposer_->msg_accept();
 
-          msg_acc->mutable_msg_header()->set_slot_id(max_chosen_ + 1);
+          msg_acc->mutable_msg_header()->set_slot_id(max_chosen_without_hole_ + 1);
           // IMPORTANT set status
           proposer_status_ = PHASEII;
           curr_proposer_mutex_.unlock();
@@ -207,7 +208,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
         case RESTART: {  //RESTART
           MsgPrepare *msg_pre = curr_proposer_->restart_msg_prepare();
 
-          msg_pre->mutable_msg_header()->set_slot_id(max_chosen_ + 1);
+          msg_pre->mutable_msg_header()->set_slot_id(max_chosen_without_hole_ + 1);
           proposer_status_ = INIT;
           curr_proposer_mutex_.unlock();
 
@@ -246,9 +247,9 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 
       MsgAckAccept *msg_ack_acc = (MsgAckAccept *)msg; 
 
-      if (msg_ack_acc->msg_header().slot_id() != max_chosen_ + 1) {
+      if (msg_ack_acc->msg_header().slot_id() != max_chosen_without_hole_ + 1) {
         LOG_TRACE_CAP("(msg_type):ACCEPTED, This (slot_id):%llu is not (current_id):%llu! Return!", 
-                      msg_ack_acc->msg_header().slot_id(), max_chosen_ + 1);
+                      msg_ack_acc->msg_header().slot_id(), max_chosen_without_hole_ + 1);
         return;
       }
 
@@ -280,17 +281,17 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
           proposer_status_ = CHOSEN;
 //          curr_proposer_ = NULL;
           LOG_DEBUG_CAP("%sNodeID:%u Successfully Choose (value):%s ! (slot_id):%llu %s", 
-                        BAK_MAG, view_->whoami(), chosen_value->data().c_str(), max_chosen_ + 1, NRM);
+                        BAK_MAG, view_->whoami(), chosen_value->data().c_str(), max_chosen_without_hole_ + 1, NRM);
           curr_proposer_mutex_.unlock();
 
-          add_chosen_value(max_chosen_ + 1, chosen_value);
-          // self increase max_chosen_ when to increase
+          add_chosen_value(chosen_value);
 
-          LOG_DEBUG_CAP("(max_chosen_):%llu (chosen_values.size()):%lu", max_chosen_, chosen_values_.size());
+          LOG_DEBUG_CAP("(max_chosen_):%llu (max_chosen_without_hole_):%llu (chosen_values.size()):%lu", 
+                        max_chosen_, max_chosen_without_hole_, chosen_values_.size());
           LOG_DEBUG_CAP("(msg_type):ACCEPTED, Broadcast this chosen_value");
 
           // Teach Progress to help others fast learning
-          MsgDecide *msg_dec = msg_decide(max_chosen_);
+          MsgDecide *msg_dec = msg_decide(max_chosen_without_hole_);
           commo_->broadcast_msg(msg_dec, DECIDE);
 
           if (chosen_value->id() == curr_value_->id()) {
@@ -357,11 +358,11 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
         // the value is stored in acceptors_[dec_slot]->max_value_
         add_learn_value(dec_slot, acceptors_[dec_slot]->get_max_value(), msg_dec->msg_header().node_id()); 
 
-        if (if_recommit()) {
-          LOG_DEBUG_CAP("%sRECOMMIT! (msg_type):DECIDE (slot_id):%llu from (node_id):%u --NodeID %u handle", 
-                UND_RED, dec_slot, msg_dec->msg_header().node_id(), view_->whoami());
-          new_slot();
-        }
+//        if (if_recommit()) {
+//          LOG_DEBUG_CAP("%sRECOMMIT! (msg_type):DECIDE (slot_id):%llu from (node_id):%u --NodeID %u handle", 
+//                UND_RED, dec_slot, msg_dec->msg_header().node_id(), view_->whoami());
+//          new_slot();
+//        }
       } else {
         // acceptors_[dec_slot] doesn't contain such value, need learn from this sender
         MsgLearn *msg_lea = msg_learn(dec_slot);
@@ -401,9 +402,9 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       // only when has value
       add_learn_value(tea_slot, msg_tea->mutable_prop_value(), msg_tea->msg_header().node_id());
 
-      if (if_recommit()) {
-        new_slot();
-      }       
+//      if (if_recommit()) {
+//        new_slot();
+//      }       
       break;
     }
 
@@ -543,35 +544,41 @@ bool Captain::if_recommit() {
 /**
  * Add a new chosen_value 
  */
-void Captain::add_chosen_value(slot_id_t slot_id, PropValue *prop_value) {
+void Captain::add_chosen_value(PropValue *prop_value) {
   max_chosen_mutex_.lock();
-
-  chosen_values_.push_back(new PropValue(*prop_value));
-  max_chosen_ = slot_id;
-
-  callback_mutex_.lock();
-  while (callback_slot_ <= max_chosen_) {
-    if (chosen_values_[callback_slot_] == NULL) {
-      break;
+  if (max_chosen_ == max_chosen_without_hole_) {
+    chosen_values_.push_back(new PropValue(*prop_value));
+    max_chosen_++;
+    max_chosen_without_hole_++;
+    callback_(max_chosen_without_hole_, *(prop_value->mutable_data()));
+  } else {
+    if (chosen_values_[max_chosen_without_hole_ + 1] == NULL) {
+      max_chosen_without_hole_++;
+      chosen_values_[max_chosen_without_hole_] = new PropValue(*prop_value);
+      callback_(max_chosen_without_hole_, *(prop_value->mutable_data()));
     }
-    callback_(slot_id, *(prop_value->mutable_data()));
-    callback_slot_++;
-  } 
-  callback_mutex_.unlock();
-
+    while (max_chosen_without_hole_ < max_chosen_) {
+      PropValue *p_value = chosen_values_[max_chosen_without_hole_ + 1];
+      if (p_value == NULL) {
+        break;
+      }
+      max_chosen_without_hole_++;
+      callback_(max_chosen_without_hole_, *(p_value->mutable_data()));
+    } 
+  }
   max_chosen_mutex_.unlock();
 }
 
 /**
- * Add a new chosen_value 
+ * Add a new learn_value 
  */
 void Captain::add_learn_value(slot_id_t slot_id, PropValue *prop_value, node_id_t node_id) {
   max_chosen_mutex_.lock();
 
-  if (slot_id <= max_chosen_) { 
+  if (slot_id < max_chosen_) { 
     if (chosen_values_[slot_id] == NULL) {
-    LOG_INFO("<add_chosen_value> NULL occurred!");
-    chosen_values_[slot_id] = new PropValue(*prop_value);
+      LOG_INFO("<add_chosen_value> NULL occurred!");
+      chosen_values_[slot_id] = new PropValue(*prop_value);
     } else {
       max_chosen_mutex_.unlock();
       return;
@@ -579,22 +586,13 @@ void Captain::add_learn_value(slot_id_t slot_id, PropValue *prop_value, node_id_
   } else {
     for (int i = max_chosen_ + 1; i < slot_id; i++) {
       chosen_values_.push_back(NULL);
-      MsgLearn *msg_lea = msg_learn(slot_id);
-      commo_->send_one_msg(msg_lea, LEARN, node_id);
+//      MsgLearn *msg_lea = msg_learn(slot_id);
+//      commo_->broadcast_msg(msg_lea, LEARN);
+//      commo_->send_one_msg(msg_lea, LEARN, node_id);
     }
     chosen_values_.push_back(new PropValue(*prop_value));
     max_chosen_ = slot_id;
   }
-
-  callback_mutex_.lock();
-  while (callback_slot_ <= max_chosen_) {
-    if (chosen_values_[callback_slot_] == NULL) {
-      break;
-    }
-    callback_(slot_id, *(prop_value->mutable_data()));
-    callback_slot_++;
-  } 
-  callback_mutex_.unlock();
 
   max_chosen_mutex_.unlock();
 }

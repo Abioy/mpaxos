@@ -65,10 +65,10 @@ class Captain {
   /**
    * Add a new chosen_value 
    */
-  void add_chosen_value(slot_id_t, PropValue *);
+  void add_chosen_value(PropValue *);
 
   /**
-   * Add a new chosen_value 
+   * Add a new learn_value 
    */
   void add_learn_value(slot_id_t, PropValue *, node_id_t);
 
@@ -125,6 +125,9 @@ class Captain {
 
   // max chosen instance/slot id 
   slot_id_t max_chosen_; 
+  // max_chosen_without_hole instance/slot id 
+  slot_id_t max_chosen_without_hole_; 
+
   // don't empty this, need value_id to do self increment
   PropValue *curr_value_;  
   Proposer *curr_proposer_;
@@ -137,6 +140,7 @@ class Captain {
 //  boost::mutex chosen_values_mutex_;
   boost::mutex acceptors_mutex_;
   boost::mutex max_chosen_mutex_;
+  boost::mutex max_chosen_without_hole_mutex_;
   boost::mutex work_mutex_;
   boost::mutex tocommit_values_mutex_;
   boost::mutex callback_mutex_;
@@ -145,7 +149,6 @@ class Captain {
    * sequentially for each chosen value.
    */
   callback_t callback_;
-  slot_id_t callback_slot_;
 
   // tag work 
   bool work_;
