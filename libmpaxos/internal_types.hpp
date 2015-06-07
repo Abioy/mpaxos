@@ -103,5 +103,6 @@ using ballot_id_t = uint64_t;
 using value_id_t = uint64_t;
 
 using callback_t = std::function<void(slot_id_t, std::string&)>;
+using callback_full_t = std::function<void(slot_id_t, PropValue&, node_id_t)>;
 
 }  // namespace mpaxos

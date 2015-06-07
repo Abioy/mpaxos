@@ -28,7 +28,12 @@ class Captain {
   void set_callback(callback_t& cb);
 
   /**
-   * TODO for loli
+   * set_callback from outside
+   */
+  void set_callback(callback_full_t& cb);
+
+  /**
+   * TODO for loli NO USE 
    */
   void commit(std::string&);
 
@@ -36,6 +41,11 @@ class Captain {
    * client commits one value to captain
    */
   void commit_value(std::string);
+
+  /** 
+  * client commits recover value to captain
+  */
+  void commit_recover();
 
   /**
    * captain starts a new paxos instance 
@@ -114,6 +124,8 @@ class Captain {
 
   bool if_recommit();
 
+  void add_callback();
+
  private:
 
   View *view_;
@@ -127,14 +139,18 @@ class Captain {
   slot_id_t max_chosen_; 
   // max_chosen_without_hole instance/slot id 
   slot_id_t max_chosen_without_hole_; 
+  // callback_slot_
+  slot_id_t callback_slot_;
 
   // don't empty this, need value_id to do self increment
   PropValue *curr_value_;  
+  value_id_t value_id_;
   Proposer *curr_proposer_;
   // mark if value is chosen
   ProposerStatus proposer_status_;
 
   Commo *commo_;
+
   boost::mutex curr_value_mutex_;
   boost::mutex curr_proposer_mutex_;
 //  boost::mutex chosen_values_mutex_;
@@ -145,10 +161,11 @@ class Captain {
   boost::mutex tocommit_values_mutex_;
   boost::mutex callback_mutex_;
   /** 
-   * TODO for loli, trigger this callback 
+   * for loli, trigger this callback 
    * sequentially for each chosen value.
    */
   callback_t callback_;
+  callback_full_t callback_full_;
 
   // tag work 
   bool work_;

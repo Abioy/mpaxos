@@ -15,7 +15,29 @@ class Detection {
     : captains_(&captains), total_times_(total_times), node_id_(0), longest_time_(0), longest_node_(0) {
     node_nums_ = captains.size();
     for (int i = 0; i < node_nums_; i++) {
-      results_.push_back(captains[i]->get_chosen_values());
+      std::vector<PropValue *> tmp;
+      results_.push_back(tmp);
+//      results_.push_back(captains[i]->get_chosen_values());
+      for (int j = 0; j < captains[i]->get_chosen_values().size(); j++) {
+        if (captains[i]->get_chosen_values()[j] && captains[i]->get_chosen_values().at(j)->id() == 0) {
+          continue;
+        }
+        results_[i].push_back(captains[i]->get_chosen_values().at(j));
+      }
+
+      times_.push_back(results_[i].size() - 1);
+      if (longest_time_ < times_[i]) {
+        longest_time_ = times_[i];
+        longest_node_ = i; 
+      }
+
+    } 
+  }
+
+  Detection(std::vector<std::vector<PropValue *> > &results, uint64_t total_times) 
+    : results_(results), total_times_(total_times), node_id_(0), longest_time_(0), longest_node_(0) {
+    node_nums_ = results_.size();
+    for (int i = 0; i < node_nums_; i++) {
       times_.push_back(results_[i].size() - 1);
       if (longest_time_ < times_[i]) {
         longest_time_ = times_[i];

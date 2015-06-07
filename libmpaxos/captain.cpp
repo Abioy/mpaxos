@@ -10,14 +10,13 @@
 namespace mpaxos {
 
 Captain::Captain(View &view)
-  : view_(&view), max_chosen_(0), max_chosen_without_hole_(0), curr_proposer_(NULL), proposer_status_(EMPTY), 
-    commo_(NULL), work_(true) {
+  : view_(&view), max_chosen_(0), max_chosen_without_hole_(0), callback_slot_(1),
+    value_id_(view_->whoami()), 
+    curr_proposer_(NULL), proposer_status_(EMPTY), 
+    commo_(NULL), callback_(NULL), callback_full_(NULL), work_(true) {
 
   curr_value_ = new PropValue();
-  curr_value_->set_id(view_->whoami());
-
   chosen_values_.push_back(NULL);
-
   acceptors_.push_back(NULL);
 }
 
@@ -26,6 +25,10 @@ Captain::~Captain() {
 
 void Captain::set_callback(callback_t& cb) { 
   callback_ = cb;
+}
+
+void Captain::set_callback(callback_full_t& cb) { 
+  callback_full_ = cb;
 }
 
 /** 
@@ -48,7 +51,38 @@ void Captain::set_commo(Commo *commo) {
 //void Captain::set_thread_pool(ThreadPool *pool) {
 //  pool_ = pool; 
 //}
+/** 
+ * client commits one value to captain
+ */
+void Captain::commit_recover() {
 
+  LOG_DEBUG_CAP("<commit_recover> Start");
+
+  tocommit_values_mutex_.lock();
+  LOG_DEBUG_CAP("(tocommit_values_.size):%lu", tocommit_values_.size());
+  if (!tocommit_values_.empty()) {
+    tocommit_values_mutex_.unlock();
+    return;
+  } 
+  if (proposer_status_ < EMPTY) {
+    tocommit_values_mutex_.unlock();
+    return;
+  }
+  tocommit_values_mutex_.unlock();
+
+  curr_value_mutex_.lock();
+  std::string recover = "RECOVER From Node_ID_" + std::to_string(view_->whoami());
+  curr_value_->set_data(recover);
+  LOG_DEBUG_CAP("(view_->whoami()):%u", view_->whoami());
+  curr_value_->set_id(0);
+  LOG_DEBUG_CAP("(curr_value) id:%llu data:%s", curr_value_->id(), curr_value_->data().c_str());
+  LOG_DEBUG_CAP("(max_chosen_):%llu", max_chosen_);
+  LOG_DEBUG_CAP("(max_chosen_without_hole_):%llu", max_chosen_without_hole_);
+  curr_value_mutex_.unlock();
+
+  // start a new instance
+  new_slot();
+}
 /** 
  * client commits one value to captain
  */
@@ -80,8 +114,9 @@ void Captain::commit_value(std::string data) {
   curr_value_mutex_.lock();
   curr_value_->set_data(data);
   LOG_DEBUG_CAP("(view_->whoami()):%u", view_->whoami());
-  value_id_t value_id = curr_value_->id() + (1 << 16);
-  curr_value_->set_id(value_id);
+  value_id_ += (1 << 16);
+//  value_id_t value_id = value_id_ + (1 << 16);
+  curr_value_->set_id(value_id_);
   LOG_DEBUG_CAP("(curr_value) id:%llu data:%s", curr_value_->id(), curr_value_->data().c_str());
   LOG_DEBUG_CAP("(max_chosen_):%llu", max_chosen_);
   LOG_DEBUG_CAP("(max_chosen_without_hole_):%llu", max_chosen_without_hole_);
@@ -291,7 +326,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
                         BAK_MAG, view_->whoami(), chosen_value->data().c_str(), max_chosen_without_hole_ + 1, NRM);
           curr_proposer_mutex_.unlock();
 
-//          if (chosen_value->id() != 0) {
+//          if (chosen_value->id() != view_->whoami()) {
             add_chosen_value(chosen_value);
   
             LOG_DEBUG_CAP("(max_chosen_):%llu (max_chosen_without_hole_):%llu (chosen_values.size()):%lu", 
@@ -323,8 +358,9 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 
             curr_value_mutex_.lock();
             curr_value_->set_data(data);
-            value_id_t value_id = curr_value_->id() + (1 << 16);
-            curr_value_->set_id(value_id);
+            value_id_ += (1 << 16);
+//            value_id_t value_id = curr_value_->id() + (1 << 16);
+            curr_value_->set_id(value_id_);
             curr_value_mutex_.unlock();
 
             new_slot();
@@ -509,21 +545,24 @@ void Captain::recover() {
 
   LOG_INFO("Recover triggered! Node_ID %u", view_->whoami());
 //  std::string fake_value;
-  std::string recover = "RECOVER From Node_ID_" + std::to_string(view_->whoami());
 //  commit_value(recover);
   if (proposer_status_ == EMPTY) {
-    commit_value(recover);
+    commit_recover();
 //    curr_value_mutex_.lock();
 //    curr_value_->set_data(recover);
-//    value_id_t value_id = curr_value_->id() + (1 << 16);
-//    curr_value_->set_id(value_id);
+//    curr_value_->set_id(0);
 //    curr_value_mutex_.unlock();
 //    new_slot();
     return;
   }
   new_slot(); 
   if (proposer_status_ == EMPTY && max_chosen_without_hole_ < max_chosen_) {
-    commit_value(recover);
+    commit_recover();
+//    curr_value_mutex_.lock();
+//    curr_value_->set_data(recover);
+//    curr_value_->set_id(0);
+//    curr_value_mutex_.unlock();
+//    new_slot();
   }
 }
 
@@ -604,12 +643,10 @@ void Captain::add_chosen_value(PropValue *prop_value) {
     chosen_values_.push_back(new PropValue(*prop_value));
     max_chosen_++;
     max_chosen_without_hole_++;
-    callback_(max_chosen_without_hole_, *(prop_value->mutable_data()));
   } else {
     if (chosen_values_[max_chosen_without_hole_ + 1] == NULL) {
       max_chosen_without_hole_++;
       chosen_values_[max_chosen_without_hole_] = new PropValue(*prop_value);
-      callback_(max_chosen_without_hole_, *(prop_value->mutable_data()));
     }
     while (max_chosen_without_hole_ < max_chosen_) {
       PropValue *p_value = chosen_values_[max_chosen_without_hole_ + 1];
@@ -617,9 +654,11 @@ void Captain::add_chosen_value(PropValue *prop_value) {
         break;
       }
       max_chosen_without_hole_++;
-      callback_(max_chosen_without_hole_, *(p_value->mutable_data()));
     } 
   }
+
+  add_callback();
+
   max_chosen_mutex_.unlock();
 }
 
@@ -644,6 +683,26 @@ void Captain::add_learn_value(slot_id_t slot_id, PropValue *prop_value, node_id_
   chosen_values_.push_back(new PropValue(*prop_value));
   max_chosen_ = slot_id;
 
+  add_callback();
+
   max_chosen_mutex_.unlock();
 }
+void Captain::add_callback() {
+  callback_mutex_.lock();
+  while (callback_slot_ <= max_chosen_) {
+    PropValue *prop_value = chosen_values_[callback_slot_];
+    if (prop_value == NULL) {
+      break;
+    }
+    if (prop_value->id() != 0) {
+      if (callback_full_)
+        callback_full_(callback_slot_, *prop_value, view_->whoami());
+      if (callback_)
+        callback_(max_chosen_without_hole_, *(prop_value->mutable_data()));
+    }
+    callback_slot_++;
+  } 
+  callback_mutex_.unlock();
+}
+
 } //  namespace mpaxos

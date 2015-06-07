@@ -15,9 +15,41 @@
 
 namespace mpaxos {
 
+std::vector<std::vector<PropValue *> > results;
+
 void do_sth(slot_id_t slot_id, std::string& data) {
 //  LOG_INFO("HAHA slot_id:%llu value:%s", slot_id, data.c_str());
 }
+
+void build_results(slot_id_t slot_id, PropValue& prop_value, node_id_t node_id) {
+//  if (slot_id != results[node_id].size()) 
+//  LOG_INFO("CALLBACK slot_id:%llu size:%lu node_id:%u value_id: %llu data:%s", 
+//            slot_id, results[node_id].size(), node_id, prop_value.id(), prop_value.data().c_str());
+  results[node_id].push_back(&prop_value);
+//  LOG_INFO("HAHA slot_id:%llu value:%s", slot_id, data.c_str());
+}
+
+void print_result_one(node_id_t node_id) {
+  LOG_INFO_CAP("%s%sNodeID:%u (chosen_values_): %s", BAK_BLU, TXT_WHT, node_id, NRM);
+  if (results[node_id].size() == 1) {
+     LOG_INFO_CAP("%sEMPTY!%s", BLD_RED, NRM); 
+  }
+  for (uint64_t i = 1; i < results[node_id].size(); i++) {
+    if (results[node_id][i] != NULL) {
+      LOG_INFO_CAP("%s%s(slot_id):%llu (value) id:%llu data: %s%s", 
+                     BAK_CYN, TXT_WHT, i, results[node_id][i]->id(), results[node_id][i]->data().c_str(), NRM);
+    } else {
+      LOG_INFO_CAP("%s%s(slot_id):%llu (value):NULL%s", BAK_CYN, TXT_WHT, i, NRM); 
+    }
+  }
+}
+
+void print_results_all() {
+  for (node_id_t i = 0; i < results.size(); i++) {
+    print_result_one(i);
+  }
+}
+
 
 int main(int argc, char** argv) {
   auto t1 = std::chrono::high_resolution_clock::now();
@@ -38,8 +70,12 @@ int main(int argc, char** argv) {
 
   std::set<node_id_t> nodes;
   // init all nodes set
-  for (int i = 0; i < node_nums; i++) 
+  for (int i = 0; i < node_nums; i++) { 
     nodes.insert(i);
+    std::vector<PropValue *> tmp;
+    results.push_back(tmp);
+    results[i].push_back(NULL);
+  }
 
   std::vector<Captain *> captains;
   std::vector<View *> views;
@@ -54,9 +90,11 @@ int main(int argc, char** argv) {
   commo.set_pool(&tp);
 
   callback_t callback = do_sth;
+  callback_full_t callback_full = build_results;
   // set commo for every captain & init a new client thread
   for (int i = 0; i < node_nums; i++) {
     captains[i]->set_commo(&commo);
+    captains[i]->set_callback(callback_full);
     captains[i]->set_callback(callback);
   }
 
@@ -111,10 +149,11 @@ int main(int argc, char** argv) {
 
   tp.wait();
   LOG_INFO("Alive_times: %d", alive_times);
-  Detection det(captains, alive_times);
+  print_results_all();
+//  Detection det(captains, alive_times);
+  Detection det(results, alive_times);
 
-
-  det.print_all();
+//  det.print_all();
   LOG_INFO("Before test~");
   det.detect_down();
   LOG_INFO("** END **");

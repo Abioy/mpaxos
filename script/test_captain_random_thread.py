@@ -32,7 +32,7 @@ if len(sys.argv) > 3:
 for i in range(all_times) :
 
     os.system('../bin/test_captain_random_thread %s %s > ../results/random_result_%s/node%s_times%s_round%s'%(node_num, total_times, tag, node_num, total_times, all_times))
-    os.system('cat ../results/random_result_%s/node%s_times%s_round%s'%(tag, node_num, total_times, all_times))
+#    os.system('cat ../results/random_result_%s/node%s_times%s_round%s'%(tag, node_num, total_times, all_times))
     f=open('../results/random_result_%s/node%s_times%s_round%s'%(tag, node_num, total_times, all_times))
     ff=f.read()
     if "ERROR" in ff:
