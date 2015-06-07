@@ -53,13 +53,13 @@ void Captain::set_commo(Commo *commo) {
  * client commits one value to captain
  */
 void Captain::commit_value(std::string data) {
-  work_mutex_.lock();
-  if (work_ == false) {
-    LOG_DEBUG_CAP("%snew_slot I'm DEAD --NodeID %u commit_value", BAK_RED, view_->whoami());
-    work_mutex_.unlock();
-    return;
-  }
-  work_mutex_.unlock();
+//  work_mutex_.lock();
+//  if (work_ == false) {
+//    LOG_DEBUG_CAP("%snew_slot I'm DEAD --NodeID %u commit_value", BAK_RED, view_->whoami());
+//    work_mutex_.unlock();
+//    return;
+//  }
+//  work_mutex_.unlock();
   LOG_DEBUG_CAP("<commit_value> Start");
 
   tocommit_values_mutex_.lock();
