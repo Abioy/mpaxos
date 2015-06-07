@@ -291,7 +291,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
                         BAK_MAG, view_->whoami(), chosen_value->data().c_str(), max_chosen_without_hole_ + 1, NRM);
           curr_proposer_mutex_.unlock();
 
-          if (chosen_value->id() != 0) {
+//          if (chosen_value->id() != 0) {
             add_chosen_value(chosen_value);
   
             LOG_DEBUG_CAP("(max_chosen_):%llu (max_chosen_without_hole_):%llu (chosen_values.size()):%lu", 
@@ -301,7 +301,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
             // DECIDE Progress to help others fast learning
             MsgDecide *msg_dec = msg_decide(max_chosen_without_hole_);
             commo_->broadcast_msg(msg_dec, DECIDE);
-          }
+//          }
 
           if (chosen_value->id() == curr_value_->id()) {
 
@@ -310,7 +310,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
             // start committing a new value from queue
             tocommit_values_mutex_.lock();
             if (tocommit_values_.empty()) {
-              LOG_INFO_CAP("Proposer END MISSION Temp Node_ID:%u max_chosen_without_hole_:%llu", view_->whoami(), max_chosen_without_hole_);
+              LOG_DEBUG_CAP("Proposer END MISSION Temp Node_ID:%u max_chosen_without_hole_:%llu", view_->whoami(), max_chosen_without_hole_);
               proposer_status_ = EMPTY;
               tocommit_values_mutex_.unlock();
               return;
@@ -509,27 +509,22 @@ void Captain::recover() {
 
   LOG_INFO("Recover triggered! Node_ID %u", view_->whoami());
 //  std::string fake_value;
-  commit_value("RECOVER");
-//  if (proposer_status_ == EMPTY) {
-//    if (curr_value_->has_data()) {
-//      curr_value_mutex_.lock();
-//      curr_value_->clear_data();
-//      value_id_t value_id = curr_value_->id() + (1 << 16);
-//      curr_value_->set_id(value_id);
-//      curr_value_mutex_.unlock();
-//    }
+  std::string recover = "RECOVER From Node_ID_" + std::to_string(view_->whoami());
+//  commit_value(recover);
+  if (proposer_status_ == EMPTY) {
+    commit_value(recover);
+//    curr_value_mutex_.lock();
+//    curr_value_->set_data(recover);
+//    value_id_t value_id = curr_value_->id() + (1 << 16);
+//    curr_value_->set_id(value_id);
+//    curr_value_mutex_.unlock();
 //    new_slot();
-//    return;
-//  }
-//    new_slot(); 
-//    if (max_chosen_without_hole_ < max_chosen_) {
-//      curr_value_mutex_.lock();
-//      curr_value_->clear_data();
-//      value_id_t value_id = curr_value_->id() + (1 << 16);
-//      curr_value_->set_id(value_id);
-//      curr_value_mutex_.unlock();
-//      new_slot();
-//  }
+    return;
+  }
+  new_slot(); 
+  if (proposer_status_ == EMPTY && max_chosen_without_hole_ < max_chosen_) {
+    commit_value(recover);
+  }
 }
 
 bool Captain::get_status() {
@@ -555,50 +550,50 @@ std::vector<PropValue *> Captain::get_chosen_values() {
   return chosen_values_; 
 }
 
-bool Captain::if_recommit() {
-  if (proposer_status_ == EMPTY)
-    return false;
-
-  if (proposer_status_ <= PHASEI) 
-    return true;
-
-  // status == PHASEII or CHOSEN
-  if (proposer_status_ > PHASEI && proposer_status_ < DONE) {
-    bool done = false;
-    for (int i = 1; i < chosen_values_.size(); i++) {
-      if (chosen_values_[i] && chosen_values_[i]->id() == curr_value_->id()) {
-        done = true;
-        proposer_status_ = DONE;
-        break;
-      }
-    }
-  
-    if (done == false) 
-      return true;
-  }
-
-  // status == DONE
-  tocommit_values_mutex_.lock();
-  if (tocommit_values_.empty()) {
-    proposer_status_ = EMPTY;
-    tocommit_values_mutex_.unlock();
-    return false;
-  }
-
-  std::string data = tocommit_values_.front();
-  // pop the value
-  tocommit_values_.pop();
-  tocommit_values_mutex_.unlock();
-
-  curr_value_mutex_.lock();
-  curr_value_->set_data(data);
-  value_id_t value_id = curr_value_->id() + (1 << 16);
-  curr_value_->set_id(value_id);
-  curr_value_mutex_.unlock();
-  return true;
-
-  // if this return false should detect queue
-}
+//bool Captain::if_recommit() {
+//  if (proposer_status_ == EMPTY)
+//    return false;
+//
+//  if (proposer_status_ <= PHASEI) 
+//    return true;
+//
+//  // status == PHASEII or CHOSEN
+//  if (proposer_status_ > PHASEI && proposer_status_ < DONE) {
+//    bool done = false;
+//    for (int i = 1; i < chosen_values_.size(); i++) {
+//      if (chosen_values_[i] && chosen_values_[i]->id() == curr_value_->id()) {
+//        done = true;
+//        proposer_status_ = DONE;
+//        break;
+//      }
+//    }
+//  
+//    if (done == false) 
+//      return true;
+//  }
+//
+//  // status == DONE
+//  tocommit_values_mutex_.lock();
+//  if (tocommit_values_.empty()) {
+//    proposer_status_ = EMPTY;
+//    tocommit_values_mutex_.unlock();
+//    return false;
+//  }
+//
+//  std::string data = tocommit_values_.front();
+//  // pop the value
+//  tocommit_values_.pop();
+//  tocommit_values_mutex_.unlock();
+//
+//  curr_value_mutex_.lock();
+//  curr_value_->set_data(data);
+//  value_id_t value_id = curr_value_->id() + (1 << 16);
+//  curr_value_->set_id(value_id);
+//  curr_value_mutex_.unlock();
+//  return true;
+//
+//  // if this return false should detect queue
+//}
 
 /**
  * Add a new chosen_value 
