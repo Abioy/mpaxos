@@ -10,8 +10,8 @@
 namespace mpaxos {
 
 Captain::Captain(View &view)
-  : view_(&view), max_chosen_(0), curr_proposer_(NULL), proposer_status_(EMPTY), 
-    commo_(NULL), max_chosen_without_hole_(0), work_(true) {
+  : view_(&view), max_chosen_(0), max_chosen_without_hole_(0), curr_proposer_(NULL), proposer_status_(EMPTY), 
+    commo_(NULL), work_(true) {
 
   curr_value_ = new PropValue();
   curr_value_->set_id(view_->whoami());
@@ -53,6 +53,13 @@ void Captain::set_commo(Commo *commo) {
  * client commits one value to captain
  */
 void Captain::commit_value(std::string data) {
+  work_mutex_.lock();
+  if (work_ == false) {
+    LOG_DEBUG_CAP("%snew_slot I'm DEAD --NodeID %u commit_value", BAK_RED, view_->whoami());
+    work_mutex_.unlock();
+    return;
+  }
+  work_mutex_.unlock();
   LOG_DEBUG_CAP("<commit_value> Start");
 
   tocommit_values_mutex_.lock();
@@ -62,7 +69,7 @@ void Captain::commit_value(std::string data) {
     tocommit_values_mutex_.unlock();
     return;
   } 
-  if (proposer_status_ < DONE) {
+  if (proposer_status_ < EMPTY) {
     tocommit_values_.push(data);
     tocommit_values_mutex_.unlock();
     return;
@@ -91,7 +98,7 @@ void Captain::new_slot() {
   // new proposer
   work_mutex_.lock();
   if (work_ == false) {
-    LOG_DEBUG_CAP("%snew_slot I'm DEAD --NodeID %u", BAK_RED, view_->whoami());
+    LOG_DEBUG_CAP("%snew_slot I'm DEAD --NodeID %u of new_slot", BAK_RED, view_->whoami());
     work_mutex_.unlock();
     return;
   }
@@ -284,33 +291,31 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
                         BAK_MAG, view_->whoami(), chosen_value->data().c_str(), max_chosen_without_hole_ + 1, NRM);
           curr_proposer_mutex_.unlock();
 
-          add_chosen_value(chosen_value);
-
-          LOG_DEBUG_CAP("(max_chosen_):%llu (max_chosen_without_hole_):%llu (chosen_values.size()):%lu", 
-                        max_chosen_, max_chosen_without_hole_, chosen_values_.size());
-          LOG_DEBUG_CAP("(msg_type):ACCEPTED, Broadcast this chosen_value");
-
-          // Teach Progress to help others fast learning
-          MsgDecide *msg_dec = msg_decide(max_chosen_without_hole_);
-          commo_->broadcast_msg(msg_dec, DECIDE);
+          if (chosen_value->id() != 0) {
+            add_chosen_value(chosen_value);
+  
+            LOG_DEBUG_CAP("(max_chosen_):%llu (max_chosen_without_hole_):%llu (chosen_values.size()):%lu", 
+                          max_chosen_, max_chosen_without_hole_, chosen_values_.size());
+            LOG_DEBUG_CAP("(msg_type):ACCEPTED, Broadcast this chosen_value");
+  
+            // DECIDE Progress to help others fast learning
+            MsgDecide *msg_dec = msg_decide(max_chosen_without_hole_);
+            commo_->broadcast_msg(msg_dec, DECIDE);
+          }
 
           if (chosen_value->id() == curr_value_->id()) {
 
-            curr_proposer_mutex_.lock();
             proposer_status_ = DONE;
 
-            // client's commit succeeded, if no value to commit, set NULL
             // start committing a new value from queue
+            tocommit_values_mutex_.lock();
             if (tocommit_values_.empty()) {
-              LOG_DEBUG_CAP("Proposer END MISSION Temp");
-//              curr_proposer_ = NULL;
+              LOG_INFO_CAP("Proposer END MISSION Temp Node_ID:%u max_chosen_without_hole_:%llu", view_->whoami(), max_chosen_without_hole_);
               proposer_status_ = EMPTY;
-              curr_proposer_mutex_.unlock();
+              tocommit_values_mutex_.unlock();
               return;
             }
-            curr_proposer_mutex_.unlock();
 
-            tocommit_values_mutex_.lock();
             std::string data = tocommit_values_.front();
             // pop the value
             tocommit_values_.pop();
@@ -501,6 +506,30 @@ void Captain::recover() {
   work_mutex_.lock();
   work_ = true;
   work_mutex_.unlock();
+
+  LOG_INFO("Recover triggered! Node_ID %u", view_->whoami());
+//  std::string fake_value;
+  commit_value("RECOVER");
+//  if (proposer_status_ == EMPTY) {
+//    if (curr_value_->has_data()) {
+//      curr_value_mutex_.lock();
+//      curr_value_->clear_data();
+//      value_id_t value_id = curr_value_->id() + (1 << 16);
+//      curr_value_->set_id(value_id);
+//      curr_value_mutex_.unlock();
+//    }
+//    new_slot();
+//    return;
+//  }
+//    new_slot(); 
+//    if (max_chosen_without_hole_ < max_chosen_) {
+//      curr_value_mutex_.lock();
+//      curr_value_->clear_data();
+//      value_id_t value_id = curr_value_->id() + (1 << 16);
+//      curr_value_->set_id(value_id);
+//      curr_value_mutex_.unlock();
+//      new_slot();
+//  }
 }
 
 bool Captain::get_status() {
@@ -527,18 +556,48 @@ std::vector<PropValue *> Captain::get_chosen_values() {
 }
 
 bool Captain::if_recommit() {
-  if (curr_proposer_ == NULL || proposer_status_ >= DONE)
+  if (proposer_status_ == EMPTY)
     return false;
 
   if (proposer_status_ <= PHASEI) 
     return true;
 
-  for (int i = 1; i < chosen_values_.size(); i++) {
-    if (chosen_values_[i] && chosen_values_[i]->id() == curr_value_->id()) {
-      return false;
+  // status == PHASEII or CHOSEN
+  if (proposer_status_ > PHASEI && proposer_status_ < DONE) {
+    bool done = false;
+    for (int i = 1; i < chosen_values_.size(); i++) {
+      if (chosen_values_[i] && chosen_values_[i]->id() == curr_value_->id()) {
+        done = true;
+        proposer_status_ = DONE;
+        break;
+      }
     }
+  
+    if (done == false) 
+      return true;
   }
+
+  // status == DONE
+  tocommit_values_mutex_.lock();
+  if (tocommit_values_.empty()) {
+    proposer_status_ = EMPTY;
+    tocommit_values_mutex_.unlock();
+    return false;
+  }
+
+  std::string data = tocommit_values_.front();
+  // pop the value
+  tocommit_values_.pop();
+  tocommit_values_mutex_.unlock();
+
+  curr_value_mutex_.lock();
+  curr_value_->set_data(data);
+  value_id_t value_id = curr_value_->id() + (1 << 16);
+  curr_value_->set_id(value_id);
+  curr_value_mutex_.unlock();
   return true;
+
+  // if this return false should detect queue
 }
 
 /**
@@ -577,22 +636,18 @@ void Captain::add_learn_value(slot_id_t slot_id, PropValue *prop_value, node_id_
 
   if (slot_id < max_chosen_) { 
     if (chosen_values_[slot_id] == NULL) {
-      LOG_INFO("<add_chosen_value> NULL occurred!");
+      LOG_INFO("<add_learn_value> NULL occurred!");
       chosen_values_[slot_id] = new PropValue(*prop_value);
-    } else {
-      max_chosen_mutex_.unlock();
-      return;
-    }
-  } else {
-    for (int i = max_chosen_ + 1; i < slot_id; i++) {
-      chosen_values_.push_back(NULL);
-//      MsgLearn *msg_lea = msg_learn(slot_id);
-//      commo_->broadcast_msg(msg_lea, LEARN);
-//      commo_->send_one_msg(msg_lea, LEARN, node_id);
-    }
-    chosen_values_.push_back(new PropValue(*prop_value));
-    max_chosen_ = slot_id;
+    } 
+    max_chosen_mutex_.unlock();
+    return;
+  } 
+
+  for (int i = max_chosen_ + 1; i < slot_id; i++) {
+    chosen_values_.push_back(NULL);
   }
+  chosen_values_.push_back(new PropValue(*prop_value));
+  max_chosen_ = slot_id;
 
   max_chosen_mutex_.unlock();
 }

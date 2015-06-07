@@ -19,30 +19,6 @@ void do_sth(slot_id_t slot_id, std::string& data) {
 //  LOG_INFO("HAHA slot_id:%llu value:%s", slot_id, data.c_str());
 }
 
-// client to commit value
-void client_commit_file(Captain * captain) {
-  std::string line;
-  node_id_t node_id = captain->get_node_id();
-  std::string filename = "values/client_" +  std::to_string(node_id);
-//  std::cout << "FileName " << filename << std::endl;
-  std::ifstream value_file (filename);
-  if (value_file.is_open())
-  {
-    while (getline(value_file, line)) {
-//      std::cout << "** client_commit: before commit Node " << node_id << " Value " << line << std::endl;
-      LOG_INFO("** Before call <captain->client_commit>  --NodeID %u (value):%s", node_id, line.c_str());
-      captain->commit_value(line); 
-      LOG_INFO("** After  call <captain->client_commit>  --NodeID %u (value):%s", node_id, line.c_str());
-    }
-//    if (line == "") 
-//      value_file << "Hello World From Node" + std::to_string(node_id); 
-    value_file.close();
-    LOG_INFO("** Close File  --NodeID %u", node_id);
-  }
-  else 
-    std::cout << "** Unable to open file" << std::endl; 
-}
-
 int main(int argc, char** argv) {
   auto t1 = std::chrono::high_resolution_clock::now();
   LOG_INFO("** START **");
@@ -74,7 +50,7 @@ int main(int argc, char** argv) {
   }
   
   Commo commo(captains);
-  pool tp(4);
+  pool tp(1);
   commo.set_pool(&tp);
 
   callback_t callback = do_sth;
@@ -104,6 +80,7 @@ int main(int argc, char** argv) {
     } else {
       captains[chosen_id]->recover();
       LOG_INFO("%s** Node_%d Recover @ Total_Time_%d%s", BAK_GRN, chosen_id, i, NRM);
+//      captains[chosen_id]->commit_value("RECOVER");
     }
     
     alive_count = 0;
@@ -112,19 +89,6 @@ int main(int argc, char** argv) {
         alive_count++;
     }
     LOG_INFO("%s** %d Node/Nodes is/are Alive...%s", BAK_BLU, alive_count, NRM);
-
-//    if (alive_count <= node_nums / 2) {
-//      while (1) {
-//        t2 = std::chrono::high_resolution_clock::now();
-//        srand(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
-//        int chosen_id = rand() % node_nums;
-//        if (captains[chosen_id]->get_status() == false) {
-//          captains[chosen_id]->recover();
-//          LOG_INFO("%s** Because No Majority is Alive, Pick up Node_%d to Recover~~%s", BAK_GRN, chosen_id, NRM);
-//          break;
-//        }
-//      }
-//    }
 
     while (1) {
       t2 = std::chrono::high_resolution_clock::now();
@@ -148,17 +112,11 @@ int main(int argc, char** argv) {
   tp.wait();
   LOG_INFO("Alive_times: %d", alive_times);
   Detection det(captains, alive_times);
-//  if (!det.detect_all()) 
-//    det.print_one();
+
 
   det.print_all();
-  if (det.detect_unique_all()) {
-    LOG_INFO("%sUNIQUE TEST PASS%s", BLD_GRN, NRM);
-  } else {
-    LOG_INFO("%sERROR! UNIQUE!%s", BLD_RED, NRM);
-//    assert(0);
-//    return EXIT_FAILURE;
-  }
+  LOG_INFO("Before test~");
+  det.detect_down();
   LOG_INFO("** END **");
   return EXIT_SUCCESS;
 }

@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
   }
   
   Commo commo(captains);
-  pool tp(4);
+  pool tp(1);
   commo.set_pool(&tp);
   callback_t callback = do_sth;
   // set commo for every captain & init a new client thread
@@ -86,6 +86,7 @@ int main(int argc, char** argv) {
   tp.wait();
 //  std::vector<std::vector<PropValue *> > results;
   int total_times = node_times * value_times;
+  LOG_INFO("BEFORE TEST!!! (total_times):%d", total_times);
   Detection det(captains, total_times);
   if (!det.detect_all()) 
     det.print_one();

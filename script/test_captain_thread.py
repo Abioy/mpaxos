@@ -2,6 +2,7 @@ import os
 import random
 import sys
 from datetime import datetime, date, time
+from time import sleep
 tag = datetime.now().strftime("%m-%d-%H:%M")
 
 
@@ -52,6 +53,10 @@ for i in range(all_times) :
         pylog.write('\n')
         pylog.close()
         break 
+    else:
+        print (i)
+        print ("OK Sleep for 1 second")
+        sleep(1)
 
 #    os.system('cat ../results/thread_result_%s/node%s_times%s_round%s | grep ERROR'%(tag, node_num, total_times, all_times))    
 

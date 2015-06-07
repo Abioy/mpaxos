@@ -137,13 +137,8 @@ int main(int argc, char** argv) {
 //    det.print_one();
 
   det.print_all();
-  if (det.detect_unique_all()) {
-    LOG_INFO("%sUNIQUE TEST PASS%s", BLD_GRN, NRM);
-  } else {
-    LOG_INFO("%sERROR! UNIQUE!%s", BLD_RED, NRM);
-//    assert(0);
-//    return EXIT_FAILURE;
-  }
+  LOG_INFO("Before test~");
+  det.detect_down();
   LOG_INFO("** END **");
   return EXIT_SUCCESS;
 }

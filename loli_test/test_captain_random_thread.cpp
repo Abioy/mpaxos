@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
   }
   
   Commo commo(captains);
-  pool tp(4);
+  pool tp(1);
   commo.set_pool(&tp);
   callback_t callback = do_sth;
   // set commo for every captain & init a new client thread
