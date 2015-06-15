@@ -20,6 +20,18 @@ Captain::Captain(View &view)
   acceptors_.push_back(NULL);
 }
 
+Captain::Captain(View &view, pool *pool)
+  : view_(&view), max_chosen_(0), max_chosen_without_hole_(0), callback_slot_(1),
+    value_id_(view_->whoami()), 
+    curr_proposer_(NULL), proposer_status_(EMPTY), 
+    callback_(NULL), callback_full_(NULL), pool_(pool), work_(true) {
+
+  commo_ = new Commo(this, view, pool);
+  curr_value_ = new PropValue();
+  chosen_values_.push_back(NULL);
+  acceptors_.push_back(NULL);
+}
+
 Captain::~Captain() {
 }
 

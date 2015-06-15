@@ -43,7 +43,7 @@ def configure(conf):
 #    conf.check_cfg(package='apr-util-1', uselib_store='APR-UTIL', args=pargs)
 #    conf.check_cfg(package='json', uselib_store='JSON', args=pargs)
 #    conf.check_cfg(package='protobuf', uselib_store='PROTOBUF', args=pargs)
-#    conf.check_cfg(package='libzmq', uselib_store='ZMQ', args=pargs)
+    conf.check_cfg(package='libzmq', uselib_store='ZMQ', args=pargs)
 #    conf.check_cfg(package='check', uselib_store='CHECK', args=pargs)
 #    conf.check_cfg(package='yaml-cpp', uselib_store='YAML-CPP', args=pargs)
 
@@ -58,11 +58,12 @@ def configure(conf):
 
 def build(bld):
 
-    bld.stlib(source=bld.path.ant_glob([ 'libmpaxos/view.cpp', 'libmpaxos/proposer.cpp', 'libmpaxos/acceptor.cpp', 
-                                        'libmpaxos/captain.cpp', 'libmpaxos/commo.cpp', 'libmpaxos/mpaxos.proto']), 
+    bld.stlib(source=bld.path.ant_glob([#'libmpaxos/king.cpp', 'libmpaxos/commo2.cpp',
+                                        'libmpaxos/view.cpp', 'libmpaxos/proposer.cpp', 'libmpaxos/acceptor.cpp', 
+                                        'libmpaxos/captain.cpp', 'libmpaxos/commo.cpp', 'libmpaxos/*.proto']), 
               target="mpaxos",
               includes="libmpaxos",
-              use="BOOST PROTOBUF",
+              use="BOOST PROTOBUF ZMQ",
               install_path="${PREFIX}/lib")
 
     for app in bld.path.ant_glob('loli_test/*.cpp'):

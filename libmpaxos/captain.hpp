@@ -6,12 +6,14 @@
 
 #pragma once
 #include "proposer.hpp"
+//#include "commo.hpp"
 #include "acceptor.hpp"
 #include <queue>
 #include <unordered_map>
+#include "threadpool.hpp" 
 #include "ThreadPool.h"
-#include "threadpool.hpp"
 //#include "include_all.h"
+using namespace boost::threadpool;
 namespace mpaxos {
 // TODO [Loli] This module is responsible for locating the correct proposer and
 // acceptor for a certain instance (an instance is identified by slot_id). 
@@ -20,6 +22,7 @@ class Captain {
  public:
 
   Captain(View &);
+  Captain(View &, pool *);
   ~Captain();
 
   /**
@@ -166,6 +169,7 @@ class Captain {
    */
   callback_t callback_;
   callback_full_t callback_full_;
+  pool *pool_;
 
   // tag work 
   bool work_;
