@@ -20,16 +20,20 @@ Commo::Commo(std::vector<Captain *> &captains)
 
 Commo::Commo(Captain *captain, View &view, pool *pl) 
   : captain_(captain), view_(&view), pool_(pl), context_(1), 
-    receiver_(context_, ZMQ_DEALER) {
+    receiver_(context_, ZMQ_DEALER), senders_mutexs_(view_->get_nodes()->size()) {
+
+  std::cout << "Node " << view_->whoami() << " HERE!!!" << std::endl;
   for (uint32_t i = 0; i < view_->get_nodes()->size(); i++) {
     senders_.push_back(new zmq::socket_t(context_, ZMQ_DEALER));
-    std::string address = "tcp://localhost:555" + std::to_string(i);
-//    LOG_INFO_COM("Connect to address %s", address.c_str());
+    int port = 44440 + i;
+    std::string address = "tcp://localhost:" + std::to_string(port);
+//    LOG_DEBUG_COM("Connect to address %s", address.c_str());
     senders_[i]->connect(address.c_str());
   }
   self_pool_ = new pool(1);
-  std::string address = "tcp://*:555" + std::to_string(view_->whoami());
-  LOG_INFO_COM("My address %s", address.c_str());
+  int port = 44440 + view_->whoami();
+  std::string address = "tcp://*:" + std::to_string(port);
+  LOG_DEBUG_COM("My address %s", address.c_str());
   receiver_.bind (address.c_str());
 //  std::thread listen(boost::bind(&Commo::waiting_msg, this)); 
   self_pool_->schedule(boost::bind(&Commo::waiting_msg, this));
@@ -49,7 +53,7 @@ void Commo::waiting_msg() {
     std::string msg_str(static_cast<char*>(request.data()), request.size());
     int type = int(msg_str.back() - '0');
     google::protobuf::Message *msg = nullptr;
-//    LOG_INFO_COM("type %d", type);
+//    LOG_DEBUG_COM("type %d", type);
     switch(type) {
       case PREPARE: {
         msg = new MsgPrepare();
@@ -87,7 +91,7 @@ void Commo::waiting_msg() {
 
 //    std::string text_str;
 //    google::protobuf::TextFormat::PrintToString(*msg, &text_str);
-//    LOG_INFO_COM("%s", text_str.c_str());
+//    LOG_DEBUG_COM("%s", text_str.c_str());
   }
 }
 
@@ -99,21 +103,23 @@ void Commo::set_pool(pool *pl) {
 void Commo::broadcast_msg(google::protobuf::Message *msg, MsgType msg_type) {
 
   for (uint32_t i = 0; i < view_->get_nodes()->size(); i++) {
-    LOG_INFO_COM("Broadcast to --Captain %u (msg_type):%d", i, msg_type);
+    LOG_DEBUG_COM("Broadcast to --Captain %u (msg_type):%d", i, msg_type);
     std::string msg_str;
     msg->SerializeToString(&msg_str);
     msg_str.append(std::to_string(msg_type));
     // create a zmq message from the serialized string
     zmq::message_t request(msg_str.size());
     memcpy((void *)request.data(), msg_str.c_str(), msg_str.size());
+    senders_mutexs_[i].lock(); 
     senders_[i]->send(request);
+    senders_mutexs_[i].unlock(); 
   }
 
 }
 
 void Commo::send_one_msg(google::protobuf::Message *msg, MsgType msg_type, node_id_t node_id) {
 //  std::cout << " --- Commo Send ONE to captain " << node_id << " MsgType: " << msg_type << std::endl;
-  LOG_INFO_COM("Send ONE to --Captain %u (msg_type):%d", node_id, msg_type);
+  LOG_DEBUG_COM("Send ONE to --Captain %u (msg_type):%d", node_id, msg_type);
 
   std::string msg_str;
   msg->SerializeToString(&msg_str);
@@ -122,6 +128,8 @@ void Commo::send_one_msg(google::protobuf::Message *msg, MsgType msg_type, node_
   zmq::message_t request(msg_str.size());
   memcpy((void *)request.data(), msg_str.c_str(), msg_str.size());
 
+  senders_mutexs_[node_id].lock(); 
   senders_[node_id]->send(request);
+  senders_mutexs_[node_id].unlock(); 
 }
 } // namespace mpaxos

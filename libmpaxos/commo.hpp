@@ -38,5 +38,7 @@ class Commo {
 //  zmq::socket_t sender_;
   pool *self_pool_;
   std::vector<zmq::socket_t *> senders_;
+
+  std::vector<boost::mutex> senders_mutexs_;
 };
 } // namespace mpaxos

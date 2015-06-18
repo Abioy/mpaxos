@@ -682,7 +682,7 @@ void Captain::add_learn_value(slot_id_t slot_id, PropValue *prop_value, node_id_
 
   if (slot_id < max_chosen_) { 
     if (chosen_values_[slot_id] == NULL) {
-      LOG_INFO("<add_learn_value> NULL occurred!");
+      LOG_DEBUG("<add_learn_value> NULL occurred!");
       chosen_values_[slot_id] = new PropValue(*prop_value);
     } 
     max_chosen_mutex_.unlock();
